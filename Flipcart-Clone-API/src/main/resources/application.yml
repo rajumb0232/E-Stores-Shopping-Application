@@ -1,1 +1,23 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/flipcartdb?createDatabaseIfNotExist=true
+    username: root
+    password: root
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
 
+  data:
+    mongodb:
+      host: localhost  # Assuming MongoDB is running on the same machine as your application
+      port: 27017      # Default MongoDB port
+      database: flipcartdb
+      username: root  # If authentication is enabled
+      password: root  # If authentication is enabled
+
+server:
+  port: 7200
