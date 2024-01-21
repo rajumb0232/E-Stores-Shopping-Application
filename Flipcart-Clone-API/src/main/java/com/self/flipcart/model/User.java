@@ -2,14 +2,13 @@ package com.self.flipcart.model;
 
 import com.self.flipcart.enums.UserRole;
 import com.self.flipcart.util.IdGenerator;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
+@Inheritance(strategy = InheritanceType.JOINED)
+@Table(name = "users")
 @Getter
 @Setter
 @Builder

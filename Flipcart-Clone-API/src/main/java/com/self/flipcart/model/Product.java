@@ -28,4 +28,7 @@ public class Product {
 
     @ManyToOne
     private ProductCategory productCategory;
+
+    @ManyToOne
+    private Seller seller;
 }

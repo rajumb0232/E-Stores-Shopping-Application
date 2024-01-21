@@ -12,6 +12,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Seller extends User{
-    @OneToMany
+    @OneToMany(mappedBy = "seller")
     private List<Product> products;
 }
