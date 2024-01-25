@@ -5,28 +5,25 @@ import {navs} from './Navigations'
 
 
 export const AllRoutes = () => {
-  const auth = false;
+  const auth = true;
   return (
     <Route path='/' element={<App/>}>
         {
-          navs.map(nav => {
-            if(nav.authorizedTo[0]==="ALL" && !nav.isPrivate){
-              return <Route path={nav.path} element={nav.element}/>
+          navs.map((nav, i) => {
+            if(nav.authorizedTo[0] === "ALL" && !nav.isPrivate){
+                return <Route key={i} path={nav.path} element={nav.element}/>
             }
-            else if(nav.authorizedTo[0]==="ALL"  && nav.isPrivate===auth){
-              return <Route path={nav.path} element={nav.element}/>
-            }
-            else if(nav.authorizedTo[0]==="SUPER_ADMIN" && nav.isPrivate===auth){
-              return <Route path={nav.path} element={nav.element}/>
-            }
-            else if(nav.authorizedTo[0]==="ADMIN" && nav.isPrivate===auth){
-              return <Route path={nav.path} element={nav.element}/>
-            }
-            else if(nav.authorizedTo[0]==="SELLER" && nav.isPrivate===auth){
-              return <Route path={nav.path} element={nav.element}/>
-            }
-            else if(nav.authorizedTo[0]==="CUSTOMER" && nav.isPrivate===auth){
-              return <Route path={nav.path} element={nav.element}/>
+            else if(nav.isPrivate === auth){
+              if(nav.authorizedTo[0] === "ALL")
+                return <Route key={i} path={nav.path} element={nav.element}/>
+              else if(nav.authorizedTo[0] === "SUPER_ADMIN")
+                return <Route key={i} path={nav.path} element={nav.element}/>
+              else if(nav.authorizedTo[0] === "ADMIN")
+                return <Route key={i} path={nav.path} element={nav.element}/>
+              else if(nav.authorizedTo[0] === "SELLER")
+                return <Route key={i} path={nav.path} element={nav.element}/>
+              else if(nav.authorizedTo[0] === "CUSTOMER")
+                return <Route key={i} path={nav.path} element={nav.element}/>
             }
           })
         }

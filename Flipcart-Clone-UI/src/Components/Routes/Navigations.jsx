@@ -52,7 +52,7 @@ export const navs = [
       authorizedTo:["ALL"]
     },
     {
-      path:"/resent-credentials", 
+      path:"/reset-credentials", 
       element:<ResetCredentials/>, 
       isPrivate:true, 
       authorizedTo:["ALL"]
