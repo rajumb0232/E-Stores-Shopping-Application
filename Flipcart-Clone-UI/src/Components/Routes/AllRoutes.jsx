@@ -5,24 +5,24 @@ import {navs} from './Navigations'
 
 
 export const AllRoutes = () => {
-  const auth = false;
+  const auth = true;
   return (
     <Routes>
       <Route path='/' element={<App/>}>
           {
             navs.map((nav, i) => {
-              if(nav.authorizedTo[0] === "ALL" && !nav.isPrivate)
+              if(nav.authorizedTo.includes("ALL") && !nav.isPrivate)
                   return <Route key={i} path={nav.path} element={nav.element}/>
               else if(nav.isPrivate === auth){
-                if(nav.authorizedTo[0] === "ALL")
+                if(nav.authorizedTo.includes("ALL"))
                   return <Route key={i} path={nav.path} element={nav.element}/>
-                else if(nav.authorizedTo[0] === "SUPER_ADMIN")
+                else if(nav.authorizedTo.includes("SUPER_ADMIN"))
                   return <Route key={i} path={nav.path} element={nav.element}/>
-                else if(nav.authorizedTo[0] === "ADMIN")
+                else if(nav.authorizedTo.includes("ADMIN"))
                   return <Route key={i} path={nav.path} element={nav.element}/>
-                else if(nav.authorizedTo[0] === "SELLER")
+                else if(nav.authorizedTo.includes("SELLER"))
                   return <Route key={i} path={nav.path} element={nav.element}/>
-                else if(nav.authorizedTo[0] === "CUSTOMER")
+                else if(nav.authorizedTo.includes("CUSTOMER"))
                   return <Route key={i} path={nav.path} element={nav.element}/>
               }
             })
