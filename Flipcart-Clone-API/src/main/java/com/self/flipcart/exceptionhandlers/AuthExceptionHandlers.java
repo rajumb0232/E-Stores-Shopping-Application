@@ -2,6 +2,8 @@ package com.self.flipcart.exceptionhandlers;
 
 import com.self.flipcart.exceptions.DuplicateEmailException;
 import com.self.flipcart.exceptions.EmailNotFoundException;
+import com.self.flipcart.exceptions.OtpExpiredException;
+import com.self.flipcart.exceptions.UserNotFoundByIdException;
 import com.self.flipcart.util.ErrorStructure;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,5 +35,15 @@ public class AuthExceptionHandlers {
     @ExceptionHandler(DuplicateEmailException.class)
     public ResponseEntity<Object> handleDuplicateEmail(DuplicateEmailException ex) {
         return structure(HttpStatus.BAD_REQUEST, ex.getMessage(), "User already exists with the given email id.");
+    }
+
+    @ExceptionHandler(OtpExpiredException.class)
+    public ResponseEntity<Object> handleOtpExpired(OtpExpiredException ex){
+        return structure(HttpStatus.EXPECTATION_FAILED, ex.getMessage(), "The given OTP is expired");
+    }
+
+    @ExceptionHandler(UserNotFoundByIdException.class)
+    public ResponseEntity<Object> handleUserNotFound(UserNotFoundByIdException ex){
+        return structure(HttpStatus.NOT_FOUND, ex.getMessage(), "User not found with the given Id");
     }
 }

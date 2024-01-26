@@ -1,6 +1,7 @@
 spring:
+#  PostGress Configuration
   datasource:
-    url: jdbc:mysql://localhost:3306/flipcartdb?createDatabaseIfNotExist=true
+    url: jdbc:postgresql://localhost:5432/flipcartdb
     username: root
     password: root
   jpa:
@@ -9,8 +10,10 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
 
+# MongoDB Configuration
   data:
     mongodb:
       host: localhost
@@ -19,5 +22,18 @@ spring:
       username: root
       password: root
 
+# SMTP Configuration
+  mail:
+    host: smtp.gmail.com
+    username: rajugowda0232@gmail.com
+    password:
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: true
+            required: true
+
+# Server Configuration
 server:
   port: 7200

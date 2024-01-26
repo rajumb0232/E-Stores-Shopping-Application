@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.concurrent.ExecutionException;
 
-public interface UserService {
-    ResponseEntity<ResponseStructure<UserResponse>> registerUser(UserRequest userRequest) throws ExecutionException, InterruptedException;
+public interface AuthService {
+    ResponseEntity<ResponseStructure<String>> registerUser(UserRequest userRequest) throws ExecutionException, InterruptedException;
+
+    ResponseEntity<ResponseStructure<UserResponse>> verifyUserEmail(String userId, String otpId);
 }
