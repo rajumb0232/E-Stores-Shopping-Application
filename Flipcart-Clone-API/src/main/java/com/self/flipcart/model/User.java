@@ -2,6 +2,7 @@ package com.self.flipcart.model;
 
 import com.self.flipcart.enums.UserRole;
 import com.self.flipcart.util.IdGenerator;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;

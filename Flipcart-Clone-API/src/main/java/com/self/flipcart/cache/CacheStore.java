@@ -25,4 +25,8 @@ public class CacheStore<T> {
         cache.put(key, value);
         log.info("Cache added with the key: "+key);
     }
+
+    public void remove(String key){
+        cache.invalidate(key);
+    }
 }

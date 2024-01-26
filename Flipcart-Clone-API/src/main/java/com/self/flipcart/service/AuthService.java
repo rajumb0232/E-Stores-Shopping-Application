@@ -10,5 +10,5 @@ import java.util.concurrent.ExecutionException;
 public interface AuthService {
     ResponseEntity<ResponseStructure<String>> registerUser(UserRequest userRequest) throws ExecutionException, InterruptedException;
 
-    ResponseEntity<ResponseStructure<UserResponse>> verifyUserEmail(String userId, String otpId);
+    ResponseEntity<String> verifyUserEmail(String userId, String otpId);
 }

@@ -1,7 +1,6 @@
 package com.self.flipcart.controller;
 
 import com.self.flipcart.requestdto.UserRequest;
-import com.self.flipcart.responsedto.UserResponse;
 import com.self.flipcart.service.AuthService;
 import com.self.flipcart.util.ResponseStructure;
 import jakarta.validation.Valid;
@@ -13,7 +12,8 @@ import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/api/fcv1")
-public class UserController {
+@CrossOrigin
+public class AuthController {
 
     @Autowired
     private AuthService authService;
@@ -23,8 +23,8 @@ public class UserController {
         return authService.registerUser(userRequest);
     }
 
-    @PostMapping("/ve/{userId}/{otpId}")
-    public ResponseEntity<ResponseStructure<UserResponse>> verifyUserEmail(@PathVariable String userId, @PathVariable String otpId){
+    @GetMapping("/ve/{userId}/{otpId}")
+    public ResponseEntity<String> verifyUserEmail(@PathVariable String userId, @PathVariable String otpId){
         return authService.verifyUserEmail(userId, otpId);
     }
 

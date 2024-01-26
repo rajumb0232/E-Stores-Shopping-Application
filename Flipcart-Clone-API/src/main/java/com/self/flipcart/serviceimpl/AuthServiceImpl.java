@@ -91,8 +91,9 @@ public class AuthServiceImpl implements AuthService {
             helper.setSentDate(new Date());
             helper.setText(
                     "Hi " + user.getEmail().split("@")[0] + ",<br>"
-                            + "Nice to see you interested in Flipcart, complete your registration by clicking the link below<br>"
-                            + "https://localhost:8080/ve/"+otp.getUserId()+"/"+otp.getOtpId() // add the OTP ID (UUID)
+                            + "Nice to see you interested in Flipcart, complete your registration by clicking the verify button below<br><br>"
+                            + "<a href='http://localhost:7200/api/fcv1/ve/" + otp.getUserId() + "/" + otp.getOtpId() + "'" +
+                            "style=\"color: #f2f2f2; font-size: 1rem; font-weight: 600; text-decoration: none; padding: 0.5em 1em; background-color: #03a5fc; border-radius: 10px;\">Verify</a>" // add the OTP ID (UUID)
                             + "<br><br>"
                             + "yours,<br>"
                             + "<b>Flipcart<b>"
@@ -104,7 +105,7 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
-    private User saveUser(UserRequest userRequest) {
+    private <T extends User> T saveUser(UserRequest userRequest) {
         User user = null;
         UserRole role = userRequest.getUserRole();
         switch (role) {
@@ -118,34 +119,36 @@ public class AuthServiceImpl implements AuthService {
             case SUPER_ADMIN:
                 break;
         }
-        return user;
+        return (T) user;
     }
 
     @Override
     public ResponseEntity<ResponseStructure<String>> registerUser(UserRequest userRequest) throws ExecutionException, InterruptedException {
         // validating if there is already a user with the given email in the request
-        if (!sellerRepo.existsByEmail(userRequest.getEmail())) {
-            // verifying email for its existence by sending a confirmation mail
-            // the users sends a confirmation request through a link provided in the mail
-            return Optional.of(saveUser(userRequest)).map(user -> sendConfirmationMail(user).thenApply(msg -> new ResponseEntity<>(
-                    verificationResponse.setStatus(HttpStatus.ACCEPTED.value())
-                            .setMessage("user registration successful.")
-                            .setData(msg), HttpStatus.ACCEPTED
-            )).join()).get();
-        } else
-            throw new DuplicateEmailException("Failed to register user.");
+        User user = sellerRepo.findByUsername(userRequest.getEmail().split("@")[0]).orElseGet(() -> saveUser(userRequest));
+        return sendConfirmationMail(user).thenApply(msg -> new ResponseEntity<>(
+                verificationResponse.setStatus(HttpStatus.ACCEPTED.value())
+                        .setMessage("user registration successful.")
+                        .setData(msg), HttpStatus.ACCEPTED
+        )).join();
     }
 
     @Override
-    public ResponseEntity<ResponseStructure<UserResponse>> verifyUserEmail(String userId, String otpId) {
-        return Optional.of(otpCache.get(otpId)).map(otp -> sellerRepo.findById(otp.getUserId()).map(user -> {
-                    user.setEmailVerified(true);
-                    return new ResponseEntity<>(
-                    structure.setStatus(HttpStatus.CREATED.value())
-                            .setMessage("user registration successful")
-                            .setData(mapToUserResponse(user)), HttpStatus.CREATED);
-        }).orElseThrow(() -> new UserNotFoundByIdException("Failed to register the user"))
-        ).orElseThrow(() -> new OtpExpiredException("Failed to verify registration | Registration declined"));
+    public ResponseEntity<String> verifyUserEmail(String userId, String otpId) {
+        OtpModel otp = otpCache.get(otpId);
+        if (otp == null)
+            return new ResponseEntity<>("<h3 style=\"text-align: centre;\">OTP already expired, you can close this tab</h3> ", HttpStatus.BAD_REQUEST);
+        else {
+            return sellerRepo.findById(otp.getUserId()).map(user -> {
+                user.setEmailVerified(true);
+                sellerRepo.save(user);
+                otpCache.remove(otpId);
+                return new ResponseEntity<>("<h2 style=\"text-align: centre;\">Your registration is successfully completed<br> " +
+                        "Click on the link below to Login<br><br>" +
+                        "<a href='http://localhost:5173/login' target='_blank' " +
+                        "style=\"color: #f2f2f2; font-weight: 600; text-decoration: none; padding: 0.5em 1em; background-color: #03a5fc; border-radius: 20px;\">Login</a></h2>", HttpStatus.CREATED);
+            }).orElseThrow(() -> new UserNotFoundByIdException("Failed to register the user"));
+        }
     }
 
 
