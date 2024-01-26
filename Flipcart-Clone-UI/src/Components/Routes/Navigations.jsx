@@ -1,6 +1,6 @@
 import React from 'react'
 import Home from '../Public/home'
-import LoginRegister from '../Auth/LoginRegister'
+import LoginRegister from '../Public/LoginRegister'
 import AdminDashboard from '../Private/Admin/AdminDashboard'
 import Account from '../private/Common/Account'
 import ResetCredentials from '../Private/Common/ResetCredentials'

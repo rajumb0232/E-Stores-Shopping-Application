@@ -5,7 +5,7 @@ import {navs} from './Navigations'
 
 
 export const AllRoutes = () => {
-  const auth = true;
+  const auth = false;
   return (
     <Routes>
       <Route path='/' element={<App/>}>
