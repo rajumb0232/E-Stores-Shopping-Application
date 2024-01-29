@@ -8,7 +8,6 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OtpModel {
-    private String otpId;
     private String userId;
     private int otp;
 }
