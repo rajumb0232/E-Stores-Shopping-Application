@@ -5,7 +5,7 @@ function App() {
 
   return (
     <>
-      <div>
+      <div className='flex flex-col justify-center items-center bg-slate-100'>
         <Headers/>
         <Outlet/>
       </div>
