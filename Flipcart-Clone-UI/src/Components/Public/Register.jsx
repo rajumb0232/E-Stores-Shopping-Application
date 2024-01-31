@@ -1,37 +1,52 @@
 import axios from 'axios';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../Context/AuthProvider';
 
 const Register = ({role}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isSubmited, setIsSubmited] = useState(false);
   const navigate = useNavigate();
+  const {auth, setAuth} = useAuth();
 
-  const register = async (event) => {
-    event.preventDefault();
+  const emailRegex = /[a-zA-Z0-9+_.-]+@[g][m][a][i][l]+.[c][o][m]/
+  const pwdRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[*#$^@]).{8,}$/
 
-  try{
-    axios.post("http://localhost:7000/api/fcv1/users/register",
-    {email, password, userRole:role},
-    {
-      headers:{
-        "Content-Type":"application/json",
-        "withCredentials":"true"
+  const isEmailValid = (email) => emailRegex.test(email);
+  const isPwdValid = (pwd) => pwdRegex.test(pwd);
+    
+
+     useEffect(() => {
+      if(isSubmited !== false){
+        console.log("submitted")
+        axios.post("http://localhost:7000/api/fcv1/users/register",
+        {email, password, userRole:role},
+        {
+          headers:{
+            "Content-Type":"application/json",
+            "withCredentials":"true"
+          }
+        })
+        .then(response => {
+          console.log(response.data)
+          setAuth({...auth, userId:response.data.data.userId, username:email, fromLocation:"register"});
+          navigate("/verify-email");
+        })
+        .catch(error => {
+          setIsSubmited(false)
+          alert(error.rootCause)
+          console.log(error)
+        })
       }
-    }
-    ).then(response => {
-      navigate("/")
-      alert(response.data.message + ", " +response.data.data)
-      console.log(response)
-    }).catch(error => {
-      alert(error.rootCause)
-      console.log(error)
-    })
-  }catch(error){
-    alert(error)
-  }
-   
-  }
+     }, [isSubmited])
+  
+     //handling submit
+     const submit = (event) => {
+      event.preventDefault();
+      setIsSubmited(true);
+     }
+
   return (
     <div className='w-screen h-screen flex flex-col items-center justify-center bg-slate-100'>
       <form className='flex flex-row justify-center items-center w-4/5 h-5/6 px-10 py-6  mt-16 rounded-lg bg-white'>
@@ -53,20 +68,30 @@ const Register = ({role}) => {
           <label htmlFor="email" 
           className='text-slate-700 text-xl'
           >Email: </label>
-          <input type="email" id='email' onChange={(event) => setEmail(event.target.value)}
-          className='border-b-2 border-slate-400 mb-4'
+          <input type="email" id='email' onChange={(event) => setEmail(event.target.value)} required={true}
+          className='border-b-2 border-slate-400 mb-0'
           />
+          <p className='text-xs text-red-400 font-mono font-semibold min-h-2 mb-4' 
+          >{ email !== "" && !isEmailValid(email) ? "Invalid Email Id" : "" }
+          </p>
 
           <label htmlFor="password" 
           className='text-slate-700 text-xl my-2'
           >Password: </label>
-          <input type="password" id='password' onChange={(event) => setPassword(event.target.value)}
-          className='border-b-2 border-slate-400 mb-4'
+          <input type="password" id='password' onChange={(event) => setPassword(event.target.value)} required={true}
+          className='border-b-2 border-slate-400 mb-0'
           />
+          <p className='text-xs text-red-400 font-mono font-semibold min-h-2 mb-4' 
+          >{ password !== "" && !isPwdValid(password) ? "Password must contain at least 1 letter, 1 number, 1 special character" : "" }
+          </p>
 
-          <button onClick={register}
+          <button onClick={submit} disabled={(isEmailValid(email) && isPwdValid(password)) ? false : true}
           className='bg-blue-500 text-slate-100 font-bold rounded-lg w-1/5 px-4 py-2 my-8 ml-auto'
-          >Submit</button>
+          >
+           { (isSubmited)
+            ? <i className="fa-solid fa-circle-notch animate-spin"></i>
+            : "Submit"}
+          </button>
         </div>
       </form>
     </div>

@@ -12,6 +12,7 @@ import SellerDashboard from '../Private/Seller/SellerDashboard'
 import SuperAdminDashboard from '../Private/SuperAdmin/SuperAdminDashboard'
 import Register from '../Public/Register'
 import Login from '../Public/Login'
+import VerifyOTP from '../Public/VerifyOTP'
 
 
 export const navs = [
@@ -39,6 +40,12 @@ export const navs = [
     {
       path:"/login", 
       element:<Login/>, 
+      isPrivate:false, 
+      authorizedTo:["ALL"]
+    },
+    {
+      path:"/verify-email", 
+      element:<VerifyOTP/>, 
       isPrivate:false, 
       authorizedTo:["ALL"]
     },

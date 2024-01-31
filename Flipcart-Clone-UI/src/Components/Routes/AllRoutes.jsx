@@ -4,7 +4,7 @@ import App from '../../App'
 import {navs} from './Navigations'
 
 
-export const AllRoutes = () => {
+const AllRoutes = () => {
   const auth = false;
   return (
     <Routes>
@@ -31,3 +31,5 @@ export const AllRoutes = () => {
     </Routes>
   )
 }
+
+export default AllRoutes;
