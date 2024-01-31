@@ -1,4 +1,4 @@
-package com.self.flipcart.requestdto;
+package com.self.flipcart.dto;
 
 import lombok.*;
 

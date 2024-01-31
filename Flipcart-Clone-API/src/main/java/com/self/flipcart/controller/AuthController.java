@@ -1,7 +1,9 @@
 package com.self.flipcart.controller;
 
-import com.self.flipcart.requestdto.OtpModel;
+import com.self.flipcart.requestdto.AuthRequest;
+import com.self.flipcart.dto.OtpModel;
 import com.self.flipcart.requestdto.UserRequest;
+import com.self.flipcart.responsedto.AuthResponse;
 import com.self.flipcart.responsedto.UserResponse;
 import com.self.flipcart.service.AuthService;
 import com.self.flipcart.util.ResponseStructure;
@@ -25,22 +27,13 @@ public class AuthController {
         return authService.registerUser(userRequest);
     }
 
-    @GetMapping("/users/verify")
+    @PostMapping("/verify-email")
     public ResponseEntity<ResponseStructure<UserResponse>> verifyUserEmail(@RequestBody OtpModel otpModel){
         return authService.verifyUserEmail(otpModel);
     }
 
-
-
-    @GetMapping("/test")
-//    @PreAuthorize("hasAuthority('SELLER')")
-    public String test(){
-        return "accessing private resources...";
-    }
-
-    @GetMapping("/out")
-//    @PreAuthorize("hasAuthority('SELLER')")
-    public String out(){
-        return "accessing private resources 2...";
+    @PostMapping("/login")
+    public ResponseEntity<ResponseStructure<AuthResponse>> login(@RequestBody AuthRequest authRequest){
+        return authService.login(authRequest);
     }
 }

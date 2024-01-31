@@ -1,6 +1,6 @@
 package com.self.flipcart.cache;
 
-import com.self.flipcart.requestdto.OtpModel;
+import com.self.flipcart.dto.OtpModel;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
