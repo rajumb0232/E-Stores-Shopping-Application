@@ -21,9 +21,11 @@ import com.self.flipcart.security.JwtService;
 import com.self.flipcart.service.AuthService;
 import com.self.flipcart.util.CookieManager;
 import com.self.flipcart.util.ResponseStructure;
+import com.self.flipcart.util.SimpleResponseStructure;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -63,6 +65,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private ResponseStructure<AuthResponse> authStructure;
+
+    @Autowired
+    private SimpleResponseStructure simpleResponseStructure;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -132,8 +137,12 @@ public class AuthServiceImpl implements AuthService {
             String accessToken = jwtService.generateAccessToken(username);
             String refreshToken = jwtService.generateRefreshToken(username);
             // adding cookies to the response
-            response.addCookie(cookieManager.setConfig(new Cookie("at", accessToken)));
-            response.addCookie(cookieManager.setConfig(new Cookie("rt", refreshToken)));
+            Cookie at = cookieManager.setConfig(new Cookie("at", accessToken));
+            at.setMaxAge(60 * 60);
+            response.addCookie(at);
+            Cookie rt = cookieManager.setConfig(new Cookie("rt", refreshToken));
+            rt.setMaxAge(180 * 24 * 60 * 60);
+            response.addCookie(rt);
 
             return userRepo.findByUsername(username).map(user -> {
                 // saving access and refresh tokens to the database
@@ -154,6 +163,37 @@ public class AuthServiceImpl implements AuthService {
                             .isAuthenticated(true)
                             .build()), HttpStatus.OK)).get();
         } else throw new UsernameNotFoundException("Authentication failed");
+    }
+
+    @Override
+    public ResponseEntity<SimpleResponseStructure> logout(HttpServletRequest request, HttpServletResponse response) {
+        String accessToken = "";
+        String refreshToken = "";
+        for(Cookie cookie : request.getCookies()){
+            if(cookie.getName().equals("at")) {
+                accessToken = cookie.getValue();
+                // Invalidating Cookie
+                response.addCookie(cookieManager.removeCookie(cookie));
+            }
+            else if(cookie.getName().equals("rt")) {
+                refreshToken = cookie.getValue();
+                // Invalidating Cookie
+                response.addCookie(cookieManager.removeCookie(cookie));
+            }
+        }
+
+        accessTokenRepo.findByToken(accessToken).map(at -> {
+            at.setBlocked(true);
+            return accessTokenRepo.save(at);
+        });
+        refreshTokenRepo.findByToken(refreshToken).map(rt -> {
+            rt.setBlocked(true);
+            return refreshTokenRepo.save(rt);
+        });
+
+        return new ResponseEntity<SimpleResponseStructure>(simpleResponseStructure.setStatus(HttpStatus.OK.value())
+                .setMessage("Successfully Logged Out"), HttpStatus.OK);
+
     }
 
     private UserResponse mapToUserResponse(User user) {

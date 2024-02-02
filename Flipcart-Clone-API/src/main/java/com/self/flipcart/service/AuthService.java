@@ -6,6 +6,8 @@ import com.self.flipcart.requestdto.UserRequest;
 import com.self.flipcart.responsedto.AuthResponse;
 import com.self.flipcart.responsedto.UserResponse;
 import com.self.flipcart.util.ResponseStructure;
+import com.self.flipcart.util.SimpleResponseStructure;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseEntity;
@@ -19,4 +21,5 @@ public interface AuthService {
 
     ResponseEntity<ResponseStructure<AuthResponse>> login(AuthRequest authRequest, HttpServletResponse response);
 
+    ResponseEntity<SimpleResponseStructure> logout(HttpServletRequest request, HttpServletResponse response);
 }

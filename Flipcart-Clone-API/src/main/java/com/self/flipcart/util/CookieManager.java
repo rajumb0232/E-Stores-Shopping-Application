@@ -13,4 +13,10 @@ public class CookieManager {
         cookie.setHttpOnly(true);
         return cookie;
     }
+
+    public Cookie removeCookie(Cookie cookie){
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        return cookie;
+    }
 }

@@ -7,6 +7,7 @@ import com.self.flipcart.responsedto.AuthResponse;
 import com.self.flipcart.responsedto.UserResponse;
 import com.self.flipcart.service.AuthService;
 import com.self.flipcart.util.ResponseStructure;
+import com.self.flipcart.util.SimpleResponseStructure;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -41,6 +42,11 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<ResponseStructure<AuthResponse>> login(@RequestBody AuthRequest authRequest, HttpServletResponse response){
         return authService.login(authRequest, response);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<SimpleResponseStructure> logout(HttpServletRequest request, HttpServletResponse response){
+        return authService.logout(request, response);
     }
 
     @GetMapping("test")
