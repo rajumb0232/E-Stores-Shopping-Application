@@ -1,7 +1,5 @@
 package com.self.flipcart.security;
 
-import com.self.flipcart.responsedto.AccessToken;
-import com.self.flipcart.responsedto.RefreshToken;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -25,27 +23,29 @@ public class JwtServiceImpl implements JwtService {
     @Value("${myapp.jwt.secret}")
     private String secret;
 
-    public AccessToken generateAccessToken(String username) {
+    public String generateAccessToken(String username) {
         log.info("Generating Access Token...");
-        String token = createJwtToken(new HashMap<String, Object>(), username, 60 * 60 * 1000);
-        Claims parsedClaims = parseClaims(token);
-        return AccessToken.builder()
-                .token(token)
-                .IssuedAt(extractClaim(parsedClaims, Claims::getIssuedAt))
-                .expiry(extractClaim(parsedClaims, Claims::getExpiration))
-                .build();
+        return createJwtToken(new HashMap<String, Object>(), username, 60 * 60 * 1000);
+//        String token = createJwtToken(new HashMap<String, Object>(), username, 60 * 60 * 1000);
+//        Claims parsedClaims = parseClaims(token);
+//        return AccessToken.builder()
+//                .token(token)
+//                .IssuedAt(extractClaim(parsedClaims, Claims::getIssuedAt))
+//                .expiry(extractClaim(parsedClaims, Claims::getExpiration))
+//                .build();
 
     }
 
-    public RefreshToken generateRefreshToken(String username) {
+    public String generateRefreshToken(String username) {
         log.info("Generating Refresh Token...");
-        String token = createJwtToken(new HashMap<String, Object>(), username, 180 * 24 * 60 * 60 * 1000l);
-        Claims parsedClaims = parseClaims(token);
-        return RefreshToken.builder()
-                .token(token)
-                .IssuedAt(extractClaim(parsedClaims, Claims::getIssuedAt))
-                .expiry(extractClaim(parsedClaims, Claims::getExpiration))
-                .build();
+        return createJwtToken(new HashMap<String, Object>(), username, 180 * 24 * 60 * 60 * 1000l);
+//        String token = createJwtToken(new HashMap<String, Object>(), username, 180 * 24 * 60 * 60 * 1000l);
+//        Claims parsedClaims = parseClaims(token);
+//        return RefreshToken.builder()
+//                .token(token)
+//                .IssuedAt(extractClaim(parsedClaims, Claims::getIssuedAt))
+//                .expiry(extractClaim(parsedClaims, Claims::getExpiration))
+//                .build();
     }
 
     private String createJwtToken(Map<String, Object> claims, String username, long expiryDuration) {
@@ -67,6 +67,10 @@ public class JwtServiceImpl implements JwtService {
 
     public String extractUsername(String token) {
         return extractClaim(parseClaims(token), Claims::getSubject);
+    }
+
+    public Date extractExpiry(String token){
+        return extractClaim(parseClaims(token), Claims::getExpiration);
     }
 
     private <T> T extractClaim(Claims parsedClaims, Function<Claims, T> claimResolver) {

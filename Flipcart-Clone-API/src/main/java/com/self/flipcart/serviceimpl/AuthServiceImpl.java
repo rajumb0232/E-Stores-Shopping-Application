@@ -3,8 +3,12 @@ package com.self.flipcart.serviceimpl;
 import com.self.flipcart.cache.CacheStore;
 import com.self.flipcart.enums.UserRole;
 import com.self.flipcart.exceptions.*;
+import com.self.flipcart.model.AccessToken;
+import com.self.flipcart.model.RefreshToken;
 import com.self.flipcart.model.Seller;
 import com.self.flipcart.model.User;
+import com.self.flipcart.repository.AccessTokenRepo;
+import com.self.flipcart.repository.RefreshTokenRepo;
 import com.self.flipcart.repository.SellerRepo;
 import com.self.flipcart.repository.UserRepo;
 import com.self.flipcart.requestdto.AuthRequest;
@@ -15,9 +19,12 @@ import com.self.flipcart.responsedto.AuthResponse;
 import com.self.flipcart.responsedto.UserResponse;
 import com.self.flipcart.security.JwtService;
 import com.self.flipcart.service.AuthService;
+import com.self.flipcart.util.CookieManager;
 import com.self.flipcart.util.ResponseStructure;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,7 +53,10 @@ public class AuthServiceImpl implements AuthService {
     private UserRepo userRepo;
 
     @Autowired
-    private ResponseStructure<String> verificationResponse;
+    private AccessTokenRepo accessTokenRepo;
+
+    @Autowired
+    private RefreshTokenRepo refreshTokenRepo;
 
     @Autowired
     private ResponseStructure<UserResponse> structure;
@@ -69,8 +79,11 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private AuthenticationManager AuthenticationManager;
 
+    @Autowired
+    private CookieManager cookieManager;
+
     @Override
-    public ResponseEntity<ResponseStructure<String>> registerUser(UserRequest userRequest) throws ExecutionException, InterruptedException {
+    public ResponseEntity<ResponseStructure<UserResponse>> registerUser(UserRequest userRequest) throws ExecutionException, InterruptedException {
         // validating if there is already a user with the given email in the request
         User user = sellerRepo.findByUsername(userRequest.getEmail().split("@")[0])
                 .map(u -> {
@@ -82,10 +95,10 @@ public class AuthServiceImpl implements AuthService {
                     return updateUser(u);
                 })
                 .orElseGet(() -> saveUser(userRequest));
-        return Optional.of(sendOTPToMailId(user)).map(msg -> new ResponseEntity<>(
-                verificationResponse.setStatus(HttpStatus.ACCEPTED.value())
-                        .setMessage("user registration successful.")
-                        .setData(msg), HttpStatus.ACCEPTED
+        return Optional.of(sendOTPToMailId(user)).map(msg -> new ResponseEntity<ResponseStructure<UserResponse>>(
+                structure.setStatus(HttpStatus.ACCEPTED.value())
+                        .setMessage("user registration successful. Please check your email for OTP")
+                        .setData(mapToUserResponse(user)), HttpStatus.ACCEPTED
         )).get();
     }
 
@@ -103,28 +116,44 @@ public class AuthServiceImpl implements AuthService {
                     sendConfirmationMail(user);
                     return new ResponseEntity<>(structure.setStatus(HttpStatus.OK.value())
                             .setMessage("User registration successful")
-                            .setData(mapToUserResponse(user)), HttpStatus.CREATED);
+                            .setData(mapToUserResponse(user)), HttpStatus.OK);
                 }).orElseThrow(() -> new UserNotFoundByIdException("Failed to register the user"));
             else throw new IncorrectOTPException("Failed to verify Email");
         }
     }
 
     @Override
-    public ResponseEntity<ResponseStructure<AuthResponse>> login(AuthRequest authRequest) {
+    public ResponseEntity<ResponseStructure<AuthResponse>> login(AuthRequest authRequest, HttpServletResponse response) {
         String username = authRequest.getEmail().split("@")[0];
         Authentication auth = AuthenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username, authRequest.getPassword()));
+        // validating if the user authentication is authenticated
+        if (auth.isAuthenticated()) {
+            String accessToken = jwtService.generateAccessToken(username);
+            String refreshToken = jwtService.generateRefreshToken(username);
+            // adding cookies to the response
+            response.addCookie(cookieManager.setConfig(new Cookie("at", accessToken)));
+            response.addCookie(cookieManager.setConfig(new Cookie("rt", refreshToken)));
 
-        if (auth.isAuthenticated())
-            return userRepo.findByUsername(username).map(user -> new ResponseEntity<>(authStructure.setStatus(HttpStatus.OK.value())
+            return userRepo.findByUsername(username).map(user -> {
+                // saving access and refresh tokens to the database
+                accessTokenRepo.save(AccessToken.builder()
+                        .isBlocked(false)
+                        .token(accessToken)
+                        .user(user).build());
+                refreshTokenRepo.save(RefreshToken.builder()
+                        .isBlocked(false)
+                        .token(refreshToken)
+                        .user(user).build());
+                return user;
+            }).map(user -> new ResponseEntity<>(authStructure.setStatus(HttpStatus.OK.value())
                     .setMessage("Authentication successful")
                     .setData(AuthResponse.builder()
                             .username(username)
                             .role(user.getUserRole().name())
-                            .accessToken(jwtService.generateAccessToken(username))
-                            .refreshToken(jwtService.generateRefreshToken(username))
+                            .isAuthenticated(true)
                             .build()), HttpStatus.OK)).get();
-        else throw new UsernameNotFoundException("Authentication failed");
+        } else throw new UsernameNotFoundException("Authentication failed");
     }
 
     private UserResponse mapToUserResponse(User user) {

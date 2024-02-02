@@ -1,14 +1,14 @@
 package com.self.flipcart.security;
 
-import com.self.flipcart.responsedto.AccessToken;
-import com.self.flipcart.responsedto.RefreshToken;
-import org.springframework.stereotype.Service;
+import java.util.Date;
 
 public interface JwtService {
 
-    public AccessToken generateAccessToken(String username);
+    public String generateAccessToken(String username);
 
-    public RefreshToken generateRefreshToken(String username);
+    public String generateRefreshToken(String username);
 
     public String extractUsername(String token);
+
+    public Date extractExpiry(String token);
 }
