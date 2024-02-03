@@ -66,6 +66,7 @@ public class JwtServiceImpl implements JwtService {
     // parsing JWT
 
     public String extractUsername(String token) {
+        log.info("Extracting username...");
         return extractClaim(parseClaims(token), Claims::getSubject);
     }
 

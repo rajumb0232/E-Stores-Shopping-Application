@@ -5,10 +5,9 @@ import com.self.flipcart.util.ErrorStructure;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import java.util.Map;
 
 @RestControllerAdvice
 public class AuthExceptionHandlers {
@@ -52,5 +51,20 @@ public class AuthExceptionHandlers {
     @ExceptionHandler(UserAlreadyExistsByEmailException.class)
     public ResponseEntity<Object> handleUserAlreadyExistsByEmail(UserAlreadyExistsByEmailException ex){
         return structure(HttpStatus.BAD_REQUEST, ex.getMessage(), "User Already exists with the given email");
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Object> handleAccessDenied(AccessDeniedException ex){
+        return structure(HttpStatus.FORBIDDEN, ex.getMessage(), "you are not allowed to access this resource");
+    }
+
+    @ExceptionHandler(UserNotLoggedInException.class)
+    public ResponseEntity<Object> handleUserNotLoggedIn(UserNotLoggedInException ex){
+        return structure(HttpStatus.UNAUTHORIZED, ex.getMessage(), "Login Expired or not logged in, please login");
+    }
+
+    @ExceptionHandler(UserAlreadyLoggedInException.class)
+    public ResponseEntity<Object> handleUserAlreadyLoggedIn(UserAlreadyLoggedInException ex){
+        return structure(HttpStatus.BAD_REQUEST, ex.getMessage(), "You are already logged in, logout or clear cookie to login again");
     }
 }

@@ -19,7 +19,13 @@ public interface AuthService {
 
     ResponseEntity<ResponseStructure<UserResponse>> verifyUserEmail(OtpModel otpModel);
 
-    ResponseEntity<ResponseStructure<AuthResponse>> login(AuthRequest authRequest, HttpServletResponse response);
+    ResponseEntity<ResponseStructure<AuthResponse>> login(AuthRequest authRequest, HttpServletResponse response, String refreshToken, String accessToken);
 
-    ResponseEntity<SimpleResponseStructure> logout(HttpServletRequest request, HttpServletResponse response);
+    ResponseEntity<SimpleResponseStructure> logout(String refreshToken, String accessToken, HttpServletResponse response);
+
+    ResponseEntity<ResponseStructure<AuthResponse>> refreshLogin(String refreshToken, String accessToken, HttpServletResponse response);
+
+    ResponseEntity<SimpleResponseStructure> revokeAllOtherTokens(String refreshToken, String accessToken, HttpServletResponse response);
+
+    ResponseEntity<SimpleResponseStructure> revokeAllTokens(String refreshToken, String accessToken, HttpServletResponse response);
 }
