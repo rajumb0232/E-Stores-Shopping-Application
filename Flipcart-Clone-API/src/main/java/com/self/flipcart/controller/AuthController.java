@@ -8,7 +8,6 @@ import com.self.flipcart.responsedto.UserResponse;
 import com.self.flipcart.service.AuthService;
 import com.self.flipcart.util.ResponseStructure;
 import com.self.flipcart.util.SimpleResponseStructure;
-import jakarta.servlet.annotation.HttpConstraint;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -39,33 +38,40 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ResponseStructure<AuthResponse>> login(@RequestBody AuthRequest authRequest, HttpServletResponse response,
-                                                                 @CookieValue(name = "rt", required = false) String refreshToken, @CookieValue(name = "at", required = false) String accessToken) {
+    public ResponseEntity<ResponseStructure<AuthResponse>> login(@RequestBody AuthRequest authRequest,
+                                                                 HttpServletResponse response,
+                                                                 @CookieValue(name = "rt", required = false) String refreshToken,
+                                                                 @CookieValue(name = "at", required = false) String accessToken) {
         return authService.login(authRequest, response, refreshToken, accessToken);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<SimpleResponseStructure> logout(@CookieValue(name = "rt") String refreshToken, @CookieValue(name = "at") String accessToken,
+    @PreAuthorize("hasAuthority('ADMIN') OR hasAuthority('SUPER_ADMIN') OR hasAuthority('SELLER') OR hasAuthority('CUSTOMER')")
+    public ResponseEntity<SimpleResponseStructure> logout(@CookieValue(name = "rt", required = false) String refreshToken,
+                                                          @CookieValue(name = "at", required = false) String accessToken,
                                                           HttpServletResponse response) {
         return authService.logout(refreshToken, accessToken, response);
     }
 
     @PostMapping("/login/refresh")
-    public ResponseEntity<ResponseStructure<AuthResponse>> refreshLogin(@CookieValue(name = "rt", required = false) String refreshToken, @CookieValue(name = "at", required = false) String accessToken,
+    public ResponseEntity<ResponseStructure<AuthResponse>> refreshLogin(@CookieValue(name = "rt", required = false) String refreshToken,
+                                                                        @CookieValue(name = "at", required = false) String accessToken,
                                                                         HttpServletResponse response) {
         return authService.refreshLogin(refreshToken, accessToken, response);
     }
 
     @PostMapping("/revoke-other")
-    public ResponseEntity<SimpleResponseStructure> revokeAllOtherTokens(@CookieValue(name = "rt") String refreshToken, @CookieValue(name = "at") String accessToken,
+    @PreAuthorize("hasAuthority('ADMIN') OR hasAuthority('SUPER_ADMIN') OR hasAuthority('SELLER') OR hasAuthority('CUSTOMER')")
+    public ResponseEntity<SimpleResponseStructure> revokeAllOtherTokens(@CookieValue(name = "rt", required = false) String refreshToken,
+                                                                        @CookieValue(name = "at", required = false) String accessToken,
                                                                         HttpServletResponse response) {
         return authService.revokeAllOtherTokens(refreshToken, accessToken, response);
     }
 
     @PostMapping("/revoke-all")
-    public ResponseEntity<SimpleResponseStructure> revokeAllTokens(@CookieValue(name = "rt") String refreshToken, @CookieValue(name = "at") String accessToken,
-                                                                   HttpServletResponse response) {
-        return authService.revokeAllTokens(refreshToken, accessToken, response);
+    @PreAuthorize("hasAuthority('ADMIN') OR hasAuthority('SUPER_ADMIN') OR hasAuthority('SELLER') OR hasAuthority('CUSTOMER')")
+    public ResponseEntity<SimpleResponseStructure> revokeAllTokens(HttpServletResponse response) {
+        return authService.revokeAllTokens(response);
     }
 
     @GetMapping("test")

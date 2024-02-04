@@ -1,6 +1,8 @@
 package com.self.flipcart.serviceimpl;
 
 import com.self.flipcart.cache.CacheStore;
+import com.self.flipcart.dto.MessageData;
+import com.self.flipcart.dto.OtpModel;
 import com.self.flipcart.enums.UserRole;
 import com.self.flipcart.exceptions.*;
 import com.self.flipcart.model.AccessToken;
@@ -12,8 +14,6 @@ import com.self.flipcart.repository.RefreshTokenRepo;
 import com.self.flipcart.repository.SellerRepo;
 import com.self.flipcart.repository.UserRepo;
 import com.self.flipcart.requestdto.AuthRequest;
-import com.self.flipcart.dto.MessageData;
-import com.self.flipcart.dto.OtpModel;
 import com.self.flipcart.requestdto.UserRequest;
 import com.self.flipcart.responsedto.AuthResponse;
 import com.self.flipcart.responsedto.UserResponse;
@@ -22,14 +22,11 @@ import com.self.flipcart.service.AuthService;
 import com.self.flipcart.util.CookieManager;
 import com.self.flipcart.util.ResponseStructure;
 import com.self.flipcart.util.SimpleResponseStructure;
-import io.jsonwebtoken.JwtException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -38,14 +35,17 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -140,35 +140,18 @@ public class AuthServiceImpl implements AuthService {
         // validating if the user authentication is authenticated
         if (auth.isAuthenticated()) {
             return userRepo.findByUsername(username).map(user -> {
-                //generating access and refresh tokens
-                String newRefreshToken = jwtService.generateRefreshToken(username);
-                String newAccessToken = jwtService.generateAccessToken(username);
+                // granting access to the user by providing access and refresh token cookies in response
+                grantAccessToUser(user, response);
+                return new ResponseEntity<>(authStructure.setStatus(HttpStatus.OK.value())
+                        .setMessage("Authentication successful")
+                        .setData(AuthResponse.builder()
+                                .userId(user.getUserId())
+                                .username(username)
+                                .role(user.getUserRole().name())
+                                .isAuthenticated(true)
+                                .build()), HttpStatus.OK);
+            }).get();
 
-                // adding cookies to the response
-                Cookie at = cookieManager.setConfig(new Cookie("at", newAccessToken));
-                at.setMaxAge(60 * 60);
-                response.addCookie(at);
-                Cookie rt = cookieManager.setConfig(new Cookie("rt", newRefreshToken));
-                rt.setMaxAge(180 * 24 * 60 * 60);
-                response.addCookie(rt);
-
-                // saving access and refresh tokens to the database
-                accessTokenRepo.save(AccessToken.builder()
-                        .isBlocked(false)
-                        .token(accessToken)
-                        .user(user).build());
-                refreshTokenRepo.save(RefreshToken.builder()
-                        .isBlocked(false)
-                        .token(refreshToken)
-                        .user(user).build());
-                return user;
-            }).map(user -> new ResponseEntity<>(authStructure.setStatus(HttpStatus.OK.value())
-                    .setMessage("Authentication successful")
-                    .setData(AuthResponse.builder()
-                            .username(username)
-                            .role(user.getUserRole().name())
-                            .isAuthenticated(true)
-                            .build()), HttpStatus.OK)).get();
         } else throw new UsernameNotFoundException("Authentication failed");
     }
 
@@ -190,19 +173,107 @@ public class AuthServiceImpl implements AuthService {
         if (refreshToken == null) throw new UserNotLoggedInException("Failed to refresh login");
         if (accessToken != null) blockAccessToken(accessToken);
 
-        System.out.println(refreshToken);
-        System.out.println(accessToken);
-        return null;
+        String username = jwtService.extractUsername(refreshToken);
+        return userRepo.findByUsername(username).map(user -> {
+            // granting access to User with new access and refresh token cookies in response
+            grantAccessToUser(user, response);
+            // blocking old token
+            blockRefreshToken(refreshToken);
+
+            return ResponseEntity.ok(authStructure.setStatus(HttpStatus.OK.value())
+                    .setMessage("Login refreshed successfully")
+                    .setData(AuthResponse.builder()
+                            .userId(user.getUserId())
+                            .username(user.getUsername())
+                            .role(user.getUserRole().name())
+                            .isAuthenticated(true)
+                            .build()));
+        }).orElseThrow(() -> new UsernameNotFoundException("Failed to refresh login"));
     }
 
     @Override
     public ResponseEntity<SimpleResponseStructure> revokeAllOtherTokens(String refreshToken, String accessToken, HttpServletResponse response) {
-        return null;
+        if (refreshToken == null || accessToken == null)
+            throw new UserNotLoggedInException("Failed to revoke access from all other devices");
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        return userRepo.findByUsername(username).map(user -> {
+            // blocking all other access tokens
+            List<AccessToken> accessTokens = accessTokenRepo.findAllByUserAndIsBlocked(user, false).stream()
+                    .map(at -> {
+                        if (!at.getToken().equals(accessToken)) at.setBlocked(true);
+                        return at;
+                    })
+                    .collect(Collectors.toList());
+            accessTokenRepo.saveAll(accessTokens);
+            // blocking all other refresh tokens
+            List<RefreshToken> refreshTokens = refreshTokenRepo.findALLByUserAndIsBlocked(user, false).stream()
+                    .map(rt -> {
+                        if (!rt.getToken().equals(refreshToken)) rt.setBlocked(true);
+                        return rt;
+                    }).collect(Collectors.toList());
+            refreshTokenRepo.saveAll(refreshTokens);
+
+            return ResponseEntity.ok(simpleResponseStructure.setStatus(HttpStatus.OK.value())
+                    .setMessage("Successfully revoked access from all other devices"));
+
+        }).orElseThrow(() -> new UsernameNotFoundException("Failed to revoke access fromm all other devices"));
     }
 
     @Override
-    public ResponseEntity<SimpleResponseStructure> revokeAllTokens(String refreshToken, String accessToken, HttpServletResponse response) {
-        return null;
+    public ResponseEntity<SimpleResponseStructure> revokeAllTokens(HttpServletResponse response) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        return userRepo.findByUsername(username).map(user -> {
+            // blocking all other access tokens
+            List<AccessToken> accessTokens = accessTokenRepo.findAllByUserAndIsBlocked(user, false).stream()
+                    .map(at -> {
+                        at.setBlocked(true);
+                        return at;
+                    })
+                    .collect(Collectors.toList());
+            accessTokenRepo.saveAll(accessTokens);
+            // blocking all other refresh tokens
+            List<RefreshToken> refreshTokens = refreshTokenRepo.findALLByUserAndIsBlocked(user, false).stream()
+                    .map(rt -> {
+                        rt.setBlocked(true);
+                        return rt;
+                    }).collect(Collectors.toList());
+            refreshTokenRepo.saveAll(refreshTokens);
+
+            // setting null cookies with 0 maxAge
+            response.addCookie(cookieManager.removeCookie(new Cookie("at", null)));
+            response.addCookie(cookieManager.removeCookie(new Cookie("rt", null)));
+
+            return ResponseEntity.ok(simpleResponseStructure.setStatus(HttpStatus.OK.value())
+                    .setMessage("Successfully revoked access from all devices"));
+
+        }).orElseThrow(() -> new UsernameNotFoundException("Failed to revoke access fromm all other devices"));
+    }
+
+    /* ----------------------------------------------------------------------------------------------------------- */
+    private void grantAccessToUser(User user, HttpServletResponse response) {
+        //generating access and refresh tokens
+        String newRefreshToken = jwtService.generateRefreshToken(user.getUsername());
+        String newAccessToken = jwtService.generateAccessToken(user.getUsername());
+
+        // adding cookies to the response
+        Cookie at = cookieManager.setConfig(new Cookie("at", newAccessToken));
+        at.setMaxAge(60 * 60);
+        response.addCookie(at);
+        Cookie rt = cookieManager.setConfig(new Cookie("rt", newRefreshToken));
+        rt.setMaxAge(180 * 24 * 60 * 60);
+        response.addCookie(rt);
+
+        // saving access and refresh tokens to the database
+        accessTokenRepo.save(AccessToken.builder()
+                .isBlocked(false)
+                .token(newAccessToken)
+                .user(user).build());
+        refreshTokenRepo.save(RefreshToken.builder()
+                .isBlocked(false)
+                .token(newRefreshToken)
+                .user(user).build());
     }
 
     private void blockAccessToken(String accessToken) {
@@ -280,8 +351,8 @@ public class AuthServiceImpl implements AuthService {
                 .text(
                         "Hi " + user.getEmail().split("@")[0] + ",<br>"
                                 + "<h4> Nice to see you interested in Flipkart, your OTP for email verification is,</h4><br><br>"
-                                + "<h3 style=\"color: #f2f2f2; font-size: 1rem; font-weight: 600; text-decoration: none; padding: 0.5em 1em;" +
-                                " background-color: #03a5fc; border-radius: 10px; width: max-content;\">" + otp.getOtp() + "</h3>" // add the OTP ID (UUID)
+                                + "<h3 style=\"color: #f2f2f2; font-size: 1rem; font-weight: 600; text-decoration: none; padding: 0.5em 1em;"
+                                + "border-radius: 10px; width: max-content;\">" + otp.getOtp() + "</h3>" // add the OTP ID (UUID)
                                 + "<br><br>"
                                 + "With Best Regards,<br>"
                                 + "Flipkart"

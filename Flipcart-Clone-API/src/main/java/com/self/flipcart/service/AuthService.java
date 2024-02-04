@@ -27,5 +27,5 @@ public interface AuthService {
 
     ResponseEntity<SimpleResponseStructure> revokeAllOtherTokens(String refreshToken, String accessToken, HttpServletResponse response);
 
-    ResponseEntity<SimpleResponseStructure> revokeAllTokens(String refreshToken, String accessToken, HttpServletResponse response);
+    ResponseEntity<SimpleResponseStructure> revokeAllTokens(HttpServletResponse response);
 }

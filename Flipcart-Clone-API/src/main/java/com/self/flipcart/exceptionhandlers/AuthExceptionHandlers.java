@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -66,5 +67,10 @@ public class AuthExceptionHandlers {
     @ExceptionHandler(UserAlreadyLoggedInException.class)
     public ResponseEntity<Object> handleUserAlreadyLoggedIn(UserAlreadyLoggedInException ex){
         return structure(HttpStatus.BAD_REQUEST, ex.getMessage(), "You are already logged in, logout or clear cookie to login again");
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<Object> handleUsernameNotFound(UsernameNotFoundException ex){
+        return structure(HttpStatus.BAD_REQUEST, ex.getMessage(), "Failed to find user");
     }
 }
