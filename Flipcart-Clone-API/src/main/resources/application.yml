@@ -1,0 +1,43 @@
+spring:
+#  Postgres Configuration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/flipkartdb
+    username: postgres
+    password: root
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+
+# MongoDB Configuration
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: flipkartdb
+      username: root
+      password: root
+
+# SMTP Configuration
+  mail:
+    host: smtp.gmail.com
+    username: rajugowda0232@gmail.com
+    password:
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: true
+            required: true
+
+# Server Configuration
+server:
+  port: 7000
+
+# JWT secret
+myapp:
+  jwt:
+    secret:
