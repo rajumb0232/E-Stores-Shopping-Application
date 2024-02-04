@@ -73,19 +73,4 @@ public class AuthController {
     public ResponseEntity<SimpleResponseStructure> revokeAllTokens(HttpServletResponse response) {
         return authService.revokeAllTokens(response);
     }
-
-    @GetMapping("test")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public String test(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        System.err.println(cookies);
-        if (cookies != null)
-            for (Cookie cookie : cookies) {
-                System.err.println(cookie.getName());
-                if (cookie.getName().equals("at")) {
-                    System.out.println(cookie.getValue());
-                }
-            }
-        return "accessing";
-    }
 }
