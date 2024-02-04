@@ -35,17 +35,18 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String accessToken = null;
         Cookie[] cookies = request.getCookies();
-        if(cookies!=null)
-        for(Cookie cookie : cookies){
-            if(cookie.getName().equals("at")) accessToken = cookie.getValue();
-        }
+        if (cookies != null)
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("at")) accessToken = cookie.getValue();
+            }
 
-        try{
+        try {
             log.info("Authenticating with JWT Filter...");
             String username = null;
-            if(accessToken!=null) username = jwtService.extractUsername(accessToken);
-            if(username != null && SecurityContextHolder.getContext().getAuthentication() == null){
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            if (accessToken != null) username = jwtService.extractUsername(accessToken);
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = null;
+                userDetails = userDetailsService.loadUserByUsername(username);
                 log.info("creating authentication token...");
                 UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username,
                         null, userDetails.getAuthorities());
@@ -53,10 +54,9 @@ public class JwtFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(token);
                 log.info("JWT Authentication Successful");
             }
-        }catch (ExpiredJwtException ex){
+        } catch (ExpiredJwtException ex) {
             handleJwtException(ex, response, "Your AccessToken is expired, refresh using http://localhost:7000/login/refresh");
-        }
-        catch (JwtException ex){
+        } catch (JwtException ex) {
             handleJwtException(ex, response, "Authentication Failed");
         }
         filterChain.doFilter(request, response);
@@ -68,7 +68,7 @@ public class JwtFilter extends OncePerRequestFilter {
         response.setHeader("error", ex.getMessage());
         SimpleResponseStructure structure = new SimpleResponseStructure()
                 .setStatus(HttpStatus.UNAUTHORIZED.value())
-                .setMessage(message +" | "+ ex.getMessage());
+                .setMessage(message + " | " + ex.getMessage());
         new ObjectMapper().writeValue(response.getOutputStream(), structure);
     }
 }
