@@ -1,8 +1,8 @@
 spring:
 #  PostGress Configuration
   datasource:
-    url: jdbc:postgresql://localhost:5432/flipcartdb
-    username: root
+    url: jdbc:postgresql://localhost:5432/flipkartdb
+    username: postgres
     password: root
   jpa:
     show-sql: true
@@ -10,7 +10,6 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
 
 # MongoDB Configuration
@@ -18,7 +17,7 @@ spring:
     mongodb:
       host: localhost
       port: 27017
-      database: flipcartdb
+      database: flipkartdb
       username: root
       password: root
 
@@ -36,4 +35,9 @@ spring:
 
 # Server Configuration
 server:
-  port: 7200
+  port: 7000
+
+# JWT secret
+myapp:
+  jwt:
+    secret:
