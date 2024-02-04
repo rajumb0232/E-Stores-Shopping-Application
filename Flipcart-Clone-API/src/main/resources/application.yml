@@ -1,5 +1,5 @@
 spring:
-#  PostGress Configuration
+#  Postgres Configuration
   datasource:
     url: jdbc:postgresql://localhost:5432/flipkartdb
     username: postgres
