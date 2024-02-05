@@ -26,7 +26,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -48,45 +48,21 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    @Autowired
     private SellerRepo sellerRepo;
-
-    @Autowired
     private UserRepo userRepo;
-
-    @Autowired
     private AccessTokenRepo accessTokenRepo;
-
-    @Autowired
     private RefreshTokenRepo refreshTokenRepo;
-
-    @Autowired
     private ResponseStructure<UserResponse> structure;
-
-    @Autowired
     private ResponseStructure<AuthResponse> authStructure;
-
-    @Autowired
     private SimpleResponseStructure simpleResponseStructure;
-
-    @Autowired
     private PasswordEncoder passwordEncoder;
-
-    @Autowired
     private JavaMailSender javaMailSender;
-
-    @Autowired
     private CacheStore<OtpModel> otpCache;
-
-    @Autowired
     private JwtService jwtService;
-
-    @Autowired
-    private AuthenticationManager AuthenticationManager;
-
-    @Autowired
+    private AuthenticationManager authenticationManager;
     private CookieManager cookieManager;
 
     @Override
@@ -135,7 +111,7 @@ public class AuthServiceImpl implements AuthService {
         if (accessToken != null && refreshToken != null) throw new UserAlreadyLoggedInException("Failed to login");
         // getting username
         String username = authRequest.getEmail().split("@")[0];
-        Authentication auth = AuthenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, authRequest.getPassword()));
+        Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, authRequest.getPassword()));
 
         // validating if the user authentication is authenticated
         if (auth.isAuthenticated()) {
