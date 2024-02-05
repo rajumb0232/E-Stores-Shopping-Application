@@ -3,7 +3,6 @@ package com.self.flipcart.exceptionhandlers;
 import com.self.flipcart.exceptions.*;
 import com.self.flipcart.util.ErrorStructure;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Marker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -72,8 +71,8 @@ public class AuthExceptionHandlers {
 
     @ExceptionHandler(UserNotLoggedInException.class)
     public ResponseEntity<Object> handleUserNotLoggedIn(UserNotLoggedInException ex){
-        log.error(ex.getMessage()+" | "+"Login Expired or not logged in, please login");
-        return structure(HttpStatus.UNAUTHORIZED, ex.getMessage(), "Login Expired or not logged in, please login");
+        log.error(ex.getMessage()+" | "+"Login Expired or not logged in, please login again");
+        return structure(HttpStatus.UNAUTHORIZED, ex.getMessage(), "Login Expired or not logged in, please login again");
     }
 
     @ExceptionHandler(UserAlreadyLoggedInException.class)

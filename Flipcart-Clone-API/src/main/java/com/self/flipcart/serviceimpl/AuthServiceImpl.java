@@ -173,7 +173,11 @@ public class AuthServiceImpl implements AuthService {
         if (refreshToken == null) throw new UserNotLoggedInException("Failed to refresh login");
         if (accessToken != null) blockAccessToken(accessToken);
 
-        String username = jwtService.extractUsername(refreshToken);
+
+        String username = refreshTokenRepo.findByToken(refreshToken).map(rt -> {
+            if(rt.isBlocked()) throw new UserNotLoggedInException("Failed to refresh login");
+            else return jwtService.extractUsername(refreshToken);
+        }).orElseThrow(() -> new UserNotLoggedInException("Failed to refresh login"));
         return userRepo.findByUsername(username).map(user -> {
             // granting access to User with new access and refresh token cookies in response
             grantAccessToUser(user, response);
