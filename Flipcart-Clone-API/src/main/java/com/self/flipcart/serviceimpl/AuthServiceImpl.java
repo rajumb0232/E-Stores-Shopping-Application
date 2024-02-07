@@ -40,9 +40,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -61,6 +61,7 @@ public class AuthServiceImpl implements AuthService {
     private PasswordEncoder passwordEncoder;
     private JavaMailSender javaMailSender;
     private CacheStore<OtpModel> otpCache;
+    private CacheStore<User> userCacheStore;
     private JwtService jwtService;
     private AuthenticationManager authenticationManager;
     private CookieManager cookieManager;
@@ -68,41 +69,39 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ResponseEntity<ResponseStructure<UserResponse>> registerUser(UserRequest userRequest) throws ExecutionException, InterruptedException {
         // validating if there is already a user with the given email in the request
-        User user = sellerRepo.findByUsername(userRequest.getEmail().split("@")[0])
-                .map(u -> {
-                    if (u.isEmailVerified()) throw new UserAlreadyExistsByEmailException("Failed To register the User");
-                    else return u;
-                })
-                .map(u -> {
-                    u.setPassword(passwordEncoder.encode(userRequest.getPassword()));
-                    return updateUser(u);
-                })
-                .orElseGet(() -> saveUser(userRequest));
-        return Optional.of(sendOTPToMailId(user)).map(msg -> new ResponseEntity<ResponseStructure<UserResponse>>(
-                structure.setStatus(HttpStatus.ACCEPTED.value())
-                        .setMessage("user registration successful. Please check your email for OTP")
-                        .setData(mapToUserResponse(user)), HttpStatus.ACCEPTED
-        )).get();
+        if (userRepo.existsByEmail(userRequest.getEmail())) throw new UserAlreadyExistsByEmailException("Failed To register the User");
+        User user = mapToChildEntity(userRequest);
+        // caching user data
+        System.out.println(user.getEmail());
+        userCacheStore.add(user.getEmail(), user);
+
+        try {
+            boolean isEmailSent = sendOTPToMailId(user);
+            return new ResponseEntity<ResponseStructure<UserResponse>>(
+                    structure.setStatus(HttpStatus.ACCEPTED.value())
+                            .setMessage("user registration successful. Please check your email for OTP")
+                            .setData(mapToUserResponse(user)), HttpStatus.ACCEPTED);
+        } catch (MessagingException e) {
+            throw new EmailNotFoundException("Failed to verify the email ID");
+        }
     }
 
     @Override
     public ResponseEntity<ResponseStructure<UserResponse>> verifyUserEmail(OtpModel otpModel) {
-        OtpModel otp = otpCache.get(otpModel.getUserId());
-        if (otp == null)
-            throw new OtpExpiredException("Failed to verify Email");
-        else {
-            if (otp.getOtp() == otpModel.getOtp())
-                return sellerRepo.findById(otp.getUserId()).map(user -> {
-                    user.setEmailVerified(true);
-                    sellerRepo.save(user);
-                    otpCache.remove(otpModel.getUserId());
-                    sendConfirmationMail(user);
-                    return new ResponseEntity<>(structure.setStatus(HttpStatus.OK.value())
-                            .setMessage("User registration successful")
-                            .setData(mapToUserResponse(user)), HttpStatus.OK);
-                }).orElseThrow(() -> new UserNotFoundByIdException("Failed to register the user"));
-            else throw new IncorrectOTPException("Failed to verify Email");
-        }
+        OtpModel otp = otpCache.get(otpModel.getEmail());
+        User user = userCacheStore.get(otpModel.getEmail());
+        if (otp == null) throw new OtpExpiredException("Failed to verify OTP");
+        if (user == null) throw new RegistrationSessionExpiredException("Failed to verify OTP");
+        if (otp.getOtp() == otpModel.getOtp()) {
+            user.setEmailVerified(true);
+            userRepo.save(user);
+            otpCache.remove(otpModel.getEmail());
+            return new ResponseEntity<>(structure.setStatus(HttpStatus.OK.value())
+                    .setMessage("User registration successful")
+                    .setData(mapToUserResponse(user)), HttpStatus.OK);
+        } else
+            throw new IncorrectOTPException("Failed to verify OTP");
+
     }
 
     @Override
@@ -125,6 +124,7 @@ public class AuthServiceImpl implements AuthService {
                                 .username(username)
                                 .role(user.getUserRole().name())
                                 .isAuthenticated(true)
+                                .accessExpiration(LocalDateTime.now().plusMinutes(58))
                                 .build()), HttpStatus.OK);
             }).get();
 
@@ -151,7 +151,7 @@ public class AuthServiceImpl implements AuthService {
 
 
         String username = refreshTokenRepo.findByToken(refreshToken).map(rt -> {
-            if(rt.isBlocked()) throw new UserNotLoggedInException("Failed to refresh login");
+            if (rt.isBlocked()) throw new UserNotLoggedInException("Failed to refresh login");
             else return jwtService.extractUsername(refreshToken);
         }).orElseThrow(() -> new UserNotLoggedInException("Failed to refresh login"));
         return userRepo.findByUsername(username).map(user -> {
@@ -167,6 +167,7 @@ public class AuthServiceImpl implements AuthService {
                             .username(user.getUsername())
                             .role(user.getUserRole().name())
                             .isAuthenticated(true)
+                            .accessExpiration(LocalDateTime.now().plusSeconds(55))
                             .build()));
         }).orElseThrow(() -> new UsernameNotFoundException("Failed to refresh login"));
     }
@@ -281,9 +282,9 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
-    private <T extends User> T mapToChildEntity(UserRole userRole, UserRequest userRequest) {
+    private <T extends User> T mapToChildEntity(UserRequest userRequest) {
         User user = null;
-        switch (userRole) {
+        switch (userRequest.getUserRole()) {
             case SELLER -> {
                 user = new Seller();
             }
@@ -297,32 +298,16 @@ public class AuthServiceImpl implements AuthService {
         return (T) user;
     }
 
-    private <T extends User> T saveUser(UserRequest userRequest) {
-        User user = null;
-        UserRole role = userRequest.getUserRole();
-        switch (role) {
-            case SELLER -> {
-                Seller seller = mapToChildEntity(UserRole.SELLER, userRequest);
-                seller.setEmailVerified(false);
-                user = sellerRepo.save(seller);
-            }
-            case ADMIN, CUSTOMER, SUPER_ADMIN -> {
-            }
-
-        }
-        return (T) user;
-    }
-
     private Integer generateOTP() {
         return new Random().nextInt(100000, 999999);
     }
 
-    private String sendOTPToMailId(User user) {
+    private boolean sendOTPToMailId(User user) throws MessagingException {
         // Generate the OTP and provide the ID of the OTP as a path variable to the confirmation link.
         OtpModel otp = OtpModel.builder()
                 .otp(generateOTP())
-                .userId(user.getUserId()).build();
-        otpCache.add(otp.getUserId(), otp);
+                .email(user.getEmail()).build();
+        otpCache.add(otp.getEmail(), otp);
 
         sendMail(MessageData.builder()
                 .to(user.getEmail())
@@ -338,28 +323,23 @@ public class AuthServiceImpl implements AuthService {
                                 + "Flipkart"
                 ).build());
 
-        return "Please check your mail for OTP";
+        return true;
     }
 
     @Async
-    private void sendMail(MessageData messageData) {
-        try {
-            MimeMessage message = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setTo(messageData.getTo());
-            helper.setSubject(messageData.getSubject());
-            helper.setSentDate(messageData.getSentDate());
-            helper.setText(messageData.getText(), true);
-            javaMailSender.send(message);
-        } catch (MessagingException e) {
-            throw new EmailNotFoundException("Failed to send confirmation mail.");
-        }
-
+    private void sendMail(MessageData messageData) throws MessagingException {
+        MimeMessage message = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+        helper.setTo(messageData.getTo());
+        helper.setSubject(messageData.getSubject());
+        helper.setSentDate(messageData.getSentDate());
+        helper.setText(messageData.getText(), true);
+        javaMailSender.send(message);
     }
 
 
     @Async
-    private void sendConfirmationMail(Seller user) {
+    private void sendConfirmationMail(Seller user) throws MessagingException {
         sendMail(MessageData.builder()
                 .to(user.getEmail())
                 .subject("Welcome to Flipkart family")

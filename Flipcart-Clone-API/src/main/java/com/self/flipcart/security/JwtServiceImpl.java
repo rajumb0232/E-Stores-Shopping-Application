@@ -25,27 +25,12 @@ public class JwtServiceImpl implements JwtService {
 
     public String generateAccessToken(String username) {
         log.info("Generating Access Token...");
-        return createJwtToken(new HashMap<String, Object>(), username, 60 * 60 * 1000);
-//        String token = createJwtToken(new HashMap<String, Object>(), username, 60 * 60 * 1000);
-//        Claims parsedClaims = parseClaims(token);
-//        return AccessToken.builder()
-//                .token(token)
-//                .IssuedAt(extractClaim(parsedClaims, Claims::getIssuedAt))
-//                .expiry(extractClaim(parsedClaims, Claims::getExpiration))
-//                .build();
-
+        return createJwtToken(new HashMap<String, Object>(), username, 60 * 1000);
     }
 
     public String generateRefreshToken(String username) {
         log.info("Generating Refresh Token...");
-        return createJwtToken(new HashMap<String, Object>(), username, 180 * 24 * 60 * 60 * 1000l);
-//        String token = createJwtToken(new HashMap<String, Object>(), username, 180 * 24 * 60 * 60 * 1000l);
-//        Claims parsedClaims = parseClaims(token);
-//        return RefreshToken.builder()
-//                .token(token)
-//                .IssuedAt(extractClaim(parsedClaims, Claims::getIssuedAt))
-//                .expiry(extractClaim(parsedClaims, Claims::getExpiration))
-//                .build();
+        return createJwtToken(new HashMap<String, Object>(), username, 15 * 60 * 60 * 1000l);
     }
 
     private String createJwtToken(Map<String, Object> claims, String username, long expiryDuration) {

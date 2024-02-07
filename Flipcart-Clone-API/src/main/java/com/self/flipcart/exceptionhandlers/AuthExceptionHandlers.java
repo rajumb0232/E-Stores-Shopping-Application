@@ -33,6 +33,12 @@ public class AuthExceptionHandlers {
         return structure(HttpStatus.NOT_FOUND, ex.getMessage(), "invalid email id");
     }
 
+    @ExceptionHandler(RegistrationSessionExpiredException.class)
+    public ResponseEntity<Object> handleRegistrationSessionExpired(RegistrationSessionExpiredException ex){
+        log.error(ex.getMessage()+" | "+"Took too long to register, the Registration session Expired");
+        return structure(HttpStatus.EXPECTATION_FAILED, ex.getMessage(), "Took too long to register, the Registration session Expired. Try again");
+    }
+
     @ExceptionHandler(DuplicateEmailException.class)
     public ResponseEntity<Object> handleDuplicateEmail(DuplicateEmailException ex) {
         log.error(ex.getMessage()+" | "+"User already exists with the given email id");

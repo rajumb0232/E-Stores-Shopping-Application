@@ -19,7 +19,7 @@ import java.util.concurrent.ExecutionException;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/fcv1")
-@CrossOrigin
+@CrossOrigin(allowCredentials = "true", origins = "http://localhost:5173/")
 public class AuthController {
 
     private AuthService authService;
