@@ -1,5 +1,5 @@
 import React from 'react'
-import Home from '../Public/home'
+import Home from '../Public/Home'
 import AdminDashboard from '../Private/Admin/AdminDashboard'
 import Account from '../private/Common/Account'
 import ResetCredentials from '../Private/Common/ResetCredentials'
@@ -10,8 +10,7 @@ import AddUpdateProduct from '../Private/Seller/AddUpdateProduct'
 import Orders from '../Private/Seller/Orders'
 import SellerDashboard from '../Private/Seller/SellerDashboard'
 import SuperAdminDashboard from '../Private/SuperAdmin/SuperAdminDashboard'
-import Register from '../Public/Register'
-import Login from '../Public/Login'
+import Register from '../Public/LoginAndRegister'
 import VerifyOTP from '../Public/VerifyOTP'
 
 
@@ -27,19 +26,19 @@ export const navs = [
     /** ---------------------------------AUTH--------------------------------- */
     {
       path:"/seller/register", 
-      element:<Register role={"SELLER"}/>, 
+      element:<Register role={"SELLER"} isLogin={false}/>, 
       isPrivate:false, 
       authorizedTo:["ALL"]
     },
     {
       path:"/customer/register", 
-      element:<Register role={"CUSTOMER"}/>, 
+      element:<Register role={"SELLER"} isLogin={false}/>, 
       isPrivate:false, 
       authorizedTo:["ALL"]
     },
     {
       path:"/login", 
-      element:<Login/>, 
+      element:<Register role={"ALL"} isLogin={true}/>, 
       isPrivate:false, 
       authorizedTo:["ALL"]
     },

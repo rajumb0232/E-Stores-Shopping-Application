@@ -1,33 +1,22 @@
-import React, { useLayoutEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useAuth } from '../Context/AuthProvider';
-import { useCookies } from 'react-cookie';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 
 const Home = () => {
-  const [value, setValue] = useState('');
-  const {auth} = useAuth();
-  const [cookies, setCookie, removeCookie] = useCookies(['demo']);
+  const navigate = useNavigate();
+  const auth = useAuth();
 
-  useLayoutEffect(() => {
-    console.log(auth);
-    setCookie("demo", "secured data", {
-      secure: true,
-      sameSite: 'strict',
-      expires: new Date(Date.now() + 1000*60*15)
-    });
-  },[])
-
-  const get = () => {
-    console.log(cookies);
-    setValue(cookies)
-    removeCookie('demo');
+  console.log(auth);
+  const orders = (event) => {
+    event.preventDefault();
+    navigate('/orders');
   }
-
 
   return (
     <div className='w-svw h-svh flex justify-center items-center' >
-      <button onClick={get}>getCookie</button>
-      <p>{value!==null? value.demo : "null"}</p>
+      <button onClick={orders}>Orders</button>
     </div>
   )
 }
