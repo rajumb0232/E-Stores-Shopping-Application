@@ -113,11 +113,13 @@ const Register = ({role, isLogin}) => {
                     tl:"Freepik"}}/>
         }
 
+        {/* FORM */}
         <div className='flex flex-col justify-center w-6/12 h-full'>
           <h1 className='text-slate-700 font-semibold text-4xl my-8'>
             {isLogin? "Login" : "Register"}
           </h1>
 
+          {/* EMAIL INPUT */}
           <label htmlFor="email" 
           className='text-slate-700 text-xl'
           >Email: </label>
@@ -127,7 +129,8 @@ const Register = ({role, isLogin}) => {
           <p className='text-xs text-red-400 font-mono font-semibold min-h-2 mb-4' 
           >{ email !== "" && !isEmailValid(email) ? "Invalid Email Id" : "" }
           </p>
-
+          
+          {/* PASSWORD INPUT */}
           <label htmlFor="password" 
           className='text-slate-700 text-xl my-2'
           >Password: </label>
@@ -138,6 +141,7 @@ const Register = ({role, isLogin}) => {
           >{ password !== "" && !isPwdValid(password) ? "Password must contain at least 1 letter, 1 number, 1 special character" : "" }
           </p>
 
+          {/* SUBMIT BUTTON */}
           <button onClick={submit} disabled={isSubmited}
           className='bg-blue-500 text-slate-100 font-bold rounded-lg w-1/5 px-4 py-2 my-8 ml-auto'
           >
@@ -145,12 +149,14 @@ const Register = ({role, isLogin}) => {
             ? <i className="fa-solid fa-circle-notch animate-spin"></i>
             : "Submit"}
           </button>
+
           {/* TOGGLE REDIRECTS TO LOGIN AND REGISTER */}
           <Link to={(isLogin)? "/customer/register" : "/login"}
           className='text-sm font-semibold text-slate-700 w-full flex justify-center items-center mt-auto hover:text-blue-500'
           >
           {(isLogin)? "New to Flipkart? Create an account" : "Already have an account? Click here to login"}
           </Link>
+
         </div>
       </form>
     </div>
