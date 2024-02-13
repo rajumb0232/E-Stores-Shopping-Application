@@ -23,14 +23,19 @@ public class JwtServiceImpl implements JwtService {
     @Value("${myapp.jwt.secret}")
     private String secret;
 
+    @Value("${token.expiry.access.seconds}")
+    private long accessTokenExpirySeconds;
+    @Value("${token.expiry.refresh.seconds}")
+    private long refreshTokenExpirySeconds;
+
     public String generateAccessToken(String username) {
         log.info("Generating Access Token...");
-        return createJwtToken(new HashMap<String, Object>(), username, 60 * 1000);
+        return createJwtToken(new HashMap<String, Object>(), username, accessTokenExpirySeconds * 1000l);
     }
 
     public String generateRefreshToken(String username) {
         log.info("Generating Refresh Token...");
-        return createJwtToken(new HashMap<String, Object>(), username, 15 * 60 * 60 * 1000l);
+        return createJwtToken(new HashMap<String, Object>(), username, refreshTokenExpirySeconds * 1000l);
     }
 
     private String createJwtToken(Map<String, Object> claims, String username, long expiryDuration) {
@@ -59,7 +64,7 @@ public class JwtServiceImpl implements JwtService {
         return extractClaim(parseClaims(token), Claims::getExpiration);
     }
 
-    private <T> T extractClaim(Claims parsedClaims, Function<Claims, T> claimResolver) {
+    private <R> R extractClaim(Claims parsedClaims, Function<Claims, R> claimResolver) {
         return claimResolver.apply(parsedClaims);
     }
 

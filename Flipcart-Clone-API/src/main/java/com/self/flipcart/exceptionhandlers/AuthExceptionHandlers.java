@@ -98,4 +98,10 @@ public class AuthExceptionHandlers {
         log.error(ex.getMessage()+" | "+"The given username or password is incorrect");
         return structure(HttpStatus.FORBIDDEN, ex.getMessage(), "The given username or password is incorrect");
     }
+
+    @ExceptionHandler(TooManyAttemptsException.class)
+    public ResponseEntity<Object> handleTooManyAttempts(TooManyAttemptsException ex){
+        log.error(ex.getMessage()+" | "+"Too Many Requests at once");
+        return structure(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage(), "Too many requests at once");
+    }
 }

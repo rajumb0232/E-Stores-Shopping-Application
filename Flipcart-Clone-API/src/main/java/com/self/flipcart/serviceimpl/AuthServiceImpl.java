@@ -1,9 +1,9 @@
 package com.self.flipcart.serviceimpl;
 
 import com.self.flipcart.cache.CacheStore;
+import com.self.flipcart.dto.Attempt;
 import com.self.flipcart.dto.MessageData;
 import com.self.flipcart.dto.OtpModel;
-import com.self.flipcart.enums.UserRole;
 import com.self.flipcart.exceptions.*;
 import com.self.flipcart.model.AccessToken;
 import com.self.flipcart.model.RefreshToken;
@@ -26,7 +26,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -48,7 +48,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
     private SellerRepo sellerRepo;
@@ -62,21 +61,64 @@ public class AuthServiceImpl implements AuthService {
     private JavaMailSender javaMailSender;
     private CacheStore<OtpModel> otpCache;
     private CacheStore<User> userCacheStore;
+    private CacheStore<Attempt> attemptCacheStore;
     private JwtService jwtService;
     private AuthenticationManager authenticationManager;
     private CookieManager cookieManager;
 
+    public AuthServiceImpl(SellerRepo sellerRepo,
+                           UserRepo userRepo,
+                           AccessTokenRepo accessTokenRepo,
+                           RefreshTokenRepo refreshTokenRepo,
+                           ResponseStructure<UserResponse> structure,
+                           ResponseStructure<AuthResponse> authStructure,
+                           SimpleResponseStructure simpleResponseStructure,
+                           PasswordEncoder passwordEncoder,
+                           JavaMailSender javaMailSender,
+                           CacheStore<OtpModel> otpCache,
+                           CacheStore<User> userCacheStore,
+                           CacheStore<Attempt> attemptCacheStore,
+                           JwtService jwtService,
+                           AuthenticationManager authenticationManager,
+                           CookieManager cookieManager) {
+        this.sellerRepo = sellerRepo;
+        this.userRepo = userRepo;
+        this.accessTokenRepo = accessTokenRepo;
+        this.refreshTokenRepo = refreshTokenRepo;
+        this.structure = structure;
+        this.authStructure = authStructure;
+        this.simpleResponseStructure = simpleResponseStructure;
+        this.passwordEncoder = passwordEncoder;
+        this.javaMailSender = javaMailSender;
+        this.otpCache = otpCache;
+        this.userCacheStore = userCacheStore;
+        this.attemptCacheStore = attemptCacheStore;
+        this.jwtService = jwtService;
+        this.authenticationManager = authenticationManager;
+        this.cookieManager = cookieManager;
+    }
+
+    @Value("${token.expiry.access.seconds}")
+    private int accessTokenExpirySeconds;
+    @Value("${token.expiry.refresh.seconds}")
+    private int refreshTokenExpirySeconds;
+
     @Override
     public ResponseEntity<ResponseStructure<UserResponse>> registerUser(UserRequest userRequest) throws ExecutionException, InterruptedException {
         // validating if there is already a user with the given email in the request
-        if (userRepo.existsByEmail(userRequest.getEmail())) throw new UserAlreadyExistsByEmailException("Failed To register the User");
+        if (userRepo.existsByEmail(userRequest.getEmail()))
+            throw new UserAlreadyExistsByEmailException("Failed To register the User");
         User user = mapToChildEntity(userRequest);
         // caching user data
         System.out.println(user.getEmail());
         userCacheStore.add(user.getEmail(), user);
-
+        // Generate the OTP and provide the ID of the OTP as a path variable to the confirmation link.
+        OtpModel otp = OtpModel.builder()
+                .otp(generateOTP())
+                .email(user.getEmail()).build();
+        otpCache.add(otp.getEmail(), otp);
         try {
-            boolean isEmailSent = sendOTPToMailId(user);
+            sendOTPToMailId(user, otp.getOtp());
             return new ResponseEntity<ResponseStructure<UserResponse>>(
                     structure.setStatus(HttpStatus.ACCEPTED.value())
                             .setMessage("user registration successful. Please check your email for OTP")
@@ -92,16 +134,13 @@ public class AuthServiceImpl implements AuthService {
         User user = userCacheStore.get(otpModel.getEmail());
         if (otp == null) throw new OtpExpiredException("Failed to verify OTP");
         if (user == null) throw new RegistrationSessionExpiredException("Failed to verify OTP");
-        if (otp.getOtp() == otpModel.getOtp()) {
-            user.setEmailVerified(true);
-            userRepo.save(user);
-            otpCache.remove(otpModel.getEmail());
-            return new ResponseEntity<>(structure.setStatus(HttpStatus.OK.value())
-                    .setMessage("User registration successful")
-                    .setData(mapToUserResponse(user)), HttpStatus.OK);
-        } else
-            throw new IncorrectOTPException("Failed to verify OTP");
-
+        if (otp.getOtp() != otpModel.getOtp()) throw new IncorrectOTPException("Failed to verify OTP");
+        user.setEmailVerified(true);
+        userRepo.save(user);
+        otpCache.remove(otpModel.getEmail());
+        return new ResponseEntity<>(structure.setStatus(HttpStatus.OK.value())
+                .setMessage("User registration successful")
+                .setData(mapToUserResponse(user)), HttpStatus.OK);
     }
 
     @Override
@@ -124,18 +163,18 @@ public class AuthServiceImpl implements AuthService {
                                 .username(username)
                                 .role(user.getUserRole().name())
                                 .isAuthenticated(true)
-                                .accessExpiration(LocalDateTime.now().plusMinutes(58))
+                                .accessExpiration(LocalDateTime.now().plusSeconds(accessTokenExpirySeconds))
+                                .refreshExpiration(LocalDateTime.now().plusSeconds(refreshTokenExpirySeconds))
                                 .build()), HttpStatus.OK);
             }).get();
-
         } else throw new UsernameNotFoundException("Authentication failed");
     }
 
     @Override
     public ResponseEntity<SimpleResponseStructure> logout(String refreshToken, String accessToken, HttpServletResponse response) {
         // resetting tokens with null value and 0 maxAge
-        response.addCookie(cookieManager.removeCookie(new Cookie("rt", null)));
-        response.addCookie(cookieManager.removeCookie(new Cookie("at", null)));
+        response.addCookie(cookieManager.invalidate(new Cookie("rt", null)));
+        response.addCookie(cookieManager.invalidate(new Cookie("at", null)));
         // blocking the tokens
         blockAccessToken(accessToken);
         blockRefreshToken(refreshToken);
@@ -147,8 +186,12 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ResponseEntity<ResponseStructure<AuthResponse>> refreshLogin(String refreshToken, String accessToken, HttpServletResponse response) {
         if (refreshToken == null) throw new UserNotLoggedInException("Failed to refresh login");
+        Attempt attempt = attemptCacheStore.get(refreshToken);
+        if (attempt != null)
+            if (attempt.getLastAttemptedAt().isAfter(LocalDateTime.now()))
+                throw new TooManyAttemptsException("Failed to refresh login");
+            else attemptCacheStore.add(refreshToken, new Attempt(LocalDateTime.now().minusMinutes(1)));
         if (accessToken != null) blockAccessToken(accessToken);
-
 
         String username = refreshTokenRepo.findByToken(refreshToken).map(rt -> {
             if (rt.isBlocked()) throw new UserNotLoggedInException("Failed to refresh login");
@@ -167,7 +210,8 @@ public class AuthServiceImpl implements AuthService {
                             .username(user.getUsername())
                             .role(user.getUserRole().name())
                             .isAuthenticated(true)
-                            .accessExpiration(LocalDateTime.now().plusSeconds(55))
+                            .accessExpiration(LocalDateTime.now().plusSeconds(accessTokenExpirySeconds))
+                            .refreshExpiration(LocalDateTime.now().plusSeconds(refreshTokenExpirySeconds))
                             .build()));
         }).orElseThrow(() -> new UsernameNotFoundException("Failed to refresh login"));
     }
@@ -211,8 +255,7 @@ public class AuthServiceImpl implements AuthService {
                     .map(at -> {
                         at.setBlocked(true);
                         return at;
-                    })
-                    .collect(Collectors.toList());
+                    }).collect(Collectors.toList());
             accessTokenRepo.saveAll(accessTokens);
             // blocking all other refresh tokens
             List<RefreshToken> refreshTokens = refreshTokenRepo.findALLByUserAndIsBlocked(user, false).stream()
@@ -223,8 +266,8 @@ public class AuthServiceImpl implements AuthService {
             refreshTokenRepo.saveAll(refreshTokens);
 
             // setting null cookies with 0 maxAge
-            response.addCookie(cookieManager.removeCookie(new Cookie("at", null)));
-            response.addCookie(cookieManager.removeCookie(new Cookie("rt", null)));
+            response.addCookie(cookieManager.invalidate(new Cookie("at", null)));
+            response.addCookie(cookieManager.invalidate(new Cookie("rt", null)));
 
             return ResponseEntity.ok(simpleResponseStructure.setStatus(HttpStatus.OK.value())
                     .setMessage("Successfully revoked access from all devices"));
@@ -238,22 +281,22 @@ public class AuthServiceImpl implements AuthService {
         String newRefreshToken = jwtService.generateRefreshToken(user.getUsername());
         String newAccessToken = jwtService.generateAccessToken(user.getUsername());
 
+        attemptCacheStore.add(newRefreshToken, new Attempt(LocalDateTime.now()));
+
         // adding cookies to the response
-        Cookie at = cookieManager.setConfig(new Cookie("at", newAccessToken));
-        at.setMaxAge(60 * 60);
-        response.addCookie(at);
-        Cookie rt = cookieManager.setConfig(new Cookie("rt", newRefreshToken));
-        rt.setMaxAge(180 * 24 * 60 * 60);
-        response.addCookie(rt);
+        response.addCookie(cookieManager.configure(new Cookie("at", newAccessToken), accessTokenExpirySeconds));
+        response.addCookie(cookieManager.configure(new Cookie("rt", newRefreshToken), refreshTokenExpirySeconds));
 
         // saving access and refresh tokens to the database
         accessTokenRepo.save(AccessToken.builder()
                 .isBlocked(false)
                 .token(newAccessToken)
+                .expiration(LocalDateTime.now().plusSeconds(accessTokenExpirySeconds))
                 .user(user).build());
         refreshTokenRepo.save(RefreshToken.builder()
                 .isBlocked(false)
                 .token(newRefreshToken)
+                .expiration(LocalDateTime.now().plusSeconds(refreshTokenExpirySeconds))
                 .user(user).build());
     }
 
@@ -270,7 +313,6 @@ public class AuthServiceImpl implements AuthService {
             refreshTokenRepo.save(rt);
         });
     }
-
 
     private UserResponse mapToUserResponse(User user) {
         return UserResponse.builder()
@@ -302,13 +344,7 @@ public class AuthServiceImpl implements AuthService {
         return new Random().nextInt(100000, 999999);
     }
 
-    private boolean sendOTPToMailId(User user) throws MessagingException {
-        // Generate the OTP and provide the ID of the OTP as a path variable to the confirmation link.
-        OtpModel otp = OtpModel.builder()
-                .otp(generateOTP())
-                .email(user.getEmail()).build();
-        otpCache.add(otp.getEmail(), otp);
-
+    private void sendOTPToMailId(User user, int otp) throws MessagingException {
         sendMail(MessageData.builder()
                 .to(user.getEmail())
                 .subject("Verify your email for flipkart")
@@ -317,13 +353,11 @@ public class AuthServiceImpl implements AuthService {
                         "Hi " + user.getEmail().split("@")[0] + ",<br>"
                                 + "<h4> Nice to see you interested in Flipkart, your OTP for email verification is,</h4><br><br>"
                                 + "<h3 style=\"color: #f2f2f2; font-size: 1rem; font-weight: 600; text-decoration: none; padding: 0.5em 1em;"
-                                + "border-radius: 10px; width: max-content;\">" + otp.getOtp() + "</h3>" // add the OTP ID (UUID)
+                                + "border-radius: 10px; width: max-content;\">" + otp + "</h3>" // add the OTP ID (UUID)
                                 + "<br><br>"
                                 + "With Best Regards,<br>"
                                 + "Flipkart"
                 ).build());
-
-        return true;
     }
 
     @Async
@@ -336,7 +370,6 @@ public class AuthServiceImpl implements AuthService {
         helper.setText(messageData.getText(), true);
         javaMailSender.send(message);
     }
-
 
     @Async
     private void sendConfirmationMail(Seller user) throws MessagingException {
@@ -353,17 +386,4 @@ public class AuthServiceImpl implements AuthService {
                 )
                 .build());
     }
-
-
-    private User updateUser(User user) {
-        UserRole role = user.getUserRole();
-        switch (role) {
-            case SELLER -> {
-                user = sellerRepo.save((Seller) user);
-            }
-        }
-        return user;
-    }
-
-
 }
