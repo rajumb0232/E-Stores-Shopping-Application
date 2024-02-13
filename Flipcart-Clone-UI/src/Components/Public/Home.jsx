@@ -1,14 +1,8 @@
-import { useEffect } from 'react'
-import { useAuth } from '../Context/AuthProvider';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-
 
 const Home = () => {
   const navigate = useNavigate();
-  const auth = useAuth();
 
-  console.log(auth);
   const orders = (event) => {
     event.preventDefault();
     navigate('/orders');

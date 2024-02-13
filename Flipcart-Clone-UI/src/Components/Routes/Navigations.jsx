@@ -20,6 +20,7 @@ export const navs = [
       path:"/", 
       element:<Home/>, 
       isPrivate:false, 
+      isVisibleAfterLogin:true,
       authorizedTo:["ALL"]
     },
 
@@ -27,25 +28,29 @@ export const navs = [
     {
       path:"/seller/register", 
       element:<Register role={"SELLER"} isLogin={false}/>, 
-      isPrivate:false, 
+      isPrivate:false,
+      isVisibleAfterLogin:false,
       authorizedTo:["ALL"]
     },
     {
       path:"/customer/register", 
-      element:<Register role={"SELLER"} isLogin={false}/>, 
-      isPrivate:false, 
+      element:<Register role={"CUSTOMER"} isLogin={false}/>, 
+      isPrivate:false,
+      isVisibleAfterLogin:false,
       authorizedTo:["ALL"]
     },
     {
       path:"/login", 
       element:<Register role={"ALL"} isLogin={true}/>, 
-      isPrivate:false, 
+      isPrivate:false,
+      isVisibleAfterLogin:false,
       authorizedTo:["ALL"]
     },
     {
       path:"/verify-email", 
       element:<VerifyOTP/>, 
-      isPrivate:false, 
+      isPrivate:false,
+      isVisibleAfterLogin:false, 
       authorizedTo:["ALL"]
     },
   
@@ -53,7 +58,8 @@ export const navs = [
     {
       path:"/admin-dashboard", 
       element:<AdminDashboard/>, 
-      isPrivate:true, 
+      isPrivate:true,
+      isVisibleAfterLogin:true,
       authorizedTo:["ADMIN"]
     },
   
@@ -61,19 +67,22 @@ export const navs = [
     {
       path:"/account", 
       element:<Account/>, 
-      isPrivate:true, 
+      isPrivate:true,
+      isVisibleAfterLogin:true,
       authorizedTo:["ALL"]
     },
     {
       path:"/reset-credentials", 
       element:<ResetCredentials/>, 
-      isPrivate:true, 
+      isPrivate:true,
+      isVisibleAfterLogin:true,
       authorizedTo:["ALL"]
     },
     {
       path:"/update-profile", 
       element:<UpdateProfile/>, 
-      isPrivate:true, 
+      isPrivate:true,
+      isVisibleAfterLogin:true,
       authorizedTo:["ALL"]
     },
   
@@ -81,13 +90,15 @@ export const navs = [
     {
       path:"/cart", 
       element:<Cart/>, 
-      isPrivate:true, 
+      isPrivate:true,
+      isVisibleAfterLogin:true, 
       authorizedTo:["CUSTOMER"]
     },
     {
       path:"/wishlist", 
       element:<Wishlist/>, 
-      isPrivate:true, 
+      isPrivate:true,
+      isVisibleAfterLogin:true,
       authorizedTo:["CUSTOMER"]
     },
   
@@ -95,25 +106,29 @@ export const navs = [
     {
       path:"/add-product", 
       element:<AddUpdateProduct/>, 
-      isPrivate:true, 
+      isPrivate:true,
+      isVisibleAfterLogin:true, 
       authorizedTo:["SELLER"]
     },
     {
       path:"/update-product", 
       element:<AddUpdateProduct/>, 
-      isPrivate:true, 
+      isPrivate:true,
+      isVisibleAfterLogin:true,
       authorizedTo:["SELLER"]
     },
     {
       path:"/orders", 
       element:<Orders/>, 
-      isPrivate:true, 
-      authorizedTo:["SELLER"]
+      isPrivate:true,
+      isVisibleAfterLogin:true,
+      authorizedTo:["SELLER","CUSTOMER"]
     },
     {
       path:"/seller-dashboard", 
       element:<SellerDashboard/>, 
-      isPrivate:true, 
+      isPrivate:true,
+      isVisibleAfterLogin:true,
       authorizedTo:["SELLER"]
     },
   
@@ -122,6 +137,7 @@ export const navs = [
       path:"/super-admin-dashboard", 
       element:<SuperAdminDashboard/>, 
       isPrivate:true, 
+      isVisibleAfterLogin:true,
       authorizedTo:["SUPER_ADMIN"]
     }
   

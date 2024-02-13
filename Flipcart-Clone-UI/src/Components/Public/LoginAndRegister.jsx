@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../Context/AuthProvider';
 import FormImageBlock from '../Util/FormImageBlock';
 import AxiosPrivateInstance from '../API/AxiosPrivateInstance';
@@ -29,9 +29,7 @@ const Register = ({role, isLogin}) => {
   // when isSubmited get changed perform login or register
   useEffect(() => {
     if(isSubmited !== false){
-    const result = (isLogin)? handleLogin() : handleRegister();
-    console.log("result: " + result);
-    setIsSubmited(false);
+    (isLogin)? handleLogin() : handleRegister();
     }
   }, [isSubmited])
     
@@ -47,23 +45,30 @@ const Register = ({role, isLogin}) => {
 
   // method to handle login reguest
   const handleLogin = async () => {
-    console.log({email, password})
     try{
       const response = await axiosInstance.post(endPoint,{email, password});    
       if(response.status === 200){
-        console.log(response.data)
-        setAuth({
-          ...auth,
+        const userData = {
           userId: response.data.data.userId,
           username: response.data.data.username,
           role: response.data.data.role,
           isAuthenticated: response.data.data.authenticated
-        })
+        }
+        setAuth({...auth, ...userData})
+        localStorage.setItem("user", JSON.stringify(userData));
+        localStorage.setItem("access_expiry",response.data.data.accessExpiration)
+        localStorage.setItem("refresh_expiry", response.data.data.refreshExpiration)
         navigate('/');
-      } else console.log(response);  
-    }catch(error){
-      console.log(error);
-    }     
+      } else {
+        setIsSubmited(false);
+        setSubmitFailed(true);
+        console.log(response);
+      }
+    }catch(error) {
+      setIsSubmited(false);
+      setSubmitFailed(true);
+      console.log(response);
+    }
   }   
 
   // method to handle register request
@@ -88,19 +93,24 @@ const Register = ({role, isLogin}) => {
   return (
     <div className='w-screen h-screen flex flex-col items-center justify-center bg-slate-100'>
       <form className='flex flex-row justify-center items-center w-4/5 h-5/6 px-10 py-6  mt-16 rounded-lg bg-white'>
-
         {
-        (role=="SELLER")
-        ? <FormImageBlock src={"/src/Images/registerSeller.jpg"} alt={"Seller JPG"} 
-          credit={{href:"https://www.freepik.com/free-vector/support-local-business-concept_9010726.htm#fromView=search&term=seller&track=sph&regularType=vector&page=1&position=1&uuid=dc030a6f-b617-4a88-9a41-1a2b8f4f865f",
-                  tb:"Image by ",
-                  ta:"",
-                  tl:"Freepik"}}/>
-        : <FormImageBlock src={"/src/Images/registerCustomer.jpg"} alt={"Shopping JPG"}
-          credit={{href:"https://www.freepik.com/free-vector/seasonal-sale-discounts-presents-purchase-visiting-boutiques-luxury-shopping-price-reduction-promotional-coupons-special-holiday-offers-vector-isolated-concept-metaphor-illustration_12083346.htm#fromView=search&term=shopping&track=sph&regularType=vector&page=1&position=0&uuid=8e4c697b-0e19-4ca8-b235-d2bf59d415c3",
-                tb:"",
-                ta:" on Freepik",
-                tl:"Image by vectorjuice"}}/>
+          (role=="SELLER")
+          ? <FormImageBlock src={"/src/Images/registerSeller.jpg"} alt={"Seller JPG"} 
+            credit={{href:"https://www.freepik.com/free-vector/support-local-business-concept_9010726.htm#fromView=search&term=seller&track=sph&regularType=vector&page=1&position=1&uuid=dc030a6f-b617-4a88-9a41-1a2b8f4f865f",
+                    tb:"Image by ",
+                    ta:"",
+                    tl:"Freepik"}}/>
+          : (isLogin)
+            ? <FormImageBlock src={"/src/Images/registerCustomer.jpg"} alt={"Shopping JPG"}
+              credit={{href:"https://www.freepik.com/free-vector/seasonal-sale-discounts-presents-purchase-visiting-boutiques-luxury-shopping-price-reduction-promotional-coupons-special-holiday-offers-vector-isolated-concept-metaphor-illustration_12083346.htm#fromView=search&term=shopping&track=sph&regularType=vector&page=1&position=0&uuid=8e4c697b-0e19-4ca8-b235-d2bf59d415c3",
+                    tb:"",
+                    ta:" on Freepik",
+                    tl:"Image by vectorjuice"}}/>
+            : <FormImageBlock src={"/src/Images/customerRegister.jpg"} alt={"Shopping JPG"}
+              credit={{href:"https://www.freepik.com/free-vector/social-media-marketing-mobile-phone-concept_6749481.htm#fromView=search&term=online+shopping&track=ais&regularType=vector&page=1&position=32&uuid=792a7115-ad49-4297-ba89-48d487e31048",
+                    tb:"Image by ",
+                    ta:"",
+                    tl:"Freepik"}}/>
         }
 
         <div className='flex flex-col justify-center w-6/12 h-full'>
@@ -135,6 +145,12 @@ const Register = ({role, isLogin}) => {
             ? <i className="fa-solid fa-circle-notch animate-spin"></i>
             : "Submit"}
           </button>
+          {/* TOGGLE REDIRECTS TO LOGIN AND REGISTER */}
+          <Link to={(isLogin)? "/customer/register" : "/login"}
+          className='text-sm font-semibold text-slate-700 w-full flex justify-center items-center mt-auto hover:text-blue-500'
+          >
+          {(isLogin)? "New to Flipkart? Create an account" : "Already have an account? Click here to login"}
+          </Link>
         </div>
       </form>
     </div>

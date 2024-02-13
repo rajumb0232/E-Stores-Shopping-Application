@@ -6,7 +6,9 @@ import useLoginRefresh from '../Auth/useLoginRefersher';
 const AuthContext = createContext({});
 
 export const AuthProvider = () => {
-  const [doRefresh, setDoRefresh] = useState(false);
+  
+  const {handleRefresh} = useLoginRefresh();
+  let didRefresh = false;
   const [auth, setAuth] = useState({
     userId: "",
     username: "",
@@ -16,42 +18,24 @@ export const AuthProvider = () => {
     accessExpiry: ""
   });
 
-  // refershes if the doRefresh is set to true
-  useLoginRefresh(doRefresh);
+  const doRefresh = async () => {
+    const data = await handleRefresh();
+    setAuth({...data});
+   }
 
-  // updating the user details to the localStorage
-    useEffect(() => {
-      if(auth.isAuthenticated === true && !localStorage.getItem('user')){
-        console.log("Updating auth state")
-        const userData = {
-          userId: auth.userId,
-          username: auth.username,
-          role: auth.role
-        }
-        localStorage.setItem("user", JSON.stringify(userData));
-      }
-    }, [auth])
-
-    useEffect(() => {
-      console.log("validating if the access is expired")
-      const expiry = localStorage.getItem("access_expiry");
-      console.log("expiry: "+expiry);
-      setDoRefresh(true);
-    //   if(expiry){
-    //     if(new Date(expiry) > new Date()){
-    //       const user = localStorage.getItem("user");
-    //       setAuth({...user, isAuthenticated:true, fromLocation:"", accessExpiry:expiry});
-    //     }else{
-    //      setDoRefresh(true);
-    //     }
-    //   }
-    },[])
+  useEffect(() => {
+    if(!didRefresh){
+      doRefresh();
+      didRefresh = true;
+    }
+  }, [])
 
   return (
    <AuthContext.Provider value={{auth, setAuth}}>
         <AllRoutes/>
    </AuthContext.Provider>
   )
+
 }
 
 // Custom Hook
