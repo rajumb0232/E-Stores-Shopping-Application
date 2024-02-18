@@ -18,14 +18,14 @@ public class ScheduledJobs {
     private AccessTokenRepo accessTokenRepo;
     private RefreshTokenRepo refreshTokenRepo;
 
-    @Scheduled(fixedDelay = 60 * 1000l)
+    @Scheduled(fixedDelay = 60 * 60 * 1000l)
     public void deleteAllExpiredAccessTokens() {
         List<AccessToken> ats = accessTokenRepo.findAllByExpirationBefore(LocalDateTime.now());
         if(ats!=null)
             if(!ats.isEmpty()) accessTokenRepo.deleteAll(ats);
     }
 
-    @Scheduled(fixedDelay = 60 * 1000l)
+    @Scheduled(fixedDelay = 60 * 60 * 1000l)
     public void deleteAllExpiredRefreshTokens() {
         List<RefreshToken> rts =  refreshTokenRepo.findAllByExpirationBefore(LocalDateTime.now());
         if(rts!=null)

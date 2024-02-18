@@ -1,16 +1,23 @@
-import { Outlet } from 'react-router-dom'
-import Headers from './Components/Public/Headers'
+import { Outlet } from "react-router-dom";
+import Headers from "./Components/Public/Headers";
+import { useEffect, useRef, useState } from "react";
 
 function App() {
+  const headerRef = useRef(null);
+  const [headerHeight, setHeaderHeight] = useState();
 
+  useEffect(() => {
+    if (headerRef.current) {
+      setHeaderHeight(headerRef.current.getBoundingClientRect());
+      console.log(headerHeight);
+    }
+  }, []);
   return (
     <>
-      <div className='flex flex-col justify-center items-center bg-slate-100'>
-        <Headers/>
-        <Outlet/>
-      </div>
+        <Headers />
+        <Outlet />
     </>
-  )
+  );
 }
 
-export default App
+export default App;

@@ -1,14 +1,14 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import './index.css'
-import { BrowserRouter} from 'react-router-dom'
-import { AuthProvider } from './Components/Context/AuthProvider'
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import { BrowserRouter } from "react-router-dom";
+import { AuthProvider } from "./Components/Context/AuthProvider";
+import AllRoutes from "./Components/Routes/AllRoutes";
 
-
-ReactDOM.createRoot(document.getElementById('root')).render(
+ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
-      <AuthProvider/>
+      <AuthProvider children={<AllRoutes/>} />
     </BrowserRouter>
-  </React.StrictMode>,
-)
+  </React.StrictMode>
+);

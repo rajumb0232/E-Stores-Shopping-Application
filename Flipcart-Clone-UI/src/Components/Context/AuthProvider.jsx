@@ -1,13 +1,11 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
-import AllRoutes from '../Routes/AllRoutes';
-import useLoginRefresh from '../Auth/useLoginRefersher';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import useLoginRefresh from "../Auth/useLoginRefersher";
 
 // constext
 const AuthContext = createContext({});
 
-export const AuthProvider = () => {
-  
-  const {handleRefresh} = useLoginRefresh();
+export const AuthProvider = ({children}) => {
+  const { handleRefresh } = useLoginRefresh();
   let didRefresh = false;
   const [auth, setAuth] = useState({
     userId: "",
@@ -15,28 +13,27 @@ export const AuthProvider = () => {
     role: "",
     isAuthenticated: false,
     fromLocation: "",
-    accessExpiry: ""
+    accessExpiry: "",
   });
 
   const doRefresh = async () => {
     const data = await handleRefresh();
-    setAuth({...data});
-   }
+    setAuth({ ...data });
+  };
 
   useEffect(() => {
-    if(!didRefresh){
+    if (!didRefresh) {
       doRefresh();
       didRefresh = true;
     }
-  }, [])
+  }, []);
 
   return (
-   <AuthContext.Provider value={{auth, setAuth}}>
-        <AllRoutes/>
-   </AuthContext.Provider>
-  )
-
-}
+    <AuthContext.Provider value={{ auth, setAuth }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
 
 // Custom Hook
 export const useAuth = () => useContext(AuthContext);

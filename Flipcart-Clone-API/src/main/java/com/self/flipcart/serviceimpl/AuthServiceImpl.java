@@ -332,6 +332,7 @@ public class AuthServiceImpl implements AuthService {
             }
             case ADMIN -> {
             }
+            default -> throw new InvalidUserRoleException("Failed to process the request");
         }
         user.setUsername(userRequest.getEmail().split("@")[0]);
         user.setEmail(userRequest.getEmail());

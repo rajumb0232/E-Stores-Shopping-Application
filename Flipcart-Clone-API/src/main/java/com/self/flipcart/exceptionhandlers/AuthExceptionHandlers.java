@@ -104,4 +104,10 @@ public class AuthExceptionHandlers {
         log.error(ex.getMessage()+" | "+"Too Many Requests at once");
         return structure(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage(), "Too many requests at once");
     }
+
+    @ExceptionHandler(InvalidUserRoleException.class)
+    public ResponseEntity<Object> handleInvalidUserRole(InvalidUserRoleException ex){
+        log.error(ex.getMessage()+" | "+"Invalid User role specified");
+        return structure(HttpStatus.BAD_REQUEST, ex.getMessage(), "Invalid User role specified");
+    }
 }

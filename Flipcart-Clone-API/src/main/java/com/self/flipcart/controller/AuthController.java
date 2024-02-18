@@ -26,6 +26,7 @@ public class AuthController {
 
     @PostMapping("/users/register")
     public ResponseEntity<ResponseStructure<UserResponse>> registerUser(@RequestBody @Valid UserRequest userRequest) throws ExecutionException, InterruptedException {
+        System.out.println(userRequest.getEmail()+", "+userRequest.getPassword()+", "+userRequest.getUserRole());
         return authService.registerUser(userRequest);
     }
 

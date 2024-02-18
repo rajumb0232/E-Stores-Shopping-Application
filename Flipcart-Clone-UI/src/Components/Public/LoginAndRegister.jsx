@@ -72,16 +72,18 @@ const Register = ({role, isLogin}) => {
   }   
 
   // method to handle register request
-  const handleRegister = () => {
+  const handleRegister = async () => {
     try{
-      const response = axiosInstance.post(endPoint, {email, password});
+      const response = await axiosInstance.post(endPoint, {email, password, userRole:role});
       if(response.status === 202){
+        console.log(response.data)
         setAuth({
           ...auth,
           userId:response.data.data.userId,
           username:email,
           fromLocation:"register"
         });
+        sessionStorage.setItem("email", response.data.data.email)
         navigate("/verify-email");
       }
     }catch(error){

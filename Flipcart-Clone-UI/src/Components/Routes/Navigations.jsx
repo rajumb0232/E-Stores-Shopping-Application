@@ -12,6 +12,7 @@ import SellerDashboard from '../Private/Seller/SellerDashboard'
 import SuperAdminDashboard from '../Private/SuperAdmin/SuperAdminDashboard'
 import Register from '../Public/LoginAndRegister'
 import VerifyOTP from '../Public/VerifyOTP'
+import EditStore from '../Private/Seller/EditStore'
 
 
 export const navs = [
@@ -127,6 +128,13 @@ export const navs = [
     {
       path:"/seller-dashboard", 
       element:<SellerDashboard/>, 
+      isPrivate:true,
+      isVisibleAfterLogin:true,
+      authorizedTo:["SELLER"]
+    },
+    {
+      path:"/edit-store", 
+      element:<EditStore/>, 
       isPrivate:true,
       isVisibleAfterLogin:true,
       authorizedTo:["SELLER"]
