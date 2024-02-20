@@ -17,6 +17,6 @@ public class Specification {
     @Id
     private String specificationId;
     private SpecificationType specificationType;
-    private Map<String, Object> attributes;
+    private Map<String, String> attributes;
 
 }
