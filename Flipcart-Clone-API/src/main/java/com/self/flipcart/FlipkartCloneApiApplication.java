@@ -8,10 +8,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableAsync
 @EnableScheduling
-public class FlipcartCloneApiApplication {
+public class FlipkartCloneApiApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(FlipcartCloneApiApplication.class, args);
+		SpringApplication.run(FlipkartCloneApiApplication.class, args);
 	}
 
 }

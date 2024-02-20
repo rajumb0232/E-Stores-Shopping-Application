@@ -1,5 +1,6 @@
 package com.self.flipcart.model;
 
+import com.self.flipcart.enums.PrimeCategory;
 import com.self.flipcart.util.IdGenerator;
 import jakarta.persistence.*;
 import lombok.*;
@@ -16,13 +17,12 @@ public class Store {
     @Id
     @GeneratedValue(generator = "custom")
     @GenericGenerator(name = "custom", type = IdGenerator.class)
-    private int storeId;
+    private String storeId;
     private String storeName;
-    private String logo;
+    private PrimeCategory primeCategory;
+    private String logoLink;
     private String about;
 
     @OneToOne
     private Address Address;
-
-
 }

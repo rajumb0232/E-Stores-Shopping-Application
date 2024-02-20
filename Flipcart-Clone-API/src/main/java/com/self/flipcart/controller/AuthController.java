@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.concurrent.ExecutionException;
 @AllArgsConstructor
 @RestController
-@RequestMapping("/api/fcv1")
+@RequestMapping("/api/fkv1")
 @CrossOrigin(allowCredentials = "true", origins = "http://localhost:5173/")
 public class AuthController {
 
