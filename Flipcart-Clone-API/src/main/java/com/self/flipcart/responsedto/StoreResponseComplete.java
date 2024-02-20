@@ -11,6 +11,6 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 @NoArgsConstructor
 @Component
-public class StoreResponseComplete extends StoreResponseBasic{
+public class StoreResponseComplete extends StoreResponseBasic {
     private String about;
 }
