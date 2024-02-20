@@ -1,7 +1,6 @@
 package com.self.flipcart.exceptionhandlers;
 
-import com.self.flipcart.util.ErrorStructure;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -18,24 +17,16 @@ import java.util.List;
 import java.util.Map;
 
 @RestControllerAdvice
+@AllArgsConstructor
 public class FieldErrorExceptionHandlers extends ResponseEntityExceptionHandler {
 
-    @Autowired
-    private ErrorStructure<Object> structure;
-
-    private ResponseEntity<Object> structure(HttpStatus status, String message, Object rootCause) {
-        return new ResponseEntity<>(
-                structure.setStatus(status.value())
-                        .setMessage(message)
-                        .setRootCause(rootCause)
-                , status);
-    }
+    private ErrorResponse errorResponse;
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         List<ObjectError> objectErrors = ex.getAllErrors();
         Map<String, String> errors = new HashMap<>();
         objectErrors.forEach(error -> errors.put(((FieldError) error).getField(), error.getDefaultMessage()));
-        return structure(HttpStatus.BAD_REQUEST, "Invalid attributes", errors);
+        return errorResponse.structure(HttpStatus.BAD_REQUEST, "Invalid attributes", errors);
     }
 }

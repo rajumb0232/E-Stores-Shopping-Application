@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @NoArgsConstructor
 @Builder
 @Component
-public class StoreResponseBasic {
+public class StoreResponseBasic extends StoreResponse {
     private String storeId;
     private String storeName;
     private PrimeCategory primeCategory;

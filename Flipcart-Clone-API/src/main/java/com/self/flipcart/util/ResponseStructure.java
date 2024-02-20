@@ -3,7 +3,7 @@ package com.self.flipcart.util;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ResponseStructure<T> {
+public class ResponseStructure<T> extends Structure<T> {
     private int status;
     private String message;
     private T data;
