@@ -1,6 +1,7 @@
 package com.self.flipcart.model;
 
-import com.self.flipcart.enums.ProductType;
+import com.self.flipcart.enums.PrimeCategory;
+import com.self.flipcart.enums.SubCategory;
 import com.self.flipcart.enums.VerificationStatus;
 import com.self.flipcart.util.IdGenerator;
 import jakarta.persistence.Entity;
@@ -15,11 +16,13 @@ import org.hibernate.annotations.GenericGenerator;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductCategory {
+public class ProductType {
     @Id
     @GeneratedValue(generator = "custom")
     @GenericGenerator(name = "custom", type = IdGenerator.class)
     private String categoryId;
-    private ProductType productType;
+    private PrimeCategory primeCategory;
+    private SubCategory subCategory;
+    private String typeName;
     private VerificationStatus verificationStatus;
 }

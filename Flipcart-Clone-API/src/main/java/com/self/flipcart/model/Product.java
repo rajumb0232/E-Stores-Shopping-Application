@@ -1,34 +1,38 @@
 package com.self.flipcart.model;
 
 import com.self.flipcart.enums.AvailabilityStatus;
-import com.self.flipcart.util.IdGenerator;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
 import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
+import java.util.Set;
+
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Document(collection = "products")
 public class Product {
     @Id
-    @GeneratedValue(generator = "custom")
-    @GenericGenerator(name = "custom", type = IdGenerator.class)
     private String productId;
-    private String productName;
-    private String description;
+    private String productTitle;
     private double productPrice;
     private int productQuantity;
     private AvailabilityStatus availabilityStatus;
+    private int totalOrders;
+    private int totalReviews;
+    private float avgRating;
+    private String description;
+    // Refers to the ProductType
+    private String productTypeId;
+    // Refers to the Store
+    private String storeId;
+    // Refers to the Set of Specifications
+    private Set<String> specificationIds;
+    // Refers to the Set of Variants
+    private Set<String> variantIds;
+    // Refers to the Reviews
+    // Refers to the Questions
 
-    @ManyToOne
-    private ProductCategory productCategory;
-
-    @ManyToOne
-    private Seller seller;
 }

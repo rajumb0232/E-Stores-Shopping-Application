@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState} from 'react'
+import { useEffect, useRef, useState} from 'react'
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../Context/AuthProvider';
-import axios from 'axios';
+import AxiosPrivateInstance from '../API/AxiosPrivateInstance';
 
 const VerifyOTP= () => {
     const navigate = useNavigate();
@@ -11,35 +11,36 @@ const VerifyOTP= () => {
     const [otp, setOtp] = useState(0);
     const [hiddenEmail, setHiddenEmail] = useState("");
     const [incorrectOTP, setIncorrectOTP] = useState("");
+    const axiosInstance = AxiosPrivateInstance();
 
     useEffect(() => {
     (auth.fromLocation !== "register") ? navigate("/") : setAuth({...auth, fromLocation:""});
     setHiddenEmail(auth.username.substring(auth.username.lastIndexOf("@gmail.com") - 4));
     }, []);
   
+    const verifyOTP = async () => {
+        if (otp!==0){
+            // requesting to verify OTP
+               try{
+                   const response = await axiosInstance.post("/verify-email", {email:sessionStorage.getItem("email"), otp:otp});
+                   if(response.status === 417 || response.status === 400){
+                   console.log(response.data)
+                   setIncorrectOTP(response.data.rootCause);
+                   } 
+                   if(response.status === 200){
+                       console.log(response.data)
+                       setIncorrectOTP("");
+                       sessionStorage.removeItem("userId")
+                       navigate("/login")
+                   }
+               }catch(error){
+                   console.log(error)
+               }
+           }
+      }
 
     useEffect(()=> {
-       if (otp!==0){
-         // requesting to verify OTP
-         axios.post("http://localhost:7000/api/fcv1/verify-email",
-         {userId:auth.userId, otp:otp},
-         {
-             headers:{
-                 "Content-Type":"application/json",
-                 "withCredentials":"true"
-             }
-         }).then(response => {
-             if(response.status === 417 || response.status === 400){
-                 console.log(response.data)
-                 setIncorrectOTP(response.data.rootCause);
-             } 
-             if(response.status === 200){
-                console.log(response.data)
-                 setIncorrectOTP("");
-                 navigate("/login")
-             }
-         }).catch(error => console.log(error))
-        }
+      verifyOTP();
     }, [otp])
 
     const handleChange = (index, event) => {
@@ -62,6 +63,7 @@ const VerifyOTP= () => {
         });
         setIsSubmited(true);
         setOtp(parseInt(inputOtp));
+        
     }
 
     return (

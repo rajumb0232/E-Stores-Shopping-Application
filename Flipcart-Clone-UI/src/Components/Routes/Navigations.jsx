@@ -1,5 +1,5 @@
 import React from 'react'
-import Home from '../Public/home'
+import Home from '../Public/Home'
 import AdminDashboard from '../Private/Admin/AdminDashboard'
 import Account from '../private/Common/Account'
 import ResetCredentials from '../Private/Common/ResetCredentials'
@@ -10,9 +10,9 @@ import AddUpdateProduct from '../Private/Seller/AddUpdateProduct'
 import Orders from '../Private/Seller/Orders'
 import SellerDashboard from '../Private/Seller/SellerDashboard'
 import SuperAdminDashboard from '../Private/SuperAdmin/SuperAdminDashboard'
-import Register from '../Public/Register'
-import Login from '../Public/Login'
+import Register from '../Public/LoginAndRegister'
 import VerifyOTP from '../Public/VerifyOTP'
+import EditStore from '../Private/Seller/EditStore'
 
 
 export const navs = [
@@ -21,32 +21,37 @@ export const navs = [
       path:"/", 
       element:<Home/>, 
       isPrivate:false, 
+      isVisibleAfterLogin:true,
       authorizedTo:["ALL"]
     },
 
     /** ---------------------------------AUTH--------------------------------- */
     {
       path:"/seller/register", 
-      element:<Register role={"SELLER"}/>, 
-      isPrivate:false, 
+      element:<Register role={"SELLER"} isLogin={false}/>, 
+      isPrivate:false,
+      isVisibleAfterLogin:false,
       authorizedTo:["ALL"]
     },
     {
       path:"/customer/register", 
-      element:<Register role={"CUSTOMER"}/>, 
-      isPrivate:false, 
+      element:<Register role={"CUSTOMER"} isLogin={false}/>, 
+      isPrivate:false,
+      isVisibleAfterLogin:false,
       authorizedTo:["ALL"]
     },
     {
       path:"/login", 
-      element:<Login/>, 
-      isPrivate:false, 
+      element:<Register role={"ALL"} isLogin={true}/>, 
+      isPrivate:false,
+      isVisibleAfterLogin:false,
       authorizedTo:["ALL"]
     },
     {
       path:"/verify-email", 
       element:<VerifyOTP/>, 
-      isPrivate:false, 
+      isPrivate:false,
+      isVisibleAfterLogin:false, 
       authorizedTo:["ALL"]
     },
   
@@ -54,7 +59,8 @@ export const navs = [
     {
       path:"/admin-dashboard", 
       element:<AdminDashboard/>, 
-      isPrivate:true, 
+      isPrivate:true,
+      isVisibleAfterLogin:true,
       authorizedTo:["ADMIN"]
     },
   
@@ -62,19 +68,22 @@ export const navs = [
     {
       path:"/account", 
       element:<Account/>, 
-      isPrivate:true, 
+      isPrivate:true,
+      isVisibleAfterLogin:true,
       authorizedTo:["ALL"]
     },
     {
       path:"/reset-credentials", 
       element:<ResetCredentials/>, 
-      isPrivate:true, 
+      isPrivate:true,
+      isVisibleAfterLogin:true,
       authorizedTo:["ALL"]
     },
     {
       path:"/update-profile", 
       element:<UpdateProfile/>, 
-      isPrivate:true, 
+      isPrivate:true,
+      isVisibleAfterLogin:true,
       authorizedTo:["ALL"]
     },
   
@@ -82,13 +91,15 @@ export const navs = [
     {
       path:"/cart", 
       element:<Cart/>, 
-      isPrivate:true, 
+      isPrivate:true,
+      isVisibleAfterLogin:true, 
       authorizedTo:["CUSTOMER"]
     },
     {
       path:"/wishlist", 
       element:<Wishlist/>, 
-      isPrivate:true, 
+      isPrivate:true,
+      isVisibleAfterLogin:true,
       authorizedTo:["CUSTOMER"]
     },
   
@@ -96,25 +107,36 @@ export const navs = [
     {
       path:"/add-product", 
       element:<AddUpdateProduct/>, 
-      isPrivate:true, 
+      isPrivate:true,
+      isVisibleAfterLogin:true, 
       authorizedTo:["SELLER"]
     },
     {
       path:"/update-product", 
       element:<AddUpdateProduct/>, 
-      isPrivate:true, 
+      isPrivate:true,
+      isVisibleAfterLogin:true,
       authorizedTo:["SELLER"]
     },
     {
       path:"/orders", 
       element:<Orders/>, 
-      isPrivate:true, 
-      authorizedTo:["SELLER"]
+      isPrivate:true,
+      isVisibleAfterLogin:true,
+      authorizedTo:["SELLER","CUSTOMER"]
     },
     {
       path:"/seller-dashboard", 
       element:<SellerDashboard/>, 
-      isPrivate:true, 
+      isPrivate:true,
+      isVisibleAfterLogin:true,
+      authorizedTo:["SELLER"]
+    },
+    {
+      path:"/edit-store", 
+      element:<EditStore/>, 
+      isPrivate:true,
+      isVisibleAfterLogin:true,
       authorizedTo:["SELLER"]
     },
   
@@ -123,6 +145,7 @@ export const navs = [
       path:"/super-admin-dashboard", 
       element:<SuperAdminDashboard/>, 
       isPrivate:true, 
+      isVisibleAfterLogin:true,
       authorizedTo:["SUPER_ADMIN"]
     }
   

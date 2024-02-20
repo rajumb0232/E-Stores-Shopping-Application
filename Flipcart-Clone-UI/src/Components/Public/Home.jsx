@@ -1,34 +1,31 @@
-import React, { useLayoutEffect, useState } from 'react'
-import { useAuth } from '../Context/AuthProvider';
-import { useCookies } from 'react-cookie';
-
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../Context/AuthProvider";
+import { useEffect } from "react";
 
 const Home = () => {
-  const [value, setValue] = useState('');
-  const {auth} = useAuth();
-  const [cookies, setCookie, removeCookie] = useCookies(['demo']);
+  const navigate = useNavigate();
+  const { auth } = useAuth();
+  const { role } = auth;
 
-  useLayoutEffect(() => {
-    console.log(auth);
-    setCookie("demo", "secured data", {
-      secure: true,
-      sameSite: 'strict',
-      expires: new Date(Date.now() + 1000*60*15)
-    });
-  },[])
-
-  const get = () => {
-    console.log(cookies);
-    setValue(cookies)
-    removeCookie('demo');
-  }
-
+  useEffect(() => {
+    role === "SELLER"
+      ? navigate("/seller-dashboard")
+      : role === "ADMIN"
+      ? navigate("/admin-dashboard")
+      : role === "SUPER_ADMIN"
+      ? navigate("/super-admin-dashboard")
+      : "";
+  }, []);
 
   return (
-    <div className='w-svw h-svh flex justify-center items-center' >
-      <button onClick={get}>getCookie</button>
-      <p>{value!==null? value.demo : "null"}</p>
+    <div>
+      <Link
+        to={"/seller-dashboard"}
+        className="flex items-center justify-center h-svh"
+      >
+        Seller Dashboard
+      </Link>
     </div>
-  )
-}
+  );
+};
 export default Home;

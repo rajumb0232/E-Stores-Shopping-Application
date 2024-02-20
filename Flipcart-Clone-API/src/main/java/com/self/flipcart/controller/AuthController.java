@@ -8,27 +8,25 @@ import com.self.flipcart.responsedto.UserResponse;
 import com.self.flipcart.service.AuthService;
 import com.self.flipcart.util.ResponseStructure;
 import com.self.flipcart.util.SimpleResponseStructure;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.concurrent.ExecutionException;
-
+@AllArgsConstructor
 @RestController
-@RequestMapping("/api/fcv1")
-@CrossOrigin
+@RequestMapping("/api/fkv1")
+@CrossOrigin(allowCredentials = "true", origins = "http://localhost:5173/")
 public class AuthController {
 
-    @Autowired
     private AuthService authService;
 
     @PostMapping("/users/register")
     public ResponseEntity<ResponseStructure<UserResponse>> registerUser(@RequestBody @Valid UserRequest userRequest) throws ExecutionException, InterruptedException {
+        System.out.println(userRequest.getEmail()+", "+userRequest.getPassword()+", "+userRequest.getUserRole());
         return authService.registerUser(userRequest);
     }
 

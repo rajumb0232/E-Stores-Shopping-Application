@@ -8,6 +8,8 @@ import jakarta.persistence.ManyToOne;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -21,6 +23,7 @@ public class RefreshToken {
     private String tokenId;
     private String token;
     private boolean isBlocked;
+    private LocalDateTime expiration;
 
     @ManyToOne
     private User user;
