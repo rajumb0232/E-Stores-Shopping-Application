@@ -29,7 +29,6 @@ public class StoreServiceImpl implements StoreService {
     private SellerRepo sellerRepo;
     private StoreRepo storeRepo;
     private ResponseStructure<StoreResponse> storeResponseStructure;
-    private ResponseStructure<StoreResponseBasic> storeResponseBasicStructure;
     private StoreResponseComplete storeResponseComplete;
 
     @Override
@@ -73,14 +72,14 @@ public class StoreServiceImpl implements StoreService {
                 .map(store -> {
                     switch (displayType2) {
                         case BASIC -> {
-                            return new ResponseEntity<>(storeResponseBasicStructure.setStatus(HttpStatus.FOUND.value())
+                            return new ResponseEntity<>(storeResponseStructure.setStatus(HttpStatus.FOUND.value())
                                     .setMessage("Store data found")
-                                    .setData((StoreResponseBasic) mapToStoreResponseBasic(store)), HttpStatus.FOUND);
+                                    .setData(mapToStoreResponseBasic(store)), HttpStatus.FOUND);
                         }
                         case COMPLETE -> {
                             return new ResponseEntity<>(storeResponseStructure.setStatus(HttpStatus.FOUND.value())
                                     .setMessage("Store data found")
-                                    .setData((StoreResponse) mapToStoreResponse(store)), HttpStatus.FOUND);
+                                    .setData(mapToStoreResponse(store)), HttpStatus.FOUND);
                         }
                         default ->
                                 throw new InvalidDisplayTypeException("Failed to find the store, display type card not supported");
@@ -114,7 +113,7 @@ public class StoreServiceImpl implements StoreService {
         return store;
     }
 
-    private Store mapToStoreEntity(StoreRequestComplete storeRequestComplete, Store store){
+    private Store mapToStoreEntity(StoreRequestComplete storeRequestComplete, Store store) {
         store.setStoreName(storeRequestComplete.getStoreName());
         store.setAbout(storeRequestComplete.getAbout());
         store.setPrimeCategory(storeRequestComplete.getPrimeCategory());
