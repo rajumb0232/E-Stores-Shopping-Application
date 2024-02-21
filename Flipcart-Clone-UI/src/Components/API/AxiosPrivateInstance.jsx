@@ -1,6 +1,6 @@
 import axios from "axios"
 
-const baseURL = "http://localhost:7000/api/fcv1"
+const baseURL = "http://localhost:7000/api/fkv1"
 
 const AxiosPrivateInstance = () => axios.create({
     baseURL,
