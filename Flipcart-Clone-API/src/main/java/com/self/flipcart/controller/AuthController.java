@@ -8,7 +8,6 @@ import com.self.flipcart.responsedto.UserResponse;
 import com.self.flipcart.service.AuthService;
 import com.self.flipcart.util.ResponseStructure;
 import com.self.flipcart.util.SimpleResponseStructure;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -37,38 +36,34 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<ResponseStructure<AuthResponse>> login(@RequestBody AuthRequest authRequest,
-                                                                 HttpServletResponse response,
                                                                  @CookieValue(name = "rt", required = false) String refreshToken,
                                                                  @CookieValue(name = "at", required = false) String accessToken) {
-        return authService.login(authRequest, response, refreshToken, accessToken);
+        return authService.login(authRequest, refreshToken, accessToken);
     }
 
     @PostMapping("/logout")
     @PreAuthorize("hasAuthority('ADMIN') OR hasAuthority('SUPER_ADMIN') OR hasAuthority('SELLER') OR hasAuthority('CUSTOMER')")
     public ResponseEntity<SimpleResponseStructure> logout(@CookieValue(name = "rt", required = false) String refreshToken,
-                                                          @CookieValue(name = "at", required = false) String accessToken,
-                                                          HttpServletResponse response) {
-        return authService.logout(refreshToken, accessToken, response);
+                                                          @CookieValue(name = "at", required = false) String accessToken) {
+        return authService.logout(refreshToken, accessToken);
     }
 
     @PostMapping("/login/refresh")
     public ResponseEntity<ResponseStructure<AuthResponse>> refreshLogin(@CookieValue(name = "rt", required = false) String refreshToken,
-                                                                        @CookieValue(name = "at", required = false) String accessToken,
-                                                                        HttpServletResponse response) {
-        return authService.refreshLogin(refreshToken, accessToken, response);
+                                                                        @CookieValue(name = "at", required = false) String accessToken) {
+        return authService.refreshLogin(refreshToken, accessToken);
     }
 
     @PostMapping("/revoke-other")
     @PreAuthorize("hasAuthority('ADMIN') OR hasAuthority('SUPER_ADMIN') OR hasAuthority('SELLER') OR hasAuthority('CUSTOMER')")
     public ResponseEntity<SimpleResponseStructure> revokeAllOtherTokens(@CookieValue(name = "rt", required = false) String refreshToken,
-                                                                        @CookieValue(name = "at", required = false) String accessToken,
-                                                                        HttpServletResponse response) {
-        return authService.revokeAllOtherTokens(refreshToken, accessToken, response);
+                                                                        @CookieValue(name = "at", required = false) String accessToken) {
+        return authService.revokeAllOtherTokens(refreshToken, accessToken);
     }
 
     @PostMapping("/revoke-all")
     @PreAuthorize("hasAuthority('ADMIN') OR hasAuthority('SUPER_ADMIN') OR hasAuthority('SELLER') OR hasAuthority('CUSTOMER')")
-    public ResponseEntity<SimpleResponseStructure> revokeAllTokens(HttpServletResponse response) {
-        return authService.revokeAllTokens(response);
+    public ResponseEntity<SimpleResponseStructure> revokeAllTokens() {
+        return authService.revokeAllTokens();
     }
 }

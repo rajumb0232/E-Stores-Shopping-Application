@@ -24,9 +24,8 @@ import com.self.flipcart.util.ResponseStructure;
 import com.self.flipcart.util.SimpleResponseStructure;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -144,7 +143,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public ResponseEntity<ResponseStructure<AuthResponse>> login(AuthRequest authRequest, HttpServletResponse response, String refreshToken, String accessToken) {
+    public ResponseEntity<ResponseStructure<AuthResponse>> login(AuthRequest authRequest, String refreshToken, String accessToken) {
         // validate if the user is already logged in
         if (accessToken != null && refreshToken != null) throw new UserAlreadyLoggedInException("Failed to login");
         // getting username
@@ -155,8 +154,8 @@ public class AuthServiceImpl implements AuthService {
         if (auth.isAuthenticated()) {
             return userRepo.findByUsername(username).map(user -> {
                 // granting access to the user by providing access and refresh token cookies in response
-                grantAccessToUser(user, response);
-                return new ResponseEntity<>(authStructure.setStatus(HttpStatus.OK.value())
+                HttpHeaders headers = grantAccessToUser(user);
+                return ResponseEntity.ok().headers(headers).body(authStructure.setStatus(HttpStatus.OK.value())
                         .setMessage("Authentication successful")
                         .setData(AuthResponse.builder()
                                 .userId(user.getUserId())
@@ -165,26 +164,29 @@ public class AuthServiceImpl implements AuthService {
                                 .isAuthenticated(true)
                                 .accessExpiration(LocalDateTime.now().plusSeconds(accessTokenExpirySeconds))
                                 .refreshExpiration(LocalDateTime.now().plusSeconds(refreshTokenExpirySeconds))
-                                .build()), HttpStatus.OK);
+                                .build()));
             }).get();
         } else throw new UsernameNotFoundException("Authentication failed");
     }
 
     @Override
-    public ResponseEntity<SimpleResponseStructure> logout(String refreshToken, String accessToken, HttpServletResponse response) {
-        // resetting tokens with null value and 0 maxAge
-        response.addCookie(cookieManager.invalidate(new Cookie("rt", null)));
-        response.addCookie(cookieManager.invalidate(new Cookie("at", null)));
+    public ResponseEntity<SimpleResponseStructure> logout(String refreshToken, String accessToken) {
+
+        // resetting tokens with blank value and 0 maxAge
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.SET_COOKIE, cookieManager.invalidate("at"));
+        headers.add(HttpHeaders.SET_COOKIE, cookieManager.invalidate("rt"));
         // blocking the tokens
         blockAccessToken(accessToken);
         blockRefreshToken(refreshToken);
 
-        return ResponseEntity.ok().body(simpleResponseStructure.setStatus(HttpStatus.OK.value())
+
+        return ResponseEntity.ok().headers(headers).body(simpleResponseStructure.setStatus(HttpStatus.OK.value())
                 .setMessage("Logout Successful"));
     }
 
     @Override
-    public ResponseEntity<ResponseStructure<AuthResponse>> refreshLogin(String refreshToken, String accessToken, HttpServletResponse response) {
+    public ResponseEntity<ResponseStructure<AuthResponse>> refreshLogin(String refreshToken, String accessToken) {
         if (refreshToken == null) throw new UserNotLoggedInException("Failed to refresh login");
         Attempt attempt = attemptCacheStore.get(refreshToken);
         if (attempt != null)
@@ -199,11 +201,11 @@ public class AuthServiceImpl implements AuthService {
         }).orElseThrow(() -> new UserNotLoggedInException("Failed to refresh login"));
         return userRepo.findByUsername(username).map(user -> {
             // granting access to User with new access and refresh token cookies in response
-            grantAccessToUser(user, response);
+            HttpHeaders headers = grantAccessToUser(user);
             // blocking old token
             blockRefreshToken(refreshToken);
 
-            return ResponseEntity.ok(authStructure.setStatus(HttpStatus.OK.value())
+            return ResponseEntity.ok().headers(headers).body(authStructure.setStatus(HttpStatus.OK.value())
                     .setMessage("Login refreshed successfully")
                     .setData(AuthResponse.builder()
                             .userId(user.getUserId())
@@ -217,7 +219,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public ResponseEntity<SimpleResponseStructure> revokeAllOtherTokens(String refreshToken, String accessToken, HttpServletResponse response) {
+    public ResponseEntity<SimpleResponseStructure> revokeAllOtherTokens(String refreshToken, String accessToken) {
         if (refreshToken == null || accessToken == null)
             throw new UserNotLoggedInException("Failed to revoke access from all other devices");
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -225,17 +227,15 @@ public class AuthServiceImpl implements AuthService {
         return userRepo.findByUsername(username).map(user -> {
             // blocking all other access tokens
             List<AccessToken> accessTokens = accessTokenRepo.findAllByUserAndIsBlocked(user, false).stream()
-                    .map(at -> {
+                    .peek(at -> {
                         if (!at.getToken().equals(accessToken)) at.setBlocked(true);
-                        return at;
                     })
                     .collect(Collectors.toList());
             accessTokenRepo.saveAll(accessTokens);
             // blocking all other refresh tokens
             List<RefreshToken> refreshTokens = refreshTokenRepo.findALLByUserAndIsBlocked(user, false).stream()
-                    .map(rt -> {
+                    .peek(rt -> {
                         if (!rt.getToken().equals(refreshToken)) rt.setBlocked(true);
-                        return rt;
                     }).collect(Collectors.toList());
             refreshTokenRepo.saveAll(refreshTokens);
 
@@ -246,46 +246,42 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public ResponseEntity<SimpleResponseStructure> revokeAllTokens(HttpServletResponse response) {
+    public ResponseEntity<SimpleResponseStructure> revokeAllTokens() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
         return userRepo.findByUsername(username).map(user -> {
             // blocking all other access tokens
             List<AccessToken> accessTokens = accessTokenRepo.findAllByUserAndIsBlocked(user, false).stream()
-                    .map(at -> {
-                        at.setBlocked(true);
-                        return at;
-                    }).collect(Collectors.toList());
+                    .peek(at -> at.setBlocked(true)).collect(Collectors.toList());
             accessTokenRepo.saveAll(accessTokens);
             // blocking all other refresh tokens
             List<RefreshToken> refreshTokens = refreshTokenRepo.findALLByUserAndIsBlocked(user, false).stream()
-                    .map(rt -> {
-                        rt.setBlocked(true);
-                        return rt;
-                    }).collect(Collectors.toList());
+                    .peek(rt -> rt.setBlocked(true)).collect(Collectors.toList());
             refreshTokenRepo.saveAll(refreshTokens);
 
-            // setting null cookies with 0 maxAge
-            response.addCookie(cookieManager.invalidate(new Cookie("at", null)));
-            response.addCookie(cookieManager.invalidate(new Cookie("rt", null)));
+            // resetting tokens with blank value and 0 maxAge
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.SET_COOKIE, cookieManager.invalidate("at"));
+            headers.add(HttpHeaders.SET_COOKIE, cookieManager.invalidate("rt"));
 
-            return ResponseEntity.ok(simpleResponseStructure.setStatus(HttpStatus.OK.value())
+            return ResponseEntity.ok().headers(headers).body(simpleResponseStructure.setStatus(HttpStatus.OK.value())
                     .setMessage("Successfully revoked access from all devices"));
 
         }).orElseThrow(() -> new UsernameNotFoundException("Failed to revoke access fromm all other devices"));
     }
 
     /* ----------------------------------------------------------------------------------------------------------- */
-    private void grantAccessToUser(User user, HttpServletResponse response) {
+    private HttpHeaders grantAccessToUser(User user) {
         //generating access and refresh tokens
         String newRefreshToken = jwtService.generateRefreshToken(user.getUsername());
         String newAccessToken = jwtService.generateAccessToken(user.getUsername());
 
         attemptCacheStore.add(newRefreshToken, new Attempt(LocalDateTime.now()));
 
-        // adding cookies to the response
-        response.addCookie(cookieManager.configure(new Cookie("at", newAccessToken), accessTokenExpirySeconds));
-        response.addCookie(cookieManager.configure(new Cookie("rt", newRefreshToken), refreshTokenExpirySeconds));
+        // adding cookies to the HttpHeaders
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.SET_COOKIE, cookieManager.configure("at", newAccessToken, accessTokenExpirySeconds));
+        headers.add(HttpHeaders.SET_COOKIE, cookieManager.configure("rt", newRefreshToken, refreshTokenExpirySeconds));
 
         // saving access and refresh tokens to the database
         accessTokenRepo.save(AccessToken.builder()
@@ -298,6 +294,8 @@ public class AuthServiceImpl implements AuthService {
                 .token(newRefreshToken)
                 .expiration(LocalDateTime.now().plusSeconds(refreshTokenExpirySeconds))
                 .user(user).build());
+
+        return headers;
     }
 
     private void blockAccessToken(String accessToken) {
@@ -334,10 +332,12 @@ public class AuthServiceImpl implements AuthService {
             }
             default -> throw new InvalidUserRoleException("Failed to process the request");
         }
-        user.setUsername(userRequest.getEmail().split("@")[0]);
-        user.setEmail(userRequest.getEmail());
-        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
-        user.setUserRole(userRequest.getUserRole());
+        if(user != null){
+            user.setUsername(userRequest.getEmail().split("@")[0]);
+            user.setEmail(userRequest.getEmail());
+            user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+            user.setUserRole(userRequest.getUserRole());
+        }
         return (T) user;
     }
 

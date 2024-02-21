@@ -32,6 +32,30 @@ public class AddressServiceImpl implements AddressService {
         }).orElseThrow();
     }
 
+    @Override
+    public ResponseEntity<ResponseStructure<AddressResponse>> updateAddress(AddressRequest addressRequest, String addressId) {
+        return addressRepo.findById(addressId).map(address -> {
+            address = addressRepo.save(mapToAddressEntity(addressRequest, address));
+            return new ResponseEntity<>(structure.setStatus(HttpStatus.OK.value())
+                    .setMessage("successfully updated address")
+                    .setData(mapToAddressResponse(address)), HttpStatus.OK);
+        }).orElseThrow();
+    }
+
+    @Override
+    public ResponseEntity<ResponseStructure<AddressResponse>> getAddressById(String addressId) {
+        return addressRepo.findById(addressId).map(address -> new ResponseEntity<>(structure.setStatus(HttpStatus.FOUND.value())
+                .setMessage("Address found")
+                .setData(mapToAddressResponse(address)), HttpStatus.FOUND)).orElseThrow();
+    }
+
+    @Override
+    public ResponseEntity<ResponseStructure<AddressResponse>> getAddressByStore(String storeId) {
+        return storeRepo.findAddressByStoreId(storeId).map(address ->  new ResponseEntity<>(structure.setStatus(HttpStatus.FOUND.value())
+                .setMessage("Address found")
+                .setData(mapToAddressResponse(address)), HttpStatus.FOUND)).orElseThrow();
+    }
+
     private AddressResponse mapToAddressResponse(Address address) {
        return AddressResponse.builder()
                 .addressLine1(address.getAddressLine1())

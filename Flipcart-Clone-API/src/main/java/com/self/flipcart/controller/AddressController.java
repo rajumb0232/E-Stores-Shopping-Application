@@ -22,16 +22,16 @@ public class AddressController {
 
     @PutMapping("/addresses/{addressId}")
     public ResponseEntity<ResponseStructure<AddressResponse>> updateAddress(@RequestBody AddressRequest addressRequest, @PathVariable String addressId){
-        return null;
+        return addressService.updateAddress(addressRequest, addressId);
     }
 
     @GetMapping("/addresses/addressId")
     public ResponseEntity<ResponseStructure<AddressResponse>> getAddressById(@PathVariable String addressId){
-        return null;
+        return addressService.getAddressById(addressId);
     }
 
     @GetMapping("/stores/{storeId}/addresses")
     public ResponseEntity<ResponseStructure<AddressResponse>> getAddressByStore(@PathVariable String storeId){
-        return null;
+        return addressService.getAddressByStore(storeId);
     }
 }
