@@ -13,6 +13,7 @@ import SuperAdminDashboard from '../Private/SuperAdmin/SuperAdminDashboard'
 import Register from '../Public/LoginAndRegister'
 import VerifyOTP from '../Public/VerifyOTP'
 import EditStore from '../Private/Seller/EditStore'
+import SetUpStoreAndRelated from '../Private/Seller/SetUpStoreAndRelated'
 
 
 export const navs = [
@@ -138,6 +139,13 @@ export const navs = [
       isPrivate:true,
       isVisibleAfterLogin:true,
       authorizedTo:["SELLER"]
+    },
+    {
+      path:"/setup-store", 
+      element:<SetUpStoreAndRelated />, 
+      isPrivate:true,
+      isVisibleAfterLogin:true,
+      authorizedTo:["ALL"]
     },
   
     /** ---------------------------------SUPER ADMIN--------------------------------- */

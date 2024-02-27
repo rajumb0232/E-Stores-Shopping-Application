@@ -2,12 +2,14 @@ import { Route, Routes } from "react-router-dom";
 import App from "../../App";
 import { navs } from "./Navigations";
 import { useAuth } from "../Context/AuthProvider";
+import { Suspense } from "react";
 
 const AllRoutes = () => {
   const { auth } = useAuth();
   const { isAuthenticated, role } = auth;
 
   return (
+    <Suspense fallback={"Loading..."}>
     <Routes>
       <Route path="/" element={<App />}>
         {navs.map((nav, i) => {
@@ -25,6 +27,7 @@ const AllRoutes = () => {
         })}
       </Route>
     </Routes>
+    </Suspense>
   );
 };
 

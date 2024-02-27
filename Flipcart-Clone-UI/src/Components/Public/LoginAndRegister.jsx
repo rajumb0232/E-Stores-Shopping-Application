@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../Context/AuthProvider';
 import FormImageBlock from '../Util/FormImageBlock';
 import AxiosPrivateInstance from '../API/AxiosPrivateInstance';
+import SubmitBtn from './SubmitBtn';
 
 const Register = ({role, isLogin}) => {
   const [email, setEmail] = useState("");
@@ -144,13 +145,7 @@ const Register = ({role, isLogin}) => {
           </p>
 
           {/* SUBMIT BUTTON */}
-          <button onClick={submit} disabled={isSubmited}
-          className='bg-blue-500 text-slate-100 font-bold rounded-lg w-1/5 px-4 py-2 my-8 ml-auto'
-          >
-           { (isSubmited)
-            ? <i className="fa-solid fa-circle-notch animate-spin"></i>
-            : "Submit"}
-          </button>
+          <SubmitBtn submit={submit} isSubmited={isSubmited} name={"Submit"}/>
 
           {/* TOGGLE REDIRECTS TO LOGIN AND REGISTER */}
           <Link to={(isLogin)? "/customer/register" : "/login"}
@@ -158,8 +153,8 @@ const Register = ({role, isLogin}) => {
           >
           {(isLogin)? "New to Flipkart? Create an account" : "Already have an account? Click here to login"}
           </Link>
-
         </div>
+
       </form>
     </div>
   )
