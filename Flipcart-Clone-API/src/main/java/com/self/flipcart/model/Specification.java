@@ -18,5 +18,6 @@ public class Specification {
     private String specificationId;
     private SpecificationType specificationType;
     private Map<String, String> attributes;
-
+    // Refers to the product
+    private String productId;
 }

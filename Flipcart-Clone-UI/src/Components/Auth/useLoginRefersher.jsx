@@ -58,8 +58,8 @@ const useLoginRefresh = () => {
               }else return await refresh()
           }else return await refresh()
         }else return await refresh()
-      }else navigate("/")
-    }else navigate("/")
+      }else navigate(window.location.pathname)
+    }else navigate(window.location.pathname)
   }
 
   return { handleRefresh };

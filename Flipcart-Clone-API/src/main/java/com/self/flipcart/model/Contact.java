@@ -1,6 +1,6 @@
 package com.self.flipcart.model;
 
-import com.self.flipcart.enums.PrimeCategory;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.self.flipcart.util.IdGenerator;
 import jakarta.persistence.*;
 import lombok.*;
@@ -8,21 +8,21 @@ import org.hibernate.annotations.GenericGenerator;
 
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Entity
-@Table(name = "stores")
-public class Store {
+@Table(name = "contacts")
+public class Contact {
     @Id
     @GeneratedValue(generator = "custom")
     @GenericGenerator(name = "custom", type = IdGenerator.class)
-    private String storeId;
-    private String storeName;
-    private PrimeCategory primeCategory;
-    private String logoLink;
-    private String about;
+    private String contactId;
+    private String contactName;
+    private long contactNumber;
+    private boolean isPrimary;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     private Address address;
 }

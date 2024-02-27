@@ -47,8 +47,8 @@ public class JwtFilter extends OncePerRequestFilter {
             String username = null;
 
             if (accessToken != null) {
+                log.info("Extracting username...");
                 username = accessTokenRepo.findByToken(accessToken).map(at -> {
-                    log.info("Extracting username...");
                     // exception doesn't get handled here,
                     if (at.isBlocked()) {
                         try {

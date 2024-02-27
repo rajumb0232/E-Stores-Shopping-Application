@@ -8,7 +8,9 @@ import AllRoutes from "./Components/Routes/AllRoutes";
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
-      <AuthProvider children={<AllRoutes/>} />
+      <AuthProvider>
+        <AllRoutes />
+      </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>
 );
