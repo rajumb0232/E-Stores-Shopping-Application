@@ -1,10 +1,8 @@
 package com.self.flipcart.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.self.flipcart.util.IdGenerator;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -22,4 +20,9 @@ public class Contact {
     private String contactId;
     private String contactName;
     private long contactNumber;
+    private boolean isPrimary;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Address address;
 }

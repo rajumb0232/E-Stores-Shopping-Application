@@ -27,6 +27,6 @@ public class Address {
     private String country;
     private int pincode;
 
-    @OneToMany(mappedBy = "address")
+    @OneToMany(mappedBy = "address", fetch = FetchType.EAGER)
     private List<Contact> contacts;
 }

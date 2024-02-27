@@ -8,4 +8,5 @@ import lombok.Setter;
 public class ContactRequest {
     private String contactName;
     private long contactNumber;
+    private boolean isPrimary;
 }

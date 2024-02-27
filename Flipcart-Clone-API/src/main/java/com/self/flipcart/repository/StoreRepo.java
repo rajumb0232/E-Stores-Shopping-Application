@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface StoreRepo extends JpaRepository<Store, String> {
     Optional<Address> findAddressByStoreId(String storeId);
+
 }
