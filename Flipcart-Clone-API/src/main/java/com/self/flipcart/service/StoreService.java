@@ -1,5 +1,6 @@
 package com.self.flipcart.service;
 
+import com.self.flipcart.model.Store;
 import com.self.flipcart.requestdto.StoreRequest;
 import com.self.flipcart.requestdto.StoreRequestComplete;
 import com.self.flipcart.responsedto.StoreResponse;
@@ -14,4 +15,8 @@ public interface StoreService {
 
 
     ResponseEntity<? extends Structure<? extends  StoreResponse>> getStore(String storeId, String displayType);
+
+    ResponseEntity<Boolean> checkIfStoreExistBySeller();
+
+    ResponseEntity<ResponseStructure<Store>> getStoreBySeller();
 }

@@ -1,6 +1,7 @@
 package com.self.flipcart.exceptionhandlers;
 
 import com.self.flipcart.exceptions.InvalidDisplayTypeException;
+import com.self.flipcart.exceptions.InvalidPrimeCategoryException;
 import com.self.flipcart.exceptions.StoreNotFoundByIdException;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,5 +23,10 @@ public class StoreExceptionHandlers {
     @ExceptionHandler(StoreNotFoundByIdException.class)
     public ResponseEntity<Object> handleStoreNotFoundById(StoreNotFoundByIdException ex){
         return errorResponse.structure(HttpStatus.BAD_REQUEST, ex.getMessage(), "No store present with the given ID");
+    }
+
+    @ExceptionHandler(InvalidPrimeCategoryException.class)
+    public ResponseEntity<Object> handleInvalidPrimeCategory(InvalidPrimeCategoryException ex){
+        return errorResponse.structure(HttpStatus.BAD_REQUEST, ex.getMessage(), "Invalid prime category specified");
     }
 }

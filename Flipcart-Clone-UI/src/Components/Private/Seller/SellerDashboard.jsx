@@ -9,18 +9,45 @@ import InDisplayNavBtn from "./InDisplayNavBtn";
 import AddUpdateProduct from "./AddUpdateProduct";
 import EditStore from "./EditStore";
 import Orders from "./Orders";
+import { useAuth } from "../../Context/AuthProvider";
+import AxiosPrivateInstance from "../../API/AxiosPrivateInstance";
 
 const SellerDashboard = () => {
   const [currentViewName, setCurrentViewName] = useState("dashboard");
   const navigate = useNavigate();
+  const axiosInstance = AxiosPrivateInstance();
+  const { auth } = useAuth();
+  const { userId } = auth;
+
+  let isChecked = false;
+  const checkForStore = async () => {
+    if (!isChecked) {
+      isChecked = true;
+      const response = await axiosInstance.get("/stores-exist", {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+
+      if (response.status === 200) {
+        if (response.data === true) {
+          localStorage.setItem("store", "true");
+          sessionStorage.setItem("currentView", currentViewName);
+        } else navigate("/setup-store");
+      } else alert("Something went wrong!!");
+    }
+  };
 
   useEffect(() => {
-    const currentInSessionName = sessionStorage.getItem("currentView");
-    if (currentInSessionName) {
-      setCurrentViewName(currentInSessionName);
-    } else {
-      sessionStorage.setItem("currentView", currentViewName);
-    }
+    if (localStorage.getItem("store")) {
+      const currentInSessionName = sessionStorage.getItem("currentView");
+      if (currentInSessionName) {
+        setCurrentViewName(currentInSessionName);
+      } else {
+        sessionStorage.setItem("currentView", currentViewName);
+      }
+    } else checkForStore();
   }, [currentViewName]);
 
   return (
@@ -86,7 +113,7 @@ const SellerDashboard = () => {
           ) : currentViewName === "manageOrders" ? (
             <Orders />
           ) : currentViewName === "editStore" ? (
-            <EditStore />
+            navigate('/setup-store')
           ) : (
             ""
           )}

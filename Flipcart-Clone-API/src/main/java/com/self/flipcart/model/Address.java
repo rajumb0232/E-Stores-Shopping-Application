@@ -1,12 +1,11 @@
 package com.self.flipcart.model;
 
 import com.self.flipcart.util.IdGenerator;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -25,6 +24,9 @@ public class Address {
     private String areaVillage;
     private String cityDistrict;
     private String state;
-    private String Country;
+    private String country;
     private int pincode;
+
+    @OneToMany(mappedBy = "address", fetch = FetchType.EAGER)
+    private List<Contact> contacts;
 }

@@ -5,8 +5,6 @@ import jakarta.persistence.Id;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Set;
-
 @Getter
 @Setter
 @Builder
@@ -28,10 +26,6 @@ public class Product {
     private String productTypeId;
     // Refers to the Store
     private String storeId;
-    // Refers to the Set of Specifications
-    private Set<String> specificationIds;
-    // Refers to the Set of Variants
-    private Set<String> variantIds;
     // Refers to the Reviews
     // Refers to the Questions
 

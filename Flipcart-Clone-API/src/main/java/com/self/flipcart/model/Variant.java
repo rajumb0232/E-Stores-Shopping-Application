@@ -18,4 +18,6 @@ public class Variant {
     private String variantId;
     private Map<String, Object> attributes;
     private String ImageURL;
+    // Refers to the product
+    private String productId;
 }
