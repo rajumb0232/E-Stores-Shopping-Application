@@ -9,6 +9,7 @@ import { usePrimeCategories } from "../../Hooks/useOptions";
 import useStore from "../../Hooks/useStore";
 
 const AddStore = () => {
+  const [storeId, setStoreId] = useState("");
   const [storeName, setStoreName] = useState("");
   const [about, setAbout] = useState("");
   const [primeCategory, setPrimeCategory] = useState("");
@@ -20,19 +21,18 @@ const AddStore = () => {
   const { store } = useStore();
   useEffect(() => {
     if (store) {
+      setStoreId(store.storeId);
       setStoreName(store.storeName);
       setAbout(store.about);
+      setPrimeCategory(store.primeCategory);
+      setPrevPresent(true);
     }
   }, [store]);
 
   // update isModified state if data modified
   useEffect(() => {
     if (isPrevPresent) {
-      if (
-        storeName !== store.storeName ||
-        about !== store.about ||
-        primeCategory !== store.primeCategory
-      ) {
+      if (storeName !== store.storeName || about !== store.about) {
         setAnyModified(true);
       }
     }
@@ -49,8 +49,9 @@ const AddStore = () => {
   };
 
   // handling axios request to post the store data
-  const handleAddStore = async () => {
-    const cache = await caches.open("user");
+  const updateStore = async (isNew) => {
+    const URL = isNew ? `/stores` : `/stores/${storeId}`;
+
     const body = {
       storeName: storeName,
       primeCategory: primeCategory.toUpperCase(),
@@ -60,34 +61,67 @@ const AddStore = () => {
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
     };
-    // Requesting
-    try {
-      const response = await axiosInstance.post("/stores", body, config);
-      // validating response
-      if (response.status === 201) {
-        cache.put("/stores", new Response(JSON.stringify(response.data.data)));
-        localStorage.setItem("store", "true");
-      } else {
+
+    const updateCache = async (store) => {
+      const cache = await caches.open("user");
+      cache.put("/stores", new Response(JSON.stringify(store)));
+    };
+
+    // Requesting to add new store
+    const add = async () => {
+      try {
+        const response = await axiosInstance.post(URL, body, config);
+        // validating response
+        if (response.status === 201) {
+          updateCache(response?.data?.data);
+          localStorage.setItem("store", "true");
+          setStoreId(response?.data?.data?.storeId);
+          setIsSubmited(false);
+        } else {
+          setIsSubmited(false);
+          alert(response?.data.message || response?.message);
+          console.log(response?.data);
+        }
+      } catch (error) {
         setIsSubmited(false);
-        alert("Something went wrong!!");
+        alert(error?.response?.message);
+        console.log(error?.response?.data);
       }
-    } catch (error) {
-      setIsSubmited(false);
-      console.log(error);
-    }
+    };
+
+    // Requesting to updating the existing store
+    const update = async () => {
+      try {
+        const response = await axiosInstance.put(URL, body, config);
+        // validating response
+        if (response.status === 200) {
+          updateCache(response?.data?.data);
+          localStorage.setItem("store", "true");
+          setStoreId(response?.data?.data?.storeId);
+          setIsSubmited(false);
+        } else {
+          setIsSubmited(false);
+          alert(response?.data.message || response?.message);
+          console.log(response?.data);
+        }
+      } catch (error) {
+        setIsSubmited(false);
+        alert(error?.response?.message);
+        console.log(error?.response?.data);
+      }
+    };
+
+    isNew ? add() : update();
   };
 
-  // If any prevPresent and isModified do update or else continue...
-  const handleUpdateStore = () => {
-    console.log("updating store...");
-    setIsSubmited(false);
-  };
-
-  // handling changes on isSubmitted changes
+  // handling isSubmited changes
   useEffect(() => {
     if (isSubmited) {
-      if (isPrevPresent) handleUpdateStore();
-      else handleAddStore();
+      if (isPrevPresent) {
+        storeName !== "" && about !== "" && storeId !== "" && isAnyModified
+          ? updateStore(false)
+          : alert("Invalid Inputs, may be blank!!");
+      } else updateStore(true);
     }
   }, [isSubmited]);
 
