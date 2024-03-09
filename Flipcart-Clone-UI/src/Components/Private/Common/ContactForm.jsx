@@ -21,6 +21,7 @@ const ContactForm = () => {
   const [isSubmited, setIsSubmited] = useState(false);
   const [contact1Modified, setContact1Modified] = useState(false);
   const [contact2Modified, setContact2Modified] = useState(false);
+  const [doDelete, setDoDelete] = useState("");
   const axiosInstance = AxiosPrivateInstance();
 
   const { prevAddress, prevContacts } = useStore();
@@ -86,6 +87,28 @@ const ContactForm = () => {
     }
   };
 
+  // update contact to cache
+  const updateCache = async (contacts) => {
+    const cache = await caches.open("user");
+    const response = await cache.match("/stores");
+    const storedata = await response.json();
+
+    // Create a new address data object with updated contacts
+    const updatedAddressData = {
+      ...storedata.address,
+      contacts: contacts,
+    };
+
+    // Create a new store data object with updated address data
+    const updatedStoreData = {
+      ...storedata,
+      address: updatedAddressData,
+    };
+
+    // Update the cache with the new store data
+    cache.put("/stores", new Response(JSON.stringify(updatedStoreData)));
+  };
+
   // Executes POST or PUT request ot the Contact Data
   const updateContact = async (c, isNew, id) => {
     const URL = isNew
@@ -104,41 +127,6 @@ const ContactForm = () => {
       withCredentials: true,
     };
 
-    // update contact to cache
-    const updateCache = async (contacts) => {
-      const cache = await caches.open("user");
-      const response = await cache.match("/stores");
-      const storedata = await response.json();
-
-      console.log("contacts before update: ", storedata?.address?.contacts);
-      // let list = storedata?.address?.contacts;
-
-      // // finding the index of contact if present
-      // const index = list.findIndex(
-      //   (c) => c.contactId === id && c.contactId !== ""
-      // );
-      // console.log("matching contact found with index: ", index);
-      // // if index exists replace the contact to that index else add it as new
-      // if (index > -1) list[index] = contact;
-      // else if (list.length < 2) list = [...list, contact];
-
-      // Create a new address data object with updated contacts
-      const updatedAddressData = {
-        ...storedata.address,
-        contacts: contacts,
-      };
-
-      // Create a new store data object with updated address data
-      const updatedStoreData = {
-        ...storedata,
-        address: updatedAddressData,
-      };
-
-      console.log("contacts after update: ", storedata?.address?.contacts);
-      // Update the cache with the new store data
-      cache.put("/stores", new Response(JSON.stringify(updatedStoreData)));
-    };
-
     // to add new contact
     const add = async () => {
       try {
@@ -147,31 +135,33 @@ const ContactForm = () => {
           updateCache(response?.data?.data);
           setIsSubmited(false);
         } else {
+          console.log(response?.data?.message);
+          alert(response?.data?.message);
           setIsSubmited(false);
-          console.log("Failed to add contact", c);
         }
       } catch (error) {
+        console.log(error?.response?.message);
+        alert(error?.response?.message);
         setIsSubmited(false);
-        console.log(error.response.data);
       }
     };
 
     // to update the existing contact
     const update = async () => {
-      console.log("updating ", c);
       try {
         const response = await axiosInstance.put(URL, body, config);
         if (response.status === 200) {
-          console.log(response?.data?.message);
           updateCache(response?.data?.data);
           setIsSubmited(false);
         } else {
+          console.log(response?.data?.message);
+          alert(response?.data?.message);
           setIsSubmited(false);
-          console.log("Failed to update Contact", c);
         }
       } catch (error) {
+        console.log(error?.response?.message);
+        alert(error?.response?.message);
         setIsSubmited(false);
-        console.log(error.response.data);
       }
     };
 
@@ -221,6 +211,54 @@ const ContactForm = () => {
     }
   }, [isSubmited]);
 
+  const clearFieldsOf = (id) => {
+    if(contactId1 === id){
+      setContactId1("");
+      setContactName1("");
+      setContactNumber1("");
+      setContactPrimary1(false);
+      setContactPrimary2(true);
+    }
+    if(contactId2 === id){
+      setContactId2("");
+      setContactName2("");
+      setContactNumber2("");
+      setContactPrimary2(false);
+      setContactPrimary1(true);
+    }
+  }
+
+  const deleteContact = async () => {
+    try {
+      const response = await axiosInstance.delete(`/contacts/${doDelete}`, {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
+      });
+
+      if (response.status === 200) {
+        updateCache(response?.data?.data);
+        clearFieldsOf(doDelete)
+        setIsSubmited(false);
+      } else {
+        console.log(response?.data?.message);
+        alert(response?.data?.message);
+        setIsSubmited(false);
+      }
+    } catch (error) {
+      console.log(error?.response?.message);
+      alert(error?.response?.message);
+      setIsSubmited(false);
+    }
+  };
+
+  useEffect(() => {
+    if (doDelete && doDelete !== "") {
+      console.log("deleting ", doDelete);
+      deleteContact()
+      setDoDelete("");
+    }
+  }, [doDelete]);
+
   return (
     <div className="flex flex-col justify-center items-center w-full h-full">
       <div
@@ -248,6 +286,8 @@ const ContactForm = () => {
                   className={`p-1.5 hover:p-2 bg-cyan-950 bg-opacity-5 h-max hover:relative text-sm hover:text-xl rounded-full hover:bg-red-700 text-gray-400 hover:text-slate-50 hover:transition-all duration-300 ${
                     contactId1 === "" && "hidden"
                   }`}
+                  type="button"
+                  onClick={() => setDoDelete(contactId1)}
                 >
                   <AiOutlineDelete />
                 </button>
@@ -285,6 +325,8 @@ const ContactForm = () => {
                   className={`p-1.5 hover:p-2 bg-cyan-950 bg-opacity-5 h-max hover:relative text-sm hover:text-xl rounded-full hover:bg-red-700 text-gray-400 hover:text-slate-50 hover:transition-all duration-300 ${
                     contactId2 === "" && "hidden"
                   }`}
+                  type="button"
+                  onClick={() => setDoDelete(contactId2)}
                 >
                   <AiOutlineDelete />
                 </button>

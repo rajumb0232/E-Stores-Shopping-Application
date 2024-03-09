@@ -37,4 +37,9 @@ public class ContactController {
     public ResponseEntity<ResponseStructure<List<Contact>>> getContactsByAddress(@PathVariable String addressId){
         return contactService.getContactsByAddress(addressId);
     }
+
+    @DeleteMapping("/contacts/{contactId}")
+    public ResponseEntity<ResponseStructure<List<Contact>>> deleteContactById(@PathVariable String contactId){
+        return contactService.deleteContactById(contactId);
+    }
 }

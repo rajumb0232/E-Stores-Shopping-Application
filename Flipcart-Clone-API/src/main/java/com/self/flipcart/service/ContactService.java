@@ -15,4 +15,6 @@ public interface ContactService {
     ResponseEntity<ResponseStructure<Contact>> getContactById(String contactId);
 
     ResponseEntity<ResponseStructure<List<Contact>>> getContactsByAddress(String addressId);
+
+    ResponseEntity<ResponseStructure<List<Contact>>> deleteContactById(String contactId);
 }
