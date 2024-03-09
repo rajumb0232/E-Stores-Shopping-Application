@@ -29,7 +29,7 @@ public class ContactServiceImpl implements ContactService {
             contact = contactRepo.save(contact);
             return new ResponseEntity<>(structureList.setStatus(HttpStatus.CREATED.value())
                     .setMessage("Successfully saved contact")
-                    .setData(address.getContacts()), HttpStatus.CREATED);
+                    .setData(contactRepo.findAllByAddress(contact.getAddress())), HttpStatus.CREATED);
         }).orElseThrow();
     }
 
@@ -37,10 +37,9 @@ public class ContactServiceImpl implements ContactService {
     public ResponseEntity<ResponseStructure<List<Contact>>> updateContact(ContactRequest contactRequest, String contactId) {
         return contactRepo.findById(contactId).map(c -> {
             Contact contact = contactRepo.save(mapToContactEntity(contactRequest, c));
-            List<Contact> contacts = contactRepo.findAllByAddress(contact.getAddress());
             return new ResponseEntity<>(structureList.setStatus(HttpStatus.OK.value())
                     .setMessage("Successfully updated contact")
-                    .setData(contacts), HttpStatus.OK);
+                    .setData(contactRepo.findAllByAddress(contact.getAddress())), HttpStatus.OK);
         } ).orElseThrow();
     }
 
@@ -57,6 +56,21 @@ public class ContactServiceImpl implements ContactService {
                 .setMessage("contacts found b address")
                 .setData(contactRepo.findAllByAddress(address)), HttpStatus.FOUND)).orElseThrow();
 
+    }
+
+    @Override
+    public ResponseEntity<ResponseStructure<List<Contact>>> deleteContactById(String contactId) {
+        return contactRepo.findById(contactId).map(contact -> {
+            contactRepo.delete(contact);
+            List<Contact> contacts = contactRepo.findAllByAddress(contact.getAddress());
+            if(!contacts.get(0).isPrimary()){
+                contacts.get(0).setPrimary(true);
+                contactRepo.save(contacts.get(0));
+            }
+            return ResponseEntity.ok(structureList.setStatus(HttpStatus.OK.value())
+                    .setMessage("Successfully deleted the contact")
+                    .setData(contacts));
+        }).orElseThrow();
     }
 
     private Contact mapToContactEntity(ContactRequest contactRequest, Contact contact) {
