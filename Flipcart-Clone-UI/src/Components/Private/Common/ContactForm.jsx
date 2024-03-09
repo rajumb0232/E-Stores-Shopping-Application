@@ -216,8 +216,10 @@ const ContactForm = () => {
       setContactId1("");
       setContactName1("");
       setContactNumber1("");
-      setContactPrimary1(false);
-      if(contactId2 !== "") setContactPrimary2(true);
+      if(contactId2 !== ""){
+        setContactPrimary1(false);
+        setContactPrimary2(true);
+      } 
     }
     if(contactId2 === id){
       setContactId2("");
