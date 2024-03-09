@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import SubmitBtn from "../../Public/SubmitBtn";
+import SubmitBtn from "../../Util/SubmitBtn";
 import { PiStorefrontDuotone } from "react-icons/pi";
 import AxiosPrivateInstance from "../../API/AxiosPrivateInstance";
 import { DropDown } from "../../Util/DropDown";
@@ -8,35 +8,22 @@ import FormHeading from "../../Util/FormHeading";
 import { usePrimeCategories } from "../../Hooks/useOptions";
 import useStore from "../../Hooks/useStore";
 
-const AddStore = ({ isViewStore }) => {
+const AddStore = () => {
   const [storeName, setStoreName] = useState("");
   const [about, setAbout] = useState("");
   const [primeCategory, setPrimeCategory] = useState("");
   const [isSubmited, setIsSubmited] = useState(false);
-  const [store, setStore] = useState({});
   const [isPrevPresent, setPrevPresent] = useState(false);
   const [isAnyModified, setAnyModified] = useState(false);
-
   const { primeCategories } = usePrimeCategories();
-  const { getPrevStore } = useStore({ setStore });
-
   const axiosInstance = AxiosPrivateInstance();
-
+  const { store } = useStore();
   useEffect(() => {
-    if (store && isViewStore) {
+    if (store) {
       setStoreName(store.storeName);
       setAbout(store.about);
     }
   }, [store]);
-
-  // fetching prime categories and updating categories state.
-  useEffect(() => {
-    const getPrevStoreData = async () => {
-      const isPresent = await getPrevStore(false);
-      setPrevPresent(isPresent);
-    };
-    getPrevStoreData();
-  }, []);
 
   // update isModified state if data modified
   useEffect(() => {
@@ -80,7 +67,6 @@ const AddStore = ({ isViewStore }) => {
       if (response.status === 201) {
         cache.put("/stores", new Response(JSON.stringify(response.data.data)));
         localStorage.setItem("store", "true");
-        isViewStore(false);
       } else {
         setIsSubmited(false);
         alert("Something went wrong!!");
@@ -95,7 +81,6 @@ const AddStore = ({ isViewStore }) => {
   const handleUpdateStore = () => {
     console.log("updating store...");
     setIsSubmited(false);
-    isViewStore(false);
   };
 
   // handling changes on isSubmitted changes
@@ -107,24 +92,26 @@ const AddStore = ({ isViewStore }) => {
   }, [isSubmited]);
 
   return (
-    <div className="flex flex-col justify-center w-10/12 h-full">
-      <FormHeading icon={<PiStorefrontDuotone />} text={"Create Store"} />
+    <div className="flex flex-col justify-center items-center w-full h-full">
+      <FormHeading icon={<PiStorefrontDuotone />} text={"Store Details"} />
 
-      <Input
-        isRequired={true}
-        placeholderText={"Your store name here:"}
-        onChangePerform={setStoreName}
-        value={storeName}
-      />
+      <div className="w-full flex flex-col items-center px-5">
+        <Input
+          isRequired={true}
+          placeholderText={"Your store name here:"}
+          onChangePerform={setStoreName}
+          value={storeName}
+        />
 
-      <textarea
-        type="text"
-        id="about"
-        onChange={(event) => setAbout(event.target.value)}
-        placeholder="About (optional):"
-        className="h-40 overflow-x-clip text-start text-slate-700 focus:bg-slate-50 hover:bg-slate-50 hover:border-slate-300 focus:border-slate-300 border-2 rounded-md p-2 text-base"
-        value={about}
-      />
+        <textarea
+          type="text"
+          id="about"
+          onChange={(event) => setAbout(event.target.value)}
+          placeholder="About (optional):"
+          className="h-40 w-full overflow-x-clip text-start text-slate-700 bg-cyan-950 bg-opacity-5 hover:border-slate-300 focus:border-slate-300 border-2 border-transparent rounded-md p-2 text-base"
+          value={about}
+        />
+      </div>
 
       <div className="w-full flex justify-center items-center">
         {!store && (
@@ -143,7 +130,7 @@ const AddStore = ({ isViewStore }) => {
         )}
 
         {/* SUBMIT BUTTON */}
-        <div className="ml-auto my-8 w-full flex">
+        <div className="ml-auto my-8 w-full flex justify-end">
           <SubmitBtn
             submit={submit}
             isSubmited={isSubmited}

@@ -10,7 +10,7 @@ const Home = () => {
 
   useEffect(() => {
     console.log("Working...");
-    let role = JSON.parse(localStorage.getItem('user')).role;
+    let role = JSON.parse(localStorage.getItem('user'))?.role;
     role === "SELLER"
     ? navigate("/seller-dashboard")
     : role === "ADMIN"

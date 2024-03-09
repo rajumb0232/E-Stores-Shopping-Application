@@ -187,6 +187,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public ResponseEntity<ResponseStructure<AuthResponse>> refreshLogin(String refreshToken, String accessToken) {
+        System.out.println(refreshToken);
         if (refreshToken == null) throw new UserNotLoggedInException("Failed to refresh login");
         Attempt attempt = attemptCacheStore.get(refreshToken);
         if (attempt != null)

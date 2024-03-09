@@ -8,9 +8,9 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 public interface ContactService {
-    ResponseEntity<ResponseStructure<Contact>> addContact(ContactRequest contactRequest, String addressId);
+    ResponseEntity<ResponseStructure<List<Contact>>> addContact(ContactRequest contactRequest, String addressId);
 
-    ResponseEntity<ResponseStructure<Contact>> updateContact(ContactRequest contactRequest, String contactId);
+    ResponseEntity<ResponseStructure<List<Contact>>> updateContact(ContactRequest contactRequest, String contactId);
 
     ResponseEntity<ResponseStructure<Contact>> getContactById(String contactId);
 

@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md";
 
 export function DropDown({
   valueType,
@@ -30,9 +31,14 @@ export function DropDown({
         onClick={toggleDropdown}
       >
         <div className="flex flex-col justify-center items-start w-full">
-          <p>
-            {value !== "" && value ? valueType + ": " + value : DefaultText}
-          </p>
+          <div className="flex justify-center items-center"> 
+            <p>
+              {value !== "" && value ? valueType + ": " + value : DefaultText}
+            </p>
+            <div className="ml-1">
+              {(isDropdownOpen)? <MdKeyboardArrowUp/> : <MdKeyboardArrowDown/>}
+            </div>
+          </div>
           <p className="text-xs text-slate-400 font-normal">
             {value !== "" && value ? warnMessage : " "}
           </p>
@@ -41,7 +47,7 @@ export function DropDown({
 
       {isDropdownOpen && (
         <div
-          className="dropdown absolute w-3/12 font-semibold h-1/5 overflow-y-auto scroll-smooth flex flex-col shadow-2xl bg-slate-100 rounded-md"
+          className="dropdown absolute w-3/12 font-semibold h-2/6 overflow-y-auto scroll-smooth flex flex-col shadow-lg shadow-slate-300 bg-slate-50 rounded-sm"
           ref={dropDownRef}
         >
           {options.map((option, i) => {
@@ -52,7 +58,7 @@ export function DropDown({
                   setter(option);
                   setDropdownOpen(false);
                 }}
-                className="prime-category hover:bg-blue-400 hover:shadow-md shadow-slate-700 px-4 py-2 w-full text-start font-light rounded-md hover:text-slate-100 "
+                className="prime-category hover:bg-blue-600 hover:shadow-md shadow-slate-700 px-4 py-2 w-full text-start font-light hover:text-slate-100 "
               >
                 {option}
               </button>
