@@ -21,6 +21,7 @@ public class ContactServiceImpl implements ContactService {
     private AddressRepo addressRepo;
     private ResponseStructure<Contact> structure;
     private ResponseStructure<List<Contact>> structureList;
+
     @Override
     public ResponseEntity<ResponseStructure<List<Contact>>> addContact(ContactRequest contactRequest, String addressId) {
         return addressRepo.findById(addressId).map(address -> {
@@ -40,7 +41,7 @@ public class ContactServiceImpl implements ContactService {
             return new ResponseEntity<>(structureList.setStatus(HttpStatus.OK.value())
                     .setMessage("Successfully updated contact")
                     .setData(contactRepo.findAllByAddress(contact.getAddress())), HttpStatus.OK);
-        } ).orElseThrow();
+        }).orElseThrow();
     }
 
     @Override
@@ -52,7 +53,7 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     public ResponseEntity<ResponseStructure<List<Contact>>> getContactsByAddress(String addressId) {
-       return addressRepo.findById(addressId).map(address -> new ResponseEntity<>(structureList.setStatus(HttpStatus.FOUND.value())
+        return addressRepo.findById(addressId).map(address -> new ResponseEntity<>(structureList.setStatus(HttpStatus.FOUND.value())
                 .setMessage("contacts found b address")
                 .setData(contactRepo.findAllByAddress(address)), HttpStatus.FOUND)).orElseThrow();
 
@@ -63,9 +64,11 @@ public class ContactServiceImpl implements ContactService {
         return contactRepo.findById(contactId).map(contact -> {
             contactRepo.delete(contact);
             List<Contact> contacts = contactRepo.findAllByAddress(contact.getAddress());
-            if(!contacts.get(0).isPrimary()){
-                contacts.get(0).setPrimary(true);
-                contactRepo.save(contacts.get(0));
+            if (contacts.size() > 0) {
+                if (!contacts.get(0).isPrimary()) {
+                    contacts.get(0).setPrimary(true);
+                    contactRepo.save(contacts.get(0));
+                }
             }
             return ResponseEntity.ok(structureList.setStatus(HttpStatus.OK.value())
                     .setMessage("Successfully deleted the contact")
