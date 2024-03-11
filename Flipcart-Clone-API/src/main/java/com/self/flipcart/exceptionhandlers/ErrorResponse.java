@@ -1,11 +1,13 @@
 package com.self.flipcart.exceptionhandlers;
 
 import com.self.flipcart.util.ErrorStructure;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 @Component
+@AllArgsConstructor
 public class ErrorResponse {
     private ErrorStructure<Object> structure;
 

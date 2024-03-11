@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../Context/AuthProvider';
 import FormImageBlock from '../Util/FormImageBlock';
 import AxiosPrivateInstance from '../API/AxiosPrivateInstance';
-import SubmitBtn from './SubmitBtn';
+import SubmitBtn from "../Util/SubmitBtn";
 
 const Register = ({role, isLogin}) => {
   const [email, setEmail] = useState("");

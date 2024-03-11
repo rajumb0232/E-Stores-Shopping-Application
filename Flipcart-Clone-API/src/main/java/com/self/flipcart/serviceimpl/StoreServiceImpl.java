@@ -1,7 +1,5 @@
 package com.self.flipcart.serviceimpl;
 
-import com.self.flipcart.enums.DisplayType;
-import com.self.flipcart.exceptions.InvalidDisplayTypeException;
 import com.self.flipcart.exceptions.InvalidPrimeCategoryException;
 import com.self.flipcart.exceptions.StoreNotFoundByIdException;
 import com.self.flipcart.model.Store;
@@ -11,11 +9,8 @@ import com.self.flipcart.repository.UserRepo;
 import com.self.flipcart.requestdto.StoreRequest;
 import com.self.flipcart.requestdto.StoreRequestComplete;
 import com.self.flipcart.responsedto.StoreResponse;
-import com.self.flipcart.responsedto.StoreResponseBasic;
-import com.self.flipcart.responsedto.StoreResponseComplete;
 import com.self.flipcart.service.StoreService;
 import com.self.flipcart.util.ResponseStructure;
-import com.self.flipcart.util.Structure;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,12 +24,11 @@ public class StoreServiceImpl implements StoreService {
     private UserRepo userRepo;
     private SellerRepo sellerRepo;
     private StoreRepo storeRepo;
-    private ResponseStructure<StoreResponse> storeResponseStructure;
-    private StoreResponseComplete storeResponseComplete;
+    private ResponseStructure<StoreResponse> basicStructure;
     private ResponseStructure<Store> structure;
 
     @Override
-    public ResponseEntity<ResponseStructure<StoreResponse>> setUpStore(StoreRequestComplete storeRequest) {
+    public ResponseEntity<ResponseStructure<Store>> setUpStore(StoreRequestComplete storeRequest) {
         Store store = mapToStoreEntity(storeRequest, new Store());
         return userRepo.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).map(user -> sellerRepo.findById(user.getUserId())
                 .map(seller -> {
@@ -42,50 +36,30 @@ public class StoreServiceImpl implements StoreService {
                     seller.setStore(uniqueStore);
                     sellerRepo.save(seller);
                     return new ResponseEntity<>(
-                            storeResponseStructure.setStatus(HttpStatus.CREATED.value())
+                            structure.setStatus(HttpStatus.CREATED.value())
                                     .setMessage("Store Created Successfully")
-                                    .setData(mapToStoreResponse(uniqueStore)), HttpStatus.CREATED);
+                                    .setData(uniqueStore), HttpStatus.CREATED);
                 }).get()).orElseThrow();
     }
 
     @Override
-    public ResponseEntity<ResponseStructure<StoreResponse>> updateStore(StoreRequest storeRequest, String storeId) {
+    public ResponseEntity<ResponseStructure<Store>> updateStore(StoreRequest storeRequest, String storeId) {
         return storeRepo.findById(storeId).map(exStore -> {
             exStore = mapToStoreEntity(storeRequest, exStore);
             Store uniqueStore = storeRepo.save(exStore);
             return new ResponseEntity<>(
-                    storeResponseStructure.setStatus(HttpStatus.OK.value())
+                    structure.setStatus(HttpStatus.OK.value())
                             .setMessage("Store Created Successfully")
-                            .setData(mapToStoreResponse(uniqueStore)), HttpStatus.OK);
+                            .setData(uniqueStore), HttpStatus.OK);
         }).orElseThrow();
     }
 
     @Override
-    public ResponseEntity<? extends Structure<? extends StoreResponse>> getStore(String storeId, String displayType) {
-        DisplayType display;
-        try {
-            display = DisplayType.valueOf(displayType.toUpperCase());
-        } catch (RuntimeException e) {
-            throw new InvalidDisplayTypeException("Failed to find the store");
-        }
-        final DisplayType displayType2 = display;
+    public ResponseEntity<ResponseStructure<StoreResponse>> getStore(String storeId) {
         return storeRepo.findById(storeId)
-                .map(store -> {
-                    switch (displayType2) {
-                        case BASIC -> {
-                            return new ResponseEntity<>(storeResponseStructure.setStatus(HttpStatus.FOUND.value())
-                                    .setMessage("Store data found")
-                                    .setData(mapToStoreResponseBasic(store)), HttpStatus.FOUND);
-                        }
-                        case COMPLETE -> {
-                            return new ResponseEntity<>(storeResponseStructure.setStatus(HttpStatus.FOUND.value())
-                                    .setMessage("Store data found")
-                                    .setData(mapToStoreResponse(store)), HttpStatus.FOUND);
-                        }
-                        default ->
-                                throw new InvalidDisplayTypeException("Failed to find the store, display type card not supported");
-                    }
-                })
+                .map(store -> new ResponseEntity<>(basicStructure.setStatus(HttpStatus.FOUND.value())
+                        .setMessage("Store data found")
+                        .setData(mapToStoreResponseBasic(store)), HttpStatus.FOUND))
                 .orElseThrow(() -> new StoreNotFoundByIdException("Failed to find the store data"));
     }
 
@@ -106,7 +80,7 @@ public class StoreServiceImpl implements StoreService {
         return userRepo.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName())
                 .map(user -> sellerRepo.findById(user.getUserId())
                         .map(seller -> {
-                            if(seller.getStore() != null){
+                            if (seller.getStore() != null) {
                                 return new ResponseEntity<>(structure.setStatus(HttpStatus.FOUND.value())
                                         .setMessage("Store found")
                                         .setData(seller.getStore()), HttpStatus.FOUND);
@@ -115,8 +89,8 @@ public class StoreServiceImpl implements StoreService {
                 .orElseThrow();
     }
 
-    private StoreResponseBasic mapToStoreResponseBasic(Store store) {
-        return StoreResponseBasic.builder()
+    private StoreResponse mapToStoreResponseBasic(Store store) {
+        return StoreResponse.builder()
                 .storeName(store.getStoreName())
                 .storeId(store.getStoreId())
                 .primeCategory(store.getPrimeCategory())
@@ -124,25 +98,23 @@ public class StoreServiceImpl implements StoreService {
                 .build();
     }
 
-    private StoreResponseComplete mapToStoreResponse(Store store) {
-        storeResponseComplete.setStoreId(store.getStoreId());
-        storeResponseComplete.setStoreName(store.getStoreName());
-        storeResponseComplete.setLogoLink(store.getLogoLink());
-        storeResponseComplete.setAbout(store.getAbout());
-        storeResponseComplete.setPrimeCategory(store.getPrimeCategory());
-        return storeResponseComplete;
-    }
-
+    /**
+     * maps the store request object to entity ignoring the primeCategory
+     */
     private Store mapToStoreEntity(StoreRequest storeRequest, Store store) {
-        if(storeRequest.getPrimeCategory() == null) throw new InvalidPrimeCategoryException("Failed to update the store data");
+        if (storeRequest.getPrimeCategory() == null)
+            throw new InvalidPrimeCategoryException("Failed to update the store data");
         store.setStoreName(storeRequest.getStoreName());
         store.setAbout(storeRequest.getAbout());
-        store.setPrimeCategory(storeRequest.getPrimeCategory());
         return store;
     }
 
+    /**
+     * maps the store request object to entity along with the primeCategory
+     */
     private Store mapToStoreEntity(StoreRequestComplete storeRequestComplete, Store store) {
-        if(storeRequestComplete.getPrimeCategory() == null) throw new InvalidPrimeCategoryException("Failed to update the store data");
+        if (storeRequestComplete.getPrimeCategory() == null)
+            throw new InvalidPrimeCategoryException("Failed to update the store data");
         store.setStoreName(storeRequestComplete.getStoreName());
         store.setAbout(storeRequestComplete.getAbout());
         store.setPrimeCategory(storeRequestComplete.getPrimeCategory());

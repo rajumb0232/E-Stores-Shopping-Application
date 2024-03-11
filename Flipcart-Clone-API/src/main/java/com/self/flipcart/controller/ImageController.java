@@ -1,7 +1,7 @@
 package com.self.flipcart.controller;
 
 import com.self.flipcart.service.ImageService;
-import com.self.flipcart.util.SimpleResponseStructure;
+import com.self.flipcart.util.ResponseStructure;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +16,12 @@ public class ImageController {
     private ImageService imageService;
 
     @PostMapping("/stores/{storeId}/images")
-    private ResponseEntity<SimpleResponseStructure> addStoreImage(@PathVariable String storeId, MultipartFile image){
+    private ResponseEntity<ResponseStructure> addStoreImage(@PathVariable String storeId, MultipartFile image){
         return imageService.addStoreImage(storeId, image);
+    }
+
+    @GetMapping("/images/{imageId}")
+    private ResponseEntity<byte[]> getImageById(@PathVariable String imageId){
+        return imageService.getImageById(imageId);
     }
 }

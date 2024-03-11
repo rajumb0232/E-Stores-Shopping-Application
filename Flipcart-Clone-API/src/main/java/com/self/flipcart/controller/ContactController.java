@@ -19,12 +19,12 @@ public class ContactController {
     private ContactService contactService;
 
     @PostMapping("/addresses/{addressId}/contacts")
-    public ResponseEntity<ResponseStructure<Contact>> addContact(@RequestBody ContactRequest contactRequest, @PathVariable String addressId) {
+    public ResponseEntity<ResponseStructure<List<Contact>>> addContact(@RequestBody ContactRequest contactRequest, @PathVariable String addressId) {
         return contactService.addContact(contactRequest, addressId);
     }
 
     @PutMapping("/contacts/{contactId}")
-    public ResponseEntity<ResponseStructure<Contact>> updateContact(@RequestBody ContactRequest contactRequest, @PathVariable String contactId){
+    public ResponseEntity<ResponseStructure<List<Contact>>> updateContact(@RequestBody ContactRequest contactRequest, @PathVariable String contactId){
         return contactService.updateContact(contactRequest, contactId);
     }
 
@@ -36,5 +36,10 @@ public class ContactController {
     @GetMapping("/addresses/{addressId}/contacts")
     public ResponseEntity<ResponseStructure<List<Contact>>> getContactsByAddress(@PathVariable String addressId){
         return contactService.getContactsByAddress(addressId);
+    }
+
+    @DeleteMapping("/contacts/{contactId}")
+    public ResponseEntity<ResponseStructure<List<Contact>>> deleteContactById(@PathVariable String contactId){
+        return contactService.deleteContactById(contactId);
     }
 }

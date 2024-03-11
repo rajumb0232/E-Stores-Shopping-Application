@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md";
 
 export function DropDown({
   valueType,
@@ -11,9 +12,9 @@ export function DropDown({
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const dropDownRef = useRef(null);
 
-  const toggleDropdown = () => {
-    isDropdownOpen ? setDropdownOpen(false) : setDropdownOpen(true);
-  };
+  // const toggleDropdown = () => {
+  //   isDropdownOpen ? setDropdownOpen(false) : setDropdownOpen(true);
+  // };
 
   // closing dropdown whenever the user makes a random click
   document.addEventListener("mousedown", (e) => {
@@ -26,14 +27,19 @@ export function DropDown({
     <div>
       <button
         type="button"
-        className="py-1 w-full px-2 font-semibold text-slate-700 flex"
-        onClick={toggleDropdown}
+        className="py-1 px-2 font-semibold text-slate-700"
+        onMouseEnter={() => setDropdownOpen(true)}
       >
-        <div className="flex flex-col justify-center items-start w-full">
-          <p>
-            {value !== "" && value ? valueType + ": " + value : DefaultText}
-          </p>
-          <p className="text-xs text-slate-400 font-normal">
+        <div className="flex flex-col justify-start items-start w-fit">
+          <div className="flex justify-start items-start"> 
+            <p>
+              {value !== "" && value ? valueType + ": " + value : DefaultText}
+            </p>
+            <div className="ml-1">
+              {(isDropdownOpen)? <MdKeyboardArrowUp/> : <MdKeyboardArrowDown/>}
+            </div>
+          </div>
+          <p className="w-3/5 text-xs text-start text-slate-400 font-normal">
             {value !== "" && value ? warnMessage : " "}
           </p>
         </div>
@@ -41,8 +47,9 @@ export function DropDown({
 
       {isDropdownOpen && (
         <div
-          className="dropdown absolute w-3/12 font-semibold h-1/5 overflow-y-auto scroll-smooth flex flex-col shadow-2xl bg-slate-100 rounded-md"
+          className="dropdown absolute w-3/12 font-semibold max-h-60 overflow-y-auto scroll-smooth flex flex-col shadow-lg shadow-slate-300 bg-slate-50 rounded-sm"
           ref={dropDownRef}
+          onMouseLeave={() => setDropdownOpen(false)}
         >
           {options.map((option, i) => {
             return (
@@ -52,7 +59,7 @@ export function DropDown({
                   setter(option);
                   setDropdownOpen(false);
                 }}
-                className="prime-category hover:bg-blue-400 hover:shadow-md shadow-slate-700 px-4 py-2 w-full text-start font-light rounded-md hover:text-slate-100 "
+                className="prime-category hover:bg-blue-600 hover:shadow-md shadow-slate-700 px-4 py-2 w-full text-start font-light hover:text-slate-100"
               >
                 {option}
               </button>

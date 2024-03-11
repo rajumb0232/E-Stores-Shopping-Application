@@ -7,8 +7,8 @@ const Input = ({value, onChangePerform, isRequired, placeholderText}) => {
       onChange={(event) => onChangePerform(event.target.value)}
       required={isRequired}
       placeholder={placeholderText}
-      value={value}
-      className="border-b-2 border-slate-200 w-full mb-4 py-1 text-lg hover:border-slate-300 focus:border-slate-300"
+      value={value? value : ""}
+      className="border-2 border-transparent rounded-md bg-cyan-950 bg-opacity-5 w-full mb-4 mx-2 py-2  px-2 text-base hover:border-slate-300 focus:border-slate-300 placeholder:text-slate-500"
     />
   );
 };

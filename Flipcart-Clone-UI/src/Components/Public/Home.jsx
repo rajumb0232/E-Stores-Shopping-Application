@@ -1,27 +1,28 @@
 import React from "react";
-import { Link, json, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../Context/AuthProvider";
 import { useEffect } from "react";
+import { RiLoader4Fill } from "react-icons/ri";
 
 const Home = () => {
   const navigate = useNavigate();
-  // const { auth } = useAuth();
-  // const { role } = auth;
+  const { auth } = useAuth();
+  const { role } = auth;
 
   useEffect(() => {
-    console.log("Working...");
-    let role = JSON.parse(localStorage.getItem('user')).role;
+    console.log(auth);
     role === "SELLER"
-    ? navigate("/seller-dashboard")
-    : role === "ADMIN"
-    ? navigate("/admin-dashboard")
-    : role === "SUPER_ADMIN"
-    && navigate("/super-admin-dashboard")
-  }, []);
+      ? navigate("/seller-dashboard")
+      : role === "ADMIN"
+      ? navigate("/admin-dashboard")
+      : role === "SUPER_ADMIN" && navigate("/super-admin-dashboard");
+  }, [auth]);
 
   return (
-    <div className="flex items-center justify-center h-svh">
-      Home
+    <div className="h-screen bg-white flex justify-center items-center text-3xl text-blue-600">
+      <div className="animate-spin">
+        <RiLoader4Fill />
+      </div>
     </div>
   );
 };

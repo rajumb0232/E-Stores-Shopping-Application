@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import AxiosPrivateInstance from "../API/AxiosPrivateInstance";
 
+// --------------------------------------------------------------------------------------------------------
 export const useStates = () => {
   const [states, setStates] = useState([]);
   const axiosInstance = AxiosPrivateInstance();
@@ -39,6 +40,38 @@ export const useStates = () => {
   return { states };
 };
 
+// --------------------------------------------------------------------------------------------------------
+export const useCityDistricts = () => {
+  const [districts, setDistricts] = useState([]);
+  const axiosInstance = AxiosPrivateInstance();
+
+  const updateDistricts = async (stateName) => {
+    const districtsString = sessionStorage.getItem(
+      `/states/${stateName}/districts`
+    );
+
+    if (districtsString) {
+      const districts = JSON.parse(districtsString);
+      if (districts && districts.length > 0) setDistricts(districts);
+    } else {
+      const response = await axiosInstance.get(
+        `/states/${stateName}/districts`
+      );
+
+      if (response.status === 200) {
+        sessionStorage.setItem(
+          `/states/${stateName}/districts`,
+          JSON.stringify(response.data)
+        );
+        setDistricts(response.data);
+      } else console.log("Something went wrong");
+    }
+  };
+
+  return { districts, updateDistricts };
+};
+
+// --------------------------------------------------------------------------------------------------------
 export const usePrimeCategories = () => {
   const [primeCategories, setPrimeCategories] = useState([]);
   const axiosInstance = AxiosPrivateInstance();
@@ -73,3 +106,5 @@ export const usePrimeCategories = () => {
 
   return { primeCategories };
 };
+
+// --------------------------------------------------------------------------------------------------------
