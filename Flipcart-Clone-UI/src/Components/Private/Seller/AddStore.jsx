@@ -7,6 +7,9 @@ import Input from "../../Util/Input";
 import FormHeading from "../../Util/FormHeading";
 import { usePrimeCategories } from "../../Hooks/useOptions";
 import useStore from "../../Hooks/useStore";
+import useImage from "../../Hooks/useImage";
+import { MdAdd, MdEdit } from "react-icons/md";
+import axios from "axios";
 
 const AddStore = () => {
   const [storeId, setStoreId] = useState("");
@@ -17,8 +20,15 @@ const AddStore = () => {
   const [isPrevPresent, setPrevPresent] = useState(false);
   const [isAnyModified, setAnyModified] = useState(false);
   const { primeCategories } = usePrimeCategories();
-  const axiosInstance = AxiosPrivateInstance();
+
   const { store } = useStore();
+  const { imageURL, getImageURL } = useImage();
+  const [selectedLogo, setSelectedLogo] = useState(null);
+  const [displayLogoURL, setDisplayLogoURL] = useState(null);
+
+  const axiosInstance = AxiosPrivateInstance();
+  const [imageHovered, setImageHovered] = useState(false);
+
   useEffect(() => {
     if (store) {
       setStoreId(store.storeId);
@@ -26,6 +36,7 @@ const AddStore = () => {
       setAbout(store.about);
       setPrimeCategory(store.primeCategory);
       setPrevPresent(true);
+      if (store?.logoLink) getImageURL(store.logoLink);
     }
   }, [store]);
 
@@ -38,6 +49,18 @@ const AddStore = () => {
     }
   }, [storeName, about, primeCategory]);
 
+  const handleImageChange = (event) => {
+    setSelectedLogo(event.target.files[0]);
+  };
+
+  useEffect(() => {
+    if (selectedLogo) {
+      const reader = new FileReader();
+      reader.onload = (e) => setDisplayLogoURL(e.target.result);
+      reader.readAsDataURL(selectedLogo);
+    }
+  }, [selectedLogo]);
+
   // handling the submit event by validating the data submitted
   const submit = (event) => {
     event.preventDefault();
@@ -46,6 +69,51 @@ const AddStore = () => {
       : storeName === ""
       ? alert("Store is not defined!!")
       : setIsSubmited(true);
+  };
+
+  // update Image URL to the
+  const updateLogoLinkToStoreInCache = async (logoLink) => {
+    const cache = await caches.open("user");
+    const storeCache = await cache.match("/stores");
+    if (storeCache) {
+      const storedata = await storeCache.json();
+      const newdata = { ...storedata, logoLink: logoLink };
+      cache.put("/stores", new Response(JSON.stringify(newdata)));
+    }
+  };
+
+  // uploade new LOGO
+  const uploadImage = async () => {
+    const formData = new FormData();
+    formData.append("image", selectedLogo);
+
+    try {
+      const response = await axiosInstance.post(
+        `/stores/${storeId}/images`,
+        formData,
+        {
+          headers: { "Content-Type": "image/*" },
+        }
+      );
+
+      if (response.status === 200) {
+        updateLogoLinkToStoreInCache(response.data.data);
+        setIsSubmited(false);
+      } else {
+        setIsSubmited(false);
+        alert(response?.data.message || response?.message);
+        console.log(response?.data);
+      }
+    } catch (error) {
+      setIsSubmited(false);
+      alert(error?.response?.message);
+      console.log(error?.response?.data);
+    }
+  };
+
+  // Update Existing LOGO
+  const updateImage = async () => {
+    const response = await axiosInstance.put();
   };
 
   // handling axios request to post the store data
@@ -57,10 +125,6 @@ const AddStore = () => {
       primeCategory: primeCategory.toUpperCase(),
       about: about,
     };
-    const config = {
-      headers: { "Content-Type": "application/json" },
-      withCredentials: true,
-    };
 
     const updateCache = async (store) => {
       const cache = await caches.open("user");
@@ -70,7 +134,7 @@ const AddStore = () => {
     // Requesting to add new store
     const add = async () => {
       try {
-        const response = await axiosInstance.post(URL, body, config);
+        const response = await axiosInstance.post(URL, body);
         // validating response
         if (response.status === 201) {
           updateCache(response?.data?.data);
@@ -92,7 +156,8 @@ const AddStore = () => {
     // Requesting to updating the existing store
     const update = async () => {
       try {
-        const response = await axiosInstance.put(URL, body, config);
+        const response = await axiosInstance.put(URL, body);
+
         // validating response
         if (response.status === 200) {
           updateCache(response?.data?.data);
@@ -120,56 +185,119 @@ const AddStore = () => {
       if (isPrevPresent) {
         storeName !== "" && about !== "" && storeId !== "" && isAnyModified
           ? updateStore(false)
-          : alert("Invalid Inputs, may be blank!!");
+          : isAnyModified && alert("Invalid Inputs, may be blank!!");
+        setIsSubmited(false);
       } else updateStore(true);
+
+      if (selectedLogo) {
+        if (imageURL && imageURL !== "") {
+          updateImage();
+        } else {
+          uploadImage();
+        }
+      }
     }
   }, [isSubmited]);
 
   return (
-    <div className="flex flex-col justify-center items-center w-full h-full">
+    <div className="flex flex-col justify-center items-start w-full h-full">
       <FormHeading icon={<PiStorefrontDuotone />} text={"Store Details"} />
 
-      <div className="w-full flex flex-col items-center px-5">
-        <Input
-          isRequired={true}
-          placeholderText={"Your store name here:"}
-          onChangePerform={setStoreName}
-          value={storeName}
-        />
+      <div className="w-full flex justify-center items-start">
+        <div className="min-w-20pr max-w-25pr mx-4 flex flex-col items-start">
+          <div
+            className="relative"
+            onMouseEnter={() => setImageHovered(true)}
+            onMouseLeave={() => setImageHovered(false)}
+          >
+            {imageHovered && (
+              <div
+                className="absolute right-4 bg-slate-100 p-1 border-1 border-slate-200 text-slate-400 hover:border-transparent hover:text-xl hover:text-white hover:p-1.5 hover:bg-amber-400 rounded-full flex justify-center items-center transition-all duration-150 cursor-pointer"
+                title={store?.logoLink ? "Update Logo" : "Add Logo"}
+              >
+                <input
+                  type="file"
+                  id="imageInput"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
 
-        <textarea
-          type="text"
-          id="about"
-          onChange={(event) => setAbout(event.target.value)}
-          placeholder="About (optional):"
-          className="h-40 w-full overflow-x-clip text-start text-slate-700 bg-cyan-950 bg-opacity-5 hover:border-slate-300 focus:border-slate-300 border-2 border-transparent rounded-md p-2 text-base"
-          value={about}
-        />
-      </div>
+                {store?.logoLink ? (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      document.getElementById("imageInput").click()
+                    }
+                  >
+                    <MdEdit />
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      document.getElementById("imageInput").click()
+                    }
+                  >
+                    <MdAdd />
+                  </button>
+                )}
+              </div>
+            )}
+            <div
+              className={`w-32 h-32 border-2 hover:border-slate-300 rounded-full mb-4 flex justify-center items-center text-slate-400 font-semibold bg-cyan-950 bg-opacity-5`}
+            >
+              {store?.logoLink ? (
+                <img src={imageURL} className="w-full" />
+              ) : displayLogoURL ? (
+                <img src={displayLogoURL} className="w-full" />
+              ) : (
+                "Upload Logo"
+              )}
+            </div>
+          </div>
 
-      <div className="w-full flex justify-center items-center">
-        {!store && (
-          <div className="mr-auto my-8 w-full flex">
-            <DropDown
-              valueType={"Category"}
-              setter={setPrimeCategory}
-              value={primeCategory}
-              warnMessage={
-                "You cannot change the category after creating the store. are you sure?"
-              }
-              DefaultText={"Select Category"}
-              options={primeCategories}
+          {!store && (
+            <div className="my-6 w-fit flex justify-start">
+              <DropDown
+                valueType={"Category"}
+                setter={setPrimeCategory}
+                value={primeCategory}
+                warnMessage={
+                  "You cannot change the category after creating the store. are you sure?"
+                }
+                DefaultText={"Select Category"}
+                options={primeCategories}
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="w-full flex flex-col justify-center items-center">
+          <div className="w-full flex flex-col items-center">
+            <Input
+              isRequired={true}
+              placeholderText={"Your store name here:"}
+              onChangePerform={setStoreName}
+              value={storeName}
+            />
+
+            <textarea
+              type="text"
+              id="about"
+              onChange={(event) => setAbout(event.target.value)}
+              placeholder="About (optional):"
+              className="h-56 w-full overflow-x-clip text-start text-slate-700 bg-cyan-950 bg-opacity-5 hover:border-slate-300 focus:border-slate-300 border-2 border-transparent rounded-md p-2 text-base"
+              value={about}
             />
           </div>
-        )}
-
-        {/* SUBMIT BUTTON */}
-        <div className="ml-auto my-8 w-full flex justify-end">
-          <SubmitBtn
-            submit={submit}
-            isSubmited={isSubmited}
-            name={isPrevPresent ? "Update" : "Confirm"}
-          />
+          {/* SUBMIT BUTTON */}
+          <div className="ml-auto my-8 w-full flex justify-end">
+            <SubmitBtn
+              submit={submit}
+              isSubmited={isSubmited}
+              name={isPrevPresent ? "Update" : "Confirm"}
+            />
+          </div>
         </div>
       </div>
     </div>

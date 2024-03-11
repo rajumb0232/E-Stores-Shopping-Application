@@ -6,20 +6,17 @@ import com.self.flipcart.model.StoreImage;
 import com.self.flipcart.repository.ImageRepo;
 import com.self.flipcart.repository.StoreRepo;
 import com.self.flipcart.service.ImageService;
-import com.self.flipcart.util.SimpleResponseStructure;
+import com.self.flipcart.util.ResponseStructure;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
+import java.time.Duration;
 
 @Service
 @AllArgsConstructor
@@ -27,28 +24,35 @@ public class ImageServiceImpl implements ImageService {
 
     private ImageRepo imageRepo;
     private StoreRepo storeRepo;
-    private SimpleResponseStructure simpleResponseStructure;
-
-    private MongoTemplate mongoTemplate;
+    private ResponseStructure responseStructure;
 
     @Override
-    public ResponseEntity<SimpleResponseStructure> addStoreImage(String storeId, MultipartFile image) {
+    public ResponseEntity<ResponseStructure> addStoreImage(String storeId, MultipartFile image) {
         System.err.println(storeId);
-       return storeRepo.findById(storeId).map(store -> {
-           StoreImage storeImage = new StoreImage();
-           storeImage.setStoreId(storeId);
-           storeImage.setImageType(ImageType.LOGO);
-           try {
-               storeImage.setImageBytes(image.getBytes());
-           } catch (IOException e) {
-               throw new RuntimeException(e);
-           }
-           imageRepo.save(storeImage);
-           Pageable pageable = PageRequest.of(0, 10, Sort.by("price").ascending());
-           Page<Image> page = imageRepo.findAll(pageable);
-           List<Image> list = page.getContent();
-           return new ResponseEntity<>(simpleResponseStructure.setStatus(HttpStatus.OK.value())
-                   .setMessage("Successfully save image"), HttpStatus.OK);
-       }).orElseThrow();
+        return storeRepo.findById(storeId).map(store -> {
+            StoreImage storeImage = new StoreImage();
+            storeImage.setStoreId(storeId);
+            storeImage.setContentType(image.getContentType());
+            storeImage.setImageType(ImageType.LOGO);
+            try {
+                storeImage.setImageBytes(image.getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            Image i = imageRepo.save(storeImage);
+            store.setLogoLink("/images/" + i.getImageId());
+            storeRepo.save(store);
+            return new ResponseEntity<>(responseStructure.setStatus(HttpStatus.OK.value())
+                    .setMessage("Successfully save image").setData("/images/" + i.getImageId()), HttpStatus.OK);
+        }).orElseThrow();
+    }
+
+    @Override
+    public ResponseEntity<byte[]> getImageById(String imageId) {
+        return imageRepo.findById(imageId).map(image -> ResponseEntity.ok()
+                .contentType(MediaType.valueOf(image.getContentType()))
+                .contentLength(image.getImageBytes().length)
+                .cacheControl(CacheControl.maxAge(Duration.ofDays(1)))
+                .body(image.getImageBytes())).orElseThrow();
     }
 }
