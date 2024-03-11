@@ -30,6 +30,10 @@ public class ImageServiceImpl implements ImageService {
     public ResponseEntity<ResponseStructure> addStoreImage(String storeId, MultipartFile image) {
         System.err.println(storeId);
         return storeRepo.findById(storeId).map(store -> {
+            if(store.getLogoLink() != null){
+            String[] a = store.getLogoLink().split("/");
+            imageRepo.deleteById(a[a.length-1]);
+            }
             StoreImage storeImage = new StoreImage();
             storeImage.setStoreId(storeId);
             storeImage.setContentType(image.getContentType());

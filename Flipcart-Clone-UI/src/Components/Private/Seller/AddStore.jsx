@@ -71,7 +71,7 @@ const AddStore = () => {
       : setIsSubmited(true);
   };
 
-  // update Image URL to the
+  // update Image URL to the cache
   const updateLogoLinkToStoreInCache = async (logoLink) => {
     const cache = await caches.open("user");
     const storeCache = await cache.match("/stores");
@@ -99,6 +99,7 @@ const AddStore = () => {
       if (response.status === 200) {
         updateLogoLinkToStoreInCache(response.data.data);
         setIsSubmited(false);
+        alert("Upload successful")
       } else {
         setIsSubmited(false);
         alert(response?.data.message || response?.message);
@@ -109,11 +110,6 @@ const AddStore = () => {
       alert(error?.response?.message);
       console.log(error?.response?.data);
     }
-  };
-
-  // Update Existing LOGO
-  const updateImage = async () => {
-    const response = await axiosInstance.put();
   };
 
   // handling axios request to post the store data
@@ -190,11 +186,7 @@ const AddStore = () => {
       } else updateStore(true);
 
       if (selectedLogo) {
-        if (imageURL && imageURL !== "") {
-          updateImage();
-        } else {
-          uploadImage();
-        }
+        uploadImage();
       }
     }
   }, [isSubmited]);
@@ -246,10 +238,10 @@ const AddStore = () => {
             <div
               className={`w-32 h-32 border-2 hover:border-slate-300 rounded-full mb-4 flex justify-center items-center text-slate-400 font-semibold bg-cyan-950 bg-opacity-5`}
             >
-              {store?.logoLink ? (
-                <img src={imageURL} className="w-full" />
-              ) : displayLogoURL ? (
+              {displayLogoURL ? (
                 <img src={displayLogoURL} className="w-full" />
+              ) : store?.logoLink ? (
+                <img src={imageURL} className="w-full" />
               ) : (
                 "Upload Logo"
               )}
