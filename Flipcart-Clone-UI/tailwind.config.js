@@ -17,7 +17,8 @@ export default {
       },
       spacing: {
         '88per': '90%',
-        '18': '4.4rem'
+        '18': '4.4rem',
+        '19':"4.5rem"
       },
       animation: {
         wiggle: 'wiggle 1s ease-in-out infinite',
@@ -34,6 +35,17 @@ export default {
       },
       fontSize:{
         'md': '1.1rem'
+      },
+      width:{
+        'sb': '23%',
+        'sb2x': '30%',
+        'content': '77%'
+      },
+      maxWidth: {
+        '25pr': '25%'
+      },
+      minWidth: {
+        '20pr': '20%'
       }
     },
   },
