@@ -7,13 +7,13 @@ import PerformanceRecord from "./PerformanceRecord";
 import InDisplayNavBtn from "./InDisplayNavBtn";
 import AddUpdateProduct from "./AddUpdateProduct";
 import Orders from "./Orders";
-import { useAuth } from "../../Context/AuthProvider";
 import AxiosPrivateInstance from "../../API/AxiosPrivateInstance";
 import useStore from "../../Hooks/useStore";
 import useImage from "../../Hooks/useImage";
 
 const SellerDashboard = () => {
   const [currentViewName, setCurrentViewName] = useState("dashboard");
+  const [storeHovered, setStoreHovered] = useState(false);
   const navigate = useNavigate();
   const axiosInstance = AxiosPrivateInstance();
   const { store, prevAddress } = useStore();
@@ -51,13 +51,13 @@ const SellerDashboard = () => {
   }, [currentViewName]);
 
   useEffect(() => {
-    if(store?.logoLink){
+    if (store?.logoLink) {
       const get = async () => {
-        const response = await getImageURL(store.logoLink)
-      }
+        const response = await getImageURL(store.logoLink);
+      };
       get();
     }
-  }, [store])
+  }, [store]);
 
   return (
     <div className="w-full border-2 border-transparent h-max flex justify-center items-start bg-gray-200 ">
@@ -65,14 +65,37 @@ const SellerDashboard = () => {
       <div className="w-3/12 flex justify-center items-start rounded-sm">
         <div className="fixed top-19 w-sb h-fit bg-white rounded-sm flex flex-col justify-start items-center font-semibold text-lg">
           <div className="w-full flex flex-col items-center justify-center">
-            <div className="w-full flex items-center justify-center border-b-2 cursor-pointer hover:bg-stone-50"
-            onClick={() => navigate("/setup-store")}
+            <div
+              className={`w-full px-2 flex items-start justify-center border-b-2 cursor-pointer hover:bg-stone-100 ${
+                storeHovered && "w-full h-32"
+              }`}
+              onClick={() => navigate("/setup-store")}
+              onMouseEnter={() => setStoreHovered(true)}
+              onMouseLeave={() => setStoreHovered(false)}
             >
-              <div><img src={imageURL} alt="" /></div>
-              <p className="text-lg text-slate-700 font-semibold py-1 px-4">
-                {store?.storeName ? store.storeName : "Your store name"}
-                <br />
-                <span className="text-xs font-normal line-clamp-1 hover:line-clamp-none  text-slate-500">
+              <div
+                className={`w-18 h-max m-2 transition-all duration-500 delay-200 ease-in-out ${
+                  storeHovered && "w-28 h-32"
+                }`}
+              >
+                <div className="rounded-full border-2">
+                  <img src={imageURL} alt="" className="w-full" />
+                </div>
+              </div>
+              <div className="flex flex-col justify-center items-start hover:transition-all duration-500 delay-200 ease-in-out">
+                <p
+                  className={`text-lg text-slate-700 font-semibold py-1 line-clamp-1  ${
+                    storeHovered &&
+                    "line-clamp-none"
+                  }`}
+                >
+                  {store?.storeName ? store.storeName : "Your store name"}
+                </p>
+                <p
+                  className={`text-xs font-normal text-slate-500 line-clamp-1 ${
+                    storeHovered && "line-clamp-none"
+                  }`}
+                >
                   {prevAddress.addressLine1 +
                     ", " +
                     prevAddress.addressLine2 +
@@ -84,8 +107,8 @@ const SellerDashboard = () => {
                     prevAddress.state +
                     ", India " +
                     prevAddress.pincode}
-                </span>
-              </p>
+                </p>
+              </div>
             </div>
             {/* GROSS REVENUE */}
             <div className="rounded-sm w-full text-slate-700 text-base rounded-t-none p-2 h-fit">

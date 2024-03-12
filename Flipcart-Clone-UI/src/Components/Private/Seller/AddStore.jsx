@@ -196,7 +196,7 @@ const AddStore = () => {
       <FormHeading icon={<PiStorefrontDuotone />} text={"Store Details"} />
 
       <div className="w-full flex justify-center items-start">
-        <div className="min-w-20pr max-w-25pr mx-4 flex flex-col items-start">
+        <div className="w-max mx-4 flex flex-col items-start">
           <div
             className="relative"
             onMouseEnter={() => setImageHovered(true)}
@@ -204,8 +204,8 @@ const AddStore = () => {
           >
             {imageHovered && (
               <div
-                className="absolute right-4 bg-slate-100 p-1 border-1 border-slate-200 text-slate-400 hover:border-transparent hover:text-xl hover:text-white hover:p-1.5 hover:bg-amber-400 rounded-full flex justify-center items-center transition-all duration-150 cursor-pointer"
-                title={store?.logoLink ? "Update Logo" : "Add Logo"}
+                className="absolute right-4 bg-slate-100 p-1 border-1 border-slate-200 text-slate-400 hover:border-transparent hover:text-xl hover:text-white hover:p-1.5 hover:bg-my_yellow rounded-full flex justify-center items-center transition-all duration-150 cursor-pointer"
+                title={store?.logoLink ? "Upload New Logo" : "Upload Logo"}
               >
                 <input
                   type="file"
@@ -236,7 +236,7 @@ const AddStore = () => {
               </div>
             )}
             <div
-              className={`w-32 h-32 border-2 hover:border-slate-300 rounded-full mb-4 flex justify-center items-center text-slate-400 font-semibold bg-cyan-950 bg-opacity-5`}
+              className={`w-40 h-40 border-2 hover:border-slate-300 rounded-full mb-4 flex justify-center items-center text-slate-400 font-semibold bg-cyan-950 bg-opacity-5`}
             >
               {displayLogoURL ? (
                 <img src={displayLogoURL} className="w-full" />
@@ -255,7 +255,7 @@ const AddStore = () => {
                 setter={setPrimeCategory}
                 value={primeCategory}
                 warnMessage={
-                  "You cannot change the category after creating the store. are you sure?"
+                  ""
                 }
                 DefaultText={"Select Category"}
                 options={primeCategories}

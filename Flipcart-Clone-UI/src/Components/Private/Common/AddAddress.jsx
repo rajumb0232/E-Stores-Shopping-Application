@@ -176,10 +176,10 @@ const AddAddress = () => {
               value={areaVillage}
               placeholderText={"Area/Village: "}
             />
-            <div className="w-full flex justify-start items-center">
+            <div className="w-full mb-4 flex justify-start items-center">
               <div
-                className={`mx-1 min-w-max mb-3 hover:shadow-md shadow-blackrounded-sm ${
-                  state !== "" && state ? "bg-amber-400" : "bg-gray-200"
+                className={`py-1 mx-1 min-w-max rounded-md ${
+                  state !== "" && state ? "bg-my_yellow" : "bg-gray-200"
                 }`}
               >
                 <DropDown
@@ -191,9 +191,9 @@ const AddAddress = () => {
                 />
               </div>
               <div
-                className={`mx-1 min-w-max mb-3 hover:shadow-md rounded-sm shadow-black ${
+                className={`py-1 mx-1 min-w-max rounded-md ${
                   cityDistrict !== "" && cityDistrict
-                    ? "bg-amber-400"
+                    ? "bg-my_yellow"
                     : "bg-gray-200"
                 }`}
               >

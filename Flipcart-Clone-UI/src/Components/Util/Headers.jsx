@@ -45,7 +45,7 @@ const Headers = () => {
               to={isAuthenticated ? "/account" : "/login"}
               className={`mx-2 px-4 py-2 rounded-md flex justify-start items-center ${
                 loginHovered
-                  ? "bg-blue-600 text-white"
+                  ? "bg-prussian_blue text-white"
                   : "bg-transparent text-slate-700"
               }`}
             >
@@ -73,7 +73,7 @@ const Headers = () => {
                   </p>
                   <NavLink
                     to={isAuthenticated ? "/logout" : "/customer/register"}
-                    className="text-blue-600 font-semibold rounded-sm px-2"
+                    className="text-prussian_blue font-semibold rounded-sm px-2"
                   >
                     {isAuthenticated ? "Logout" : "Register"}
                   </NavLink>
@@ -128,7 +128,7 @@ const Headers = () => {
                 ? ""
                 : ""
             }
-            className="mx-2 px-4 py-2 hover:bg-blue-600 hover:text-white rounded-md flex justify-center items-center "
+            className="mx-2 px-4 py-2 hover:bg-prussian_blue hover:text-white rounded-md flex justify-center items-center "
           >
             <div className="mt-0.5 mr-1 hover:text-white text-2xl">
               <PiStorefront />
@@ -149,7 +149,7 @@ const Headers = () => {
           {/* OPTIONS */}
           <Link
             to="/login"
-            className="mx-2 px-4 py-2 hover:bg-blue-600 hover:text-white rounded-md flex justify-center items-center "
+            className="mx-2 px-4 py-2 hover:bg-prussian_blue hover:text-white rounded-md flex justify-center items-center "
           >
             <div className="text-xl mt-1 hover:text-white">
               <VscListSelection />

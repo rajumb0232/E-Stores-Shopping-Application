@@ -21,7 +21,7 @@ const PerformanceRecord = () => {
           <p className="text-slate-700 font-semibold">Total Orders</p>
           <div className="text-6xl w-full text-slate-500 font-semibold flex justify-start items-center py-4 border-b-2">
             {/* <MdCurrencyRupee /> */}
-            <p className="text-orange-400">{result}</p>
+            <p className="text-slate-400">{result}</p>
           </div>
           {/* ORDER STATUS */}
           <div className="w-full h-max py-2 flex justify-around items-center text-slate-700 font-semibold">

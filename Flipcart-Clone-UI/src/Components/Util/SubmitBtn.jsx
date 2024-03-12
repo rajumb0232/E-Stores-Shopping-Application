@@ -8,8 +8,8 @@ const SubmitBtn = ({ submit, isSubmited, name }) => {
       disabled={isSubmited}
       className={` font-bold rounded-lg w-max min-w-32 px-4 py-2  ${
         isSubmited
-          ? "bg-transparent hover:bg-transparent text-blue-600"
-          : "bg-blue-600 text-slate-100 hover:bg-blue-500"
+          ? "bg-transparent hover:bg-transparent bg-prussian_blue"
+          : "bg-prussian_blue text-slate-100 hover:bg-blue-600"
       }`}
     >
       {isSubmited ? (
