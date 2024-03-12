@@ -67,7 +67,7 @@ const SellerDashboard = () => {
           <div className="w-full flex flex-col items-center justify-center">
             <div
               className={`w-full px-2 flex items-start justify-center border-b-2 cursor-pointer hover:bg-stone-100 ${
-                storeHovered && "w-full h-32"
+                storeHovered && "w-full"
               }`}
               onClick={() => navigate("/setup-store")}
               onMouseEnter={() => setStoreHovered(true)}
@@ -78,7 +78,7 @@ const SellerDashboard = () => {
                   storeHovered && "w-28 h-32"
                 }`}
               >
-                <div className="rounded-full border-2">
+                <div className="rounded-full h-6 flex justify-center items-center">
                   <img src={imageURL} alt="" className="w-full" />
                 </div>
               </div>
@@ -93,7 +93,7 @@ const SellerDashboard = () => {
                 </p>
                 <p
                   className={`text-xs font-normal text-slate-500 line-clamp-1 ${
-                    storeHovered && "line-clamp-none"
+                    storeHovered && "line-clamp-3"
                   }`}
                 >
                   {prevAddress.addressLine1 +

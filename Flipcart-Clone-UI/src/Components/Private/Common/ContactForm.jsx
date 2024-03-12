@@ -212,23 +212,23 @@ const ContactForm = () => {
   }, [isSubmited]);
 
   const clearFieldsOf = (id) => {
-    if(contactId1 === id){
+    if (contactId1 === id) {
       setContactId1("");
       setContactName1("");
       setContactNumber1("");
-      if(contactId2 !== ""){
+      if (contactId2 !== "") {
         setContactPrimary1(false);
         setContactPrimary2(true);
-      } 
+      }
     }
-    if(contactId2 === id){
+    if (contactId2 === id) {
       setContactId2("");
       setContactName2("");
       setContactNumber2("");
       setContactPrimary2(false);
       setContactPrimary1(true);
     }
-  }
+  };
 
   const deleteContact = async () => {
     try {
@@ -239,7 +239,7 @@ const ContactForm = () => {
 
       if (response.status === 200) {
         updateCache(response?.data?.data);
-        clearFieldsOf(doDelete)
+        clearFieldsOf(doDelete);
         setIsSubmited(false);
       } else {
         console.log(response?.data?.message);
@@ -256,7 +256,7 @@ const ContactForm = () => {
   useEffect(() => {
     if (doDelete && doDelete !== "") {
       console.log("deleting ", doDelete);
-      deleteContact()
+      deleteContact();
       setDoDelete("");
     }
   }, [doDelete]);
@@ -271,7 +271,7 @@ const ContactForm = () => {
           text={"Contact Details"}
         />
         <div className="w-full h-max px-1 flex">
-          <div className="px-2">
+          <div className="px-2 w-full">
             <div className="w-full h-max flex justify-start items-center py-2">
               <h1 className="px-3 font-semibold text-slate-700 text-lg py-2">
                 Contact 1
@@ -296,21 +296,26 @@ const ContactForm = () => {
               </div>
             </div>
             <div className=" w-full">
-              <Input
-                isRequired={true}
-                onChangePerform={setContactName1}
-                value={contactName1}
-                placeholderText={"Contact name: "}
-              />
-              <Input
-                isRequired={true}
-                onChangePerform={setContactNumber1}
-                value={contactNumber1}
-                placeholderText={"Contact number: "}
-              />
+              <div className="w-full flex justify-center items-center mb-4">
+                <Input
+                  isRequired={true}
+                  onChangePerform={setContactName1}
+                  value={contactName1}
+                  placeholderText={"Contact name: "}
+                />
+              </div>
+
+              <div className="w-full flex justify-center items-center mb-4">
+                <Input
+                  isRequired={true}
+                  onChangePerform={setContactNumber1}
+                  value={contactNumber1}
+                  placeholderText={"Contact number: "}
+                />
+              </div>
             </div>
           </div>
-          <div className="px-2">
+          <div className="px-2 w-full">
             <div className="w-full h-max flex justify-start items-center py-2">
               <h1 className="px-3 font-semibold text-slate-700 text-lg py-2">
                 Contact 2
@@ -335,25 +340,29 @@ const ContactForm = () => {
               </div>
             </div>
             <div className=" w-full">
-              <Input
-                isRequired={true}
-                onChangePerform={setContactName2}
-                value={contactName2}
-                placeholderText={"Contact name: "}
-              />
-              <Input
-                isRequired={true}
-                onChangePerform={setContactNumber2}
-                value={contactNumber2}
-                placeholderText={"Contact number: "}
-              />
+              <div className="w-full flex justify-center items-center mb-4">
+                <Input
+                  isRequired={true}
+                  onChangePerform={setContactName2}
+                  value={contactName2}
+                  placeholderText={"Contact name: "}
+                />
+              </div>
+              <div className="w-full flex justify-center items-center mb-4">
+                <Input
+                  isRequired={true}
+                  onChangePerform={setContactNumber2}
+                  value={contactNumber2}
+                  placeholderText={"Contact number: "}
+                />
+              </div>
             </div>
           </div>
         </div>
         <div className="w-full flex justify-end my-4">
           <SubmitBtn
             isSubmited={isSubmited}
-            name={"Confirm"}
+            name={prevContacts.length > 0 ? "Update" : "Confirm"}
             submit={() => setIsSubmited(true)}
           />
         </div>

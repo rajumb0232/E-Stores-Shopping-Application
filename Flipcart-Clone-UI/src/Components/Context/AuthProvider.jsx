@@ -10,7 +10,7 @@ export const AuthProvider = ({children}) => {
   const [auth, setAuth] = useState({
     userId: "",
     username: "",
-    role: "",
+    role: "CUSTOMER",
     isAuthenticated: false,
     fromLocation: "",
     accessExpiry: "",
