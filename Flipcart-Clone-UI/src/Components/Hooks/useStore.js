@@ -18,21 +18,38 @@ const useStore = () => {
     }
   }, [store]);
 
-  const fetch = async (cache) => {
-    try {
-      const response = await axiosInstance.get("/stores");
-      if (response.status === 302) {
-        cache.put("/stores", new Response(JSON.stringify(response.data.data)));
-        setStore(response.data.data);
-        return true;
+  const checkForStore = async () => {
+      const response = await axiosInstance.get("/stores-exist");
+      try{
+        if (response.status === 200) {
+          if (response.data === true) {
+            localStorage.setItem("store", "true");
+            return true;
+          } else return false;
+        } else console.log(response.data);
+      }catch(error){
+        console.log(error.response);
       }
-    } catch (error) {
-      if (error.response.data.status === 302) {
-        cache.put("/stores", new Response(JSON.stringify(error.response.data.data)));
-        setStore(error.response.data.data);
-      } else {
-        console.log(error.stack);
-        return false;
+  };
+
+  const fetch = async (cache) => {
+    const isPresent = await checkForStore();
+    if(isPresent){
+      try {
+        const response = await axiosInstance.get("/stores");
+        if (response.status === 302) {
+          cache.put("/stores", new Response(JSON.stringify(response.data.data)));
+          setStore(response.data.data);
+          return true;
+        }
+      } catch (error) {
+        if (error.response.data.status === 302) {
+          cache.put("/stores", new Response(JSON.stringify(error.response.data.data)));
+          setStore(error.response.data.data);
+        } else {
+          console.log(error.stack);
+          return false;
+        }
       }
     }
   };
@@ -59,8 +76,12 @@ const useStore = () => {
   }, [prevAddress]);
 
   // begin
+  let flag = false;
   useEffect(() => {
-    getPrevStore();
+    if(!flag) {
+      flag = true;
+      getPrevStore();
+    }
   }, []);
 
   return { store, prevAddress, prevContacts };

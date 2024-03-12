@@ -9,7 +9,7 @@ const RadioBtn = ({ value, onChange, state }) => {
         <div className="w-12 flex justify-start items-center">
           <button
             className={`ml-2 mt-1 h-max w-9 p-0.5 text-base flex items-center rounded-3xl transition-transform duration-500 ${
-              state ? " bg-amber-400" : " bg-gray-300 "
+              state ? " bg-my_yellow" : " bg-gray-300 "
             }`}
             onClick={() => onChange()}
             type="button"
@@ -17,7 +17,7 @@ const RadioBtn = ({ value, onChange, state }) => {
             <div
               className={`h-4 w-4 rounded-full bg-white flex justify-center items-center text-sm  font-extrabold transition-transform duration-300 ${
                 state
-                  ? "text-amber-400 origin-right translate-x-full"
+                  ? "text-my_yellow origin-right translate-x-full"
                   : "text-gray-300"
               }`}
             >
