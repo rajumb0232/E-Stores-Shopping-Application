@@ -22,7 +22,7 @@ const AddAddress = () => {
 
   const { districts, updateDistricts } = useCityDistricts();
   const { states } = useStates();
-  const { store, prevAddress} = useStore();
+  const { store, prevAddress } = useStore();
 
   // Fetching the District information and updating the cityDistrict
   let fired2 = false;
@@ -77,7 +77,7 @@ const AddAddress = () => {
       let storedata = await response.json();
       let exAddressdata = {
         ...addressdata,
-        contacts: storedata.address.contacts,
+        contacts: storedata.address?.contacts,
       };
       storedata = { ...storedata, address: exAddressdata };
       cache.put("/stores", new Response(JSON.stringify(storedata)));
@@ -126,29 +126,29 @@ const AddAddress = () => {
   useEffect(() => {
     if (isSubmited) {
       if (store.storeId) {
-          if (prevAddress) {
-            if (JSON.stringify(prevAddress) === "{}") {
-              console.log("adding new address...");
-              updateAddress(true); // adds new address
-            } else {
-                if (
-                  prevAddress.addressLine1 !== addressLine1 ||
-                  prevAddress.addressLine2 !== addressLine2 ||
-                  prevAddress.areaVillage !== areaVillage ||
-                  prevAddress.cityDistrict !== cityDistrict ||
-                  prevAddress.state !== state ||
-                  prevAddress.pincode !== pincode
-                ) {
-                  console.log("updating the address...");
-                  updateAddress(false); // update existing address
-                }
-              }
-          } else setIsSubmited(false);
-        }
-      } else {
-        setIsSubmited(false);
+        if (prevAddress) {
+          if (JSON.stringify(prevAddress) === "{}") {
+            console.log("adding new address...");
+            updateAddress(true); // adds new address
+          } else {
+            if (
+              prevAddress.addressLine1 !== addressLine1 ||
+              prevAddress.addressLine2 !== addressLine2 ||
+              prevAddress.areaVillage !== areaVillage ||
+              prevAddress.cityDistrict !== cityDistrict ||
+              prevAddress.state !== state ||
+              prevAddress.pincode !== pincode
+            ) {
+              console.log("updating the address...");
+              updateAddress(false); // update existing address
+            }
+          }
+        } else setIsSubmited(false);
       }
-    }, [isSubmited]);
+    } else {
+      setIsSubmited(false);
+    }
+  }, [isSubmited]);
 
   return (
     <div className="flex flex-col justify-center items-center w-full h-max">
@@ -157,30 +157,37 @@ const AddAddress = () => {
       >
         <FormHeading icon={<RiUserLocationLine />} text={"Address Details"} />
         <div className="w-full px-4 py-2 h-full">
-          <Input
-            isRequired={true}
-            onChangePerform={setAddressLine1}
-            placeholderText={"Address Line 1: "}
-            value={addressLine1}
-          />
-          <Input
-            isRequired={true}
-            onChangePerform={setAddressLine2}
-            placeholderText={"Address Line 2 (optional): "}
-            value={addressLine2}
-          />
-          <div className="flex justify-center items-center w-full">
+          <div className="w-full flex justify-center items-center mb-4">
             <Input
               isRequired={true}
-              onChangePerform={setAreaVillage}
-              value={areaVillage}
-              placeholderText={"Area/Village: "}
+              onChangePerform={setAddressLine1}
+              placeholderText={"Address Line 1: "}
+              value={addressLine1}
             />
-            <div className="w-full flex justify-start items-center">
+          </div>
+
+          <div className="w-full flex justify-center items-center mb-4">
+            <Input
+              isRequired={true}
+              onChangePerform={setAddressLine2}
+              placeholderText={"Address Line 2 (optional): "}
+              value={addressLine2}
+            />
+          </div>
+
+          <div className="flex justify-center items-center w-full">
+            <div className="w-full flex justify-center items-center mb-4">
+              <Input
+                isRequired={true}
+                onChangePerform={setAreaVillage}
+                value={areaVillage}
+                placeholderText={"Area/Village: "}
+              />
+            </div>
+            
+            <div className="w-full mb-4 flex justify-start items-center">
               <div
-                className={`mx-1 min-w-max mb-3 hover:shadow-md shadow-blackrounded-sm ${
-                  state !== "" && state ? "bg-amber-400" : "bg-gray-200"
-                }`}
+                className={`py-1 mx-1 min-w-max rounded-md bg-my_yellow`}
               >
                 <DropDown
                   valueType={"State"}
@@ -191,11 +198,7 @@ const AddAddress = () => {
                 />
               </div>
               <div
-                className={`mx-1 min-w-max mb-3 hover:shadow-md rounded-sm shadow-black ${
-                  cityDistrict !== "" && cityDistrict
-                    ? "bg-amber-400"
-                    : "bg-gray-200"
-                }`}
+                className={`py-1 mx-1 min-w-max rounded-md bg-my_yellow`}
               >
                 <DropDown
                   valueType={"District"}
@@ -217,12 +220,10 @@ const AddAddress = () => {
           </div>
         </div>
       </div>
-      <div
-        className={`w-full h-max ml-auto py-6 flex justify-end`}
-      >
+      <div className={`w-full h-max ml-auto py-6 flex justify-end`}>
         <SubmitBtn
           isSubmited={isSubmited}
-          name={"Confirm"}
+          name={prevAddress?.addressId? "Update" : "Confirm"}
           submit={() => setIsSubmited(true)}
         />
       </div>

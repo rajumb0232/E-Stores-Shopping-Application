@@ -11,23 +11,25 @@ const AllRoutes = () => {
 
   return (
     <Suspense fallback={"Loading..."}>
-    <Routes>
-      <Route path="/" element={<App />}>
-        {navs.map((nav, i) => {
-          if (isAuthenticated) {
-            if (nav.isVisibleAfterLogin) {
-              if (nav.authorizedTo.includes("ALL")) {
-                return <Route key={i} path={nav.path} element={nav.element} />;
-              } else if (nav.authorizedTo.includes(role)) {
-                return <Route key={i} path={nav.path} element={nav.element} />;
+      <Routes>
+        <Route path="/" element={<App />}>
+          {navs.map((nav, i) => {
+            if (isAuthenticated) {
+              if (nav.isVisibleAfterLogin) {
+                if (nav.authorizedTo.includes("ALL"))
+                  return (
+                    <Route key={i} path={nav.path} element={nav.element} />
+                  );
+                else if (nav.authorizedTo.includes(role))
+                  return (
+                    <Route key={i} path={nav.path} element={nav.element} />
+                  );
               }
-            }
-          } else if (nav.authorizedTo.includes("ALL") && !nav.isPrivate) {
+            } else if (!nav.isPrivate)
               return <Route key={i} path={nav.path} element={nav.element} />;
-            }
-        })}
-      </Route>
-    </Routes>
+          })}
+        </Route>
+      </Routes>
     </Suspense>
   );
 };

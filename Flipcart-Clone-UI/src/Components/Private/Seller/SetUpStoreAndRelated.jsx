@@ -59,7 +59,7 @@ const SetUpStoreAndRelated = () => {
           ) : view === "address" ? (
             <AddAddress />
           ) : (
-            <ContactForm />
+            view === "contacts" && <ContactForm />
           )}
         </div>
       </form>

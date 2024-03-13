@@ -9,7 +9,6 @@ import { usePrimeCategories } from "../../Hooks/useOptions";
 import useStore from "../../Hooks/useStore";
 import useImage from "../../Hooks/useImage";
 import { MdAdd, MdEdit } from "react-icons/md";
-import axios from "axios";
 
 const AddStore = () => {
   const [storeId, setStoreId] = useState("");
@@ -30,7 +29,7 @@ const AddStore = () => {
   const [imageHovered, setImageHovered] = useState(false);
 
   useEffect(() => {
-    if (store) {
+    if (store?.storeId) {
       setStoreId(store.storeId);
       setStoreName(store.storeName);
       setAbout(store.about);
@@ -99,7 +98,8 @@ const AddStore = () => {
       if (response.status === 200) {
         updateLogoLinkToStoreInCache(response.data.data);
         setIsSubmited(false);
-        alert("Upload successful")
+        setAnyModified(false)
+        alert("Upload successful");
       } else {
         setIsSubmited(false);
         alert(response?.data.message || response?.message);
@@ -111,6 +111,13 @@ const AddStore = () => {
       console.log(error?.response?.data);
     }
   };
+
+  // works as a triggger point to Upload Image when ever the POST operation of store is done
+  useEffect(() => {
+    if(storeId && storeId !== "" && selectedLogo){
+      uploadImage();
+    } 
+  }, [storeId])
 
   // handling axios request to post the store data
   const updateStore = async (isNew) => {
@@ -136,7 +143,11 @@ const AddStore = () => {
           updateCache(response?.data?.data);
           localStorage.setItem("store", "true");
           setStoreId(response?.data?.data?.storeId);
-          setIsSubmited(false);
+          setPrevPresent(true)
+          if (!selectedLogo) {
+            setIsSubmited(false);
+            setAnyModified(true);
+          }
         } else {
           setIsSubmited(false);
           alert(response?.data.message || response?.message);
@@ -160,6 +171,7 @@ const AddStore = () => {
           localStorage.setItem("store", "true");
           setStoreId(response?.data?.data?.storeId);
           setIsSubmited(false);
+          setAnyModified(false)
         } else {
           setIsSubmited(false);
           alert(response?.data.message || response?.message);
@@ -185,7 +197,8 @@ const AddStore = () => {
         setIsSubmited(false);
       } else updateStore(true);
 
-      if (selectedLogo) {
+      if (selectedLogo && store?.storeId && store?.storeId !== "") {
+        console.log("externally uploading...");
         uploadImage();
       }
     }
@@ -196,7 +209,7 @@ const AddStore = () => {
       <FormHeading icon={<PiStorefrontDuotone />} text={"Store Details"} />
 
       <div className="w-full flex justify-center items-start">
-        <div className="min-w-20pr max-w-25pr mx-4 flex flex-col items-start">
+        <div className="w-max mx-4 flex flex-col items-center">
           <div
             className="relative"
             onMouseEnter={() => setImageHovered(true)}
@@ -204,8 +217,8 @@ const AddStore = () => {
           >
             {imageHovered && (
               <div
-                className="absolute right-4 bg-slate-100 p-1 border-1 border-slate-200 text-slate-400 hover:border-transparent hover:text-xl hover:text-white hover:p-1.5 hover:bg-amber-400 rounded-full flex justify-center items-center transition-all duration-150 cursor-pointer"
-                title={store?.logoLink ? "Update Logo" : "Add Logo"}
+                className="absolute right-4 bg-slate-100 p-1 border-1 border-slate-200 text-slate-400 hover:border-transparent hover:text-xl hover:text-white hover:p-1.5 hover:bg-my_yellow rounded-full flex justify-center items-center transition-all duration-150 cursor-pointer"
+                title={store?.logoLink ? "Upload New Logo" : "Upload Logo"}
               >
                 <input
                   type="file"
@@ -236,10 +249,10 @@ const AddStore = () => {
               </div>
             )}
             <div
-              className={`w-32 h-32 border-2 hover:border-slate-300 rounded-full mb-4 flex justify-center items-center text-slate-400 font-semibold bg-cyan-950 bg-opacity-5`}
+              className={`w-40 ${displayLogoURL || store.logoLink ? "h-max rounded-sm" : "h-40 rounded-full"} overflow-hidden mb-4 flex justify-center items-center text-slate-400 font-semibold bg-cyan-950 bg-opacity-5`}
             >
               {displayLogoURL ? (
-                <img src={displayLogoURL} className="w-full" />
+                <img src={displayLogoURL} className="h-full" />
               ) : store?.logoLink ? (
                 <img src={imageURL} className="w-full" />
               ) : (
@@ -247,16 +260,17 @@ const AddStore = () => {
               )}
             </div>
           </div>
+          <p className="text-sm text-slate-400 w-max">
+            {"(Use Image with 1:1 ratio only)"}
+          </p>
 
-          {!store && (
-            <div className="my-6 w-fit flex justify-start">
+          {!store?.primeCategory && (
+            <div className="my-6 w-fit">
               <DropDown
                 valueType={"Category"}
                 setter={setPrimeCategory}
                 value={primeCategory}
-                warnMessage={
-                  "You cannot change the category after creating the store. are you sure?"
-                }
+                warnMessage={""}
                 DefaultText={"Select Category"}
                 options={primeCategories}
               />
@@ -266,12 +280,14 @@ const AddStore = () => {
 
         <div className="w-full flex flex-col justify-center items-center">
           <div className="w-full flex flex-col items-center">
-            <Input
-              isRequired={true}
-              placeholderText={"Your store name here:"}
-              onChangePerform={setStoreName}
-              value={storeName}
-            />
+            <div className="w-full flex justify-center items-center mb-4">
+              <Input
+                isRequired={true}
+                placeholderText={"Your store name here:"}
+                onChangePerform={setStoreName}
+                value={storeName}
+              />
+            </div>
 
             <textarea
               type="text"

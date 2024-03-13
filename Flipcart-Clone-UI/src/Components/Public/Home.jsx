@@ -10,12 +10,12 @@ const Home = () => {
   const { role } = auth;
 
   useEffect(() => {
-    console.log(auth);
     role === "SELLER"
       ? navigate("/seller-dashboard")
       : role === "ADMIN"
       ? navigate("/admin-dashboard")
-      : role === "SUPER_ADMIN" && navigate("/super-admin-dashboard");
+      : role === "SUPER_ADMIN"? navigate("/super-admin-dashboard")
+      : role === "CUSTOMER" && navigate("/explore")
   }, [auth]);
 
   return (

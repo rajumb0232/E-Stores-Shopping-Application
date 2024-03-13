@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md";
 
 export function DropDown({
@@ -12,10 +12,6 @@ export function DropDown({
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const dropDownRef = useRef(null);
 
-  // const toggleDropdown = () => {
-  //   isDropdownOpen ? setDropdownOpen(false) : setDropdownOpen(true);
-  // };
-
   // closing dropdown whenever the user makes a random click
   document.addEventListener("mousedown", (e) => {
     if (dropDownRef.current && !dropDownRef.current.contains(e.target)) {
@@ -27,11 +23,11 @@ export function DropDown({
     <div>
       <button
         type="button"
-        className="py-1 px-2 font-semibold text-slate-700"
+        className=" w-max py-1 px-2 font-semibold text-slate-700"
         onMouseEnter={() => setDropdownOpen(true)}
       >
         <div className="flex flex-col justify-start items-start w-fit">
-          <div className="flex justify-start items-start"> 
+          <div className="flex justify-start items-start w-max"> 
             <p>
               {value !== "" && value ? valueType + ": " + value : DefaultText}
             </p>
@@ -59,7 +55,7 @@ export function DropDown({
                   setter(option);
                   setDropdownOpen(false);
                 }}
-                className="prime-category hover:bg-blue-600 hover:shadow-md shadow-slate-700 px-4 py-2 w-full text-start font-light hover:text-slate-100"
+                className="prime-category hover:bg-prussian_blue hover:shadow-md shadow-slate-700 px-4 py-2 w-full text-start font-light hover:text-slate-100"
               >
                 {option}
               </button>
