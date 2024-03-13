@@ -6,11 +6,13 @@ import { VscListSelection } from "react-icons/vsc";
 import { PiStorefront, PiUserCircle } from "react-icons/pi";
 import { MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md";
 import { IoSearchOutline } from "react-icons/io5";
+import Logout from "../Private/Common/Logout";
 
 const Headers = () => {
   const { auth } = useAuth();
   const { isAuthenticated, role, username } = auth;
   const [loginHovered, setLoginHovered] = useState(false);
+  const [doLogout, setDoLogout] = useState(false);
 
   return (
     <header className="border-b-1 fixed z-50 top-0 font-sans w-screen flex justify-center bg-white">
@@ -33,6 +35,10 @@ const Headers = () => {
             className="border-0 rounded-xl bg-blue-50 placeholder:text-slate-500 hover:placeholder:text-slate-400 h-full px-2 py-4 w-full text-gray-700"
           />
         </div>
+
+        {doLogout && (
+          <Logout doAppear={setDoLogout} />
+        )}
 
         {/* LOGIN AND ACCOUNT */}
         <div className=" text-slate-900 ml-auto text-md flex justify-center items-center">
@@ -71,12 +77,12 @@ const Headers = () => {
                   <p className="text-slate-700 ">
                     {isAuthenticated ? "Need break?" : "New customer?"}
                   </p>
-                  <NavLink
-                    to={isAuthenticated ? "/logout" : "/customer/register"}
+                  <button
                     className="text-prussian_blue font-semibold rounded-sm px-2"
+                    onClick={() => setDoLogout(true)}
                   >
                     {isAuthenticated ? "Logout" : "Register"}
-                  </NavLink>
+                  </button>
                 </div>
 
                 <NavLink

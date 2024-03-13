@@ -82,7 +82,7 @@ const useLoginRefresh = () => {
       } else return await refresh();
     } else {
       clearData();
-      navigate("/");
+      navigate("/explore");
     }
   };
 

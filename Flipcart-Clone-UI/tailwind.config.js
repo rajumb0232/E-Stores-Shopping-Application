@@ -21,17 +21,33 @@ export default {
         '19':"4.5rem"
       },
       animation: {
-        wiggle: 'wiggle 1s ease-in-out infinite',
+        wiggle: 'wiggle .5s ease-in-out',
+        pop: 'pop .2s ease-in-out'
       },
       keyframes: {
         wiggle: {
-          '0%, 100%': { transform: 'rotate(-3deg)' },
-          '50%': { transform: 'rotate(3deg)' },
+          '0%': { transform: 'rotate(-2deg)' },
+          '50%': { transform: 'rotate(2deg)' },
+          '100%': {transform: 'ratate(0deg)'}
+        },
+        pop : {
+          '0%': { 
+            opacity: '0',
+            transform: 'scale(0.6)'
+          },
+          '70%': { 
+            transform: 'scale(1.1)',
+            opacity: '1'
+          },
+          '100%': { 
+            transform: 'scale(1)',
+            opacity: '1'
+          }
         }
       },
       boxShadow:{
         'even10': '0 0 10px #e3e3e3',
-        'even20': '0 0 20px #e3e3e3'
+        'even20': '0 5px 20px #fff'
       },
       fontSize:{
         'md': '1.1rem'

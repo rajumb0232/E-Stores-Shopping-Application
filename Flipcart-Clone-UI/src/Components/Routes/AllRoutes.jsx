@@ -4,6 +4,7 @@ import App from "../../App";
 import { navs } from "./Navigations";
 import { useAuth } from "../Context/AuthProvider";
 import { Suspense } from "react";
+import Explore from "../Public/Explore";
 
 const AllRoutes = () => {
   const { auth } = useAuth();
@@ -13,6 +14,10 @@ const AllRoutes = () => {
     <Suspense fallback={"Loading..."}>
       <Routes>
         <Route path="/" element={<App />}>
+          {role !== "SELLER" && role !== "ADMIN" && role !== "SUPER_ADMIN" && (
+            <Route path="/explore" element={<Explore />} />
+          )}
+
           {navs.map((nav, i) => {
             if (isAuthenticated) {
               if (nav.isVisibleAfterLogin) {

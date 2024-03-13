@@ -14,6 +14,7 @@ import Register from '../Public/LoginAndRegister'
 import VerifyOTP from '../Public/VerifyOTP'
 import SetUpStoreAndRelated from '../Private/Seller/SetUpStoreAndRelated'
 import Explore from '../Public/Explore'
+import Logout from '../Private/Common/Logout'
 
 
 export const navs = [
@@ -24,13 +25,6 @@ export const navs = [
       isPrivate:false, 
       isVisibleAfterLogin:true,
       authorizedTo:["ALL"]
-    },
-    {
-      path:"/explore", 
-      element:<Explore/>, 
-      isPrivate:false, 
-      isVisibleAfterLogin:true,
-      authorizedTo:["CUSTOMER"]
     },
 
     /** ---------------------------------AUTH--------------------------------- */
@@ -60,6 +54,13 @@ export const navs = [
       element:<VerifyOTP/>, 
       isPrivate:false,
       isVisibleAfterLogin:false, 
+      authorizedTo:["ALL"]
+    },
+    {
+      path:"/logout", 
+      element:<Logout/>, 
+      isPrivate:true,
+      isVisibleAfterLogin:true, 
       authorizedTo:["ALL"]
     },
   
