@@ -359,7 +359,7 @@ const ContactForm = () => {
             </div>
           </div>
         </div>
-        <div className="w-full flex justify-end my-4">
+        <div className="w-max h-max ml-auto py-6 flex justify-end">
           <SubmitBtn
             isSubmited={isSubmited}
             name={prevContacts.length > 0 ? "Update" : "Confirm"}

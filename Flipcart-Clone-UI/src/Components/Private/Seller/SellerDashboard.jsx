@@ -66,35 +66,31 @@ const SellerDashboard = () => {
         <div className="fixed top-19 w-sb h-fit bg-white rounded-sm flex flex-col justify-start items-center font-semibold text-lg">
           <div className="w-full flex flex-col items-center justify-center">
             <div
-              className={`w-full px-2 flex items-start justify-center border-b-2 cursor-pointer hover:bg-stone-100 ${
+              className={`w-full px-2 py-0.5 flex items-center justify-center border-b-2 cursor-pointer hover:bg-stone-100 ${
                 storeHovered && "w-full"
               }`}
               onClick={() => navigate("/setup-store")}
               onMouseEnter={() => setStoreHovered(true)}
               onMouseLeave={() => setStoreHovered(false)}
             >
+              {/* LOGO */}
               <div
-                className={`w-18 h-max m-2 transition-all duration-500 delay-200 ease-in-out ${
-                  storeHovered && "w-28 h-32"
+                className={`w-18 h-max m-2 transition-all duration-500 ease-in-out ${
+                  storeHovered && "w-24"
                 }`}
               >
-                <div className="rounded-full h-6 flex justify-center items-center">
+                <div className="rounded-full flex justify-center items-center">
                   <img src={imageURL} alt="" className="w-full" />
                 </div>
               </div>
               <div className="flex flex-col justify-center items-start hover:transition-all duration-500 delay-200 ease-in-out">
                 <p
-                  className={`text-lg text-slate-700 font-semibold py-1 line-clamp-1  ${
-                    storeHovered &&
-                    "line-clamp-none"
-                  }`}
+                  className={`text-lg text-slate-700 font-semibold py-1 line-clamp-1`}
                 >
                   {store?.storeName ? store.storeName : "Your store name"}
                 </p>
                 <p
-                  className={`text-xs font-normal text-slate-500 line-clamp-1 ${
-                    storeHovered && "line-clamp-3"
-                  }`}
+                  className={`text-xs font-normal text-slate-500 line-clamp-1`}
                 >
                   {prevAddress.addressLine1 +
                     ", " +

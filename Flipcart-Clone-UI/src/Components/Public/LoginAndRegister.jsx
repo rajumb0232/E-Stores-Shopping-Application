@@ -114,28 +114,8 @@ const Register = ({ role, isLogin }) => {
   };
 
   return (
-    <div className="w-screen h-screen flex flex-col items-center justify-start bg-slate-100">
+    <div className="w-screen h-screen flex flex-col items-center justify-start bg-slate-200">
       <form className="flex flex-row justify-center items-center w-4/6 h-4/6 mt-24 rounded-md bg-white shadow-md">
-        {/* {
-          (role=="SELLER")
-          ? <FormImageBlock src={"/src/Images/registerSeller.jpg"} alt={"Seller JPG"} 
-            credit={{href:"https://www.freepik.com/free-vector/support-local-business-concept_9010726.htm#fromView=search&term=seller&track=sph&regularType=vector&page=1&position=1&uuid=dc030a6f-b617-4a88-9a41-1a2b8f4f865f",
-                    tb:"Image by ",
-                    ta:"",
-                    tl:"Freepik"}}/>
-          : (isLogin)
-            ? <FormImageBlock src={"/src/Images/registerCustomer.jpg"} alt={"Shopping JPG"}
-              credit={{href:"https://www.freepik.com/free-vector/seasonal-sale-discounts-presents-purchase-visiting-boutiques-luxury-shopping-price-reduction-promotional-coupons-special-holiday-offers-vector-isolated-concept-metaphor-illustration_12083346.htm#fromView=search&term=shopping&track=sph&regularType=vector&page=1&position=0&uuid=8e4c697b-0e19-4ca8-b235-d2bf59d415c3",
-                    tb:"",
-                    ta:" on Freepik",
-                    tl:"Image by vectorjuice"}}/>
-            : <FormImageBlock src={"/src/Images/customerRegister.jpg"} alt={"Shopping JPG"}
-              credit={{href:"https://www.freepik.com/free-vector/social-media-marketing-mobile-phone-concept_6749481.htm#fromView=search&term=online+shopping&track=ais&regularType=vector&page=1&position=32&uuid=792a7115-ad49-4297-ba89-48d487e31048",
-                    tb:"Image by ",
-                    ta:"",
-                    tl:"Freepik"}}/>
-        } */}
-
         <div className="w-4/12 bg-slate-600 h-full rounded-l-md flex flex-col justify-center items-center">
           {isLogin ? (
             <div className="p-2 text-white">
@@ -167,17 +147,6 @@ const Register = ({ role, isLogin }) => {
             {isLogin ? "Login" : "Register"}
           </h1>
 
-          {/* EMAIL INPUT */}
-          {/* <label htmlFor="email" className="text-slate-700 text-xl">
-            Email:{" "}
-          </label>
-          <input
-            type="email"
-            id="email"
-            onChange={(event) => setEmail(event.target.value)}
-            required={true}
-            className="border-b-2 border-slate-400 mb-0"
-          /> */}
           <div className="flex flex-col justify-center items-start">
             <Input
               value={email}
@@ -190,17 +159,6 @@ const Register = ({ role, isLogin }) => {
             </p>
           </div>
 
-          {/* PASSWORD INPUT */}
-          {/* <label htmlFor="password" className="text-slate-700 text-xl my-2">
-            Password:{" "}
-          </label>
-          <input
-            type="password"
-            id="password"
-            onChange={(event) => setPassword(event.target.value)}
-            required={true}
-            className="border-b-2 border-slate-400 mb-0"
-          /> */}
           <div className="flex flex-col justify-center items-start">
             <Input
               value={password}
@@ -217,11 +175,13 @@ const Register = ({ role, isLogin }) => {
 
           {/* SUBMIT BUTTON */}
           <div className="w-full flex justify-end">
-            <SubmitBtn
-              submit={submit}
-              isSubmited={isSubmited}
-              name={"Submit"}
-            />
+            <div className="w-max">
+              <SubmitBtn
+                submit={submit}
+                isSubmited={isSubmited}
+                name={"Submit"}
+              />
+            </div>
           </div>
 
           {/* TOGGLE REDIRECTS TO LOGIN AND REGISTER */}

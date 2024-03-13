@@ -249,7 +249,7 @@ const AddStore = () => {
               </div>
             )}
             <div
-              className={`w-40 ${displayLogoURL || store.logoLink ? "h-max rounded-sm" : "h-40 rounded-full"} overflow-hidden mb-4 flex justify-center items-center text-slate-400 font-semibold bg-cyan-950 bg-opacity-5`}
+              className={`w-40 ${displayLogoURL || store.logoLink ? "h-max rounded-sm bg-transparent bg-opacity-0" : "h-40 rounded-full bg-cyan-950 "} overflow-hidden mb-4 flex justify-center items-center text-slate-400 font-semibold`}
             >
               {displayLogoURL ? (
                 <img src={displayLogoURL} className="h-full" />
@@ -299,7 +299,7 @@ const AddStore = () => {
             />
           </div>
           {/* SUBMIT BUTTON */}
-          <div className="ml-auto my-8 w-full flex justify-end">
+          <div className="ml-auto my-8 w-max flex justify-end">
             <SubmitBtn
               submit={submit}
               isSubmited={isSubmited}

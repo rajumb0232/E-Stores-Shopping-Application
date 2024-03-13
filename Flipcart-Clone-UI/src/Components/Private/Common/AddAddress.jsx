@@ -220,7 +220,7 @@ const AddAddress = () => {
           </div>
         </div>
       </div>
-      <div className={`w-full h-max ml-auto py-6 flex justify-end`}>
+      <div className={`w-max h-max ml-auto py-6 flex justify-end`}>
         <SubmitBtn
           isSubmited={isSubmited}
           name={prevAddress?.addressId? "Update" : "Confirm"}
