@@ -1,10 +1,10 @@
 package com.self.flipcart.controller;
 
 import com.self.flipcart.dto.CategoryDTO;
-import com.self.flipcart.dto.SubCategoryDTO;
-import com.self.flipcart.enums.PrimeCategory;
+import com.self.flipcart.dto.TopCategoryDTO;
 import com.self.flipcart.enums.State;
 import com.self.flipcart.enums.SubCategory;
+import com.self.flipcart.enums.TopCategory;
 import com.self.flipcart.util.DistrictList;
 import lombok.AllArgsConstructor;
 import org.springframework.http.CacheControl;
@@ -27,33 +27,31 @@ public class OptionsController {
     public ResponseEntity<List<String>> getPrimeCategories() {
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(Duration.ofDays(1)))
-                .body(Arrays.stream(PrimeCategory.values()).map(PrimeCategory::getName).collect(Collectors.toList()));
+                .body(Arrays.stream(TopCategory.values()).map(TopCategory::getName).collect(Collectors.toList()));
     }
 
     @GetMapping("/prime-category/{primeCategory}/sub-categories")
-    public ResponseEntity<List<String>> getSubCategories(String primeCategory){
+    public ResponseEntity<List<String>> getSubCategories(@PathVariable String primeCategory){
          return ResponseEntity.ok()
                  .cacheControl(CacheControl.maxAge(Duration.ofDays(1)))
-                 .body(PrimeCategory.valueOf(primeCategory).getSubCategories()
+                 .body(TopCategory.valueOf(primeCategory.toUpperCase()).getSubCategories()
                          .stream().map(SubCategory::getName).collect(Collectors.toList()));
     }
 
     @GetMapping("/categories")
-    public ResponseEntity<List<CategoryDTO>> getCategories(){
-
-        Arrays.stream(PrimeCategory.values()).map(category -> CategoryDTO.builder()
-                    .categoryName(category.getName())
-                    .categoryImage("/categories/"+category.getName()+"/images")
-                    .SubCategories(category.getSubCategories().stream().map(subCategory -> SubCategoryDTO.builder()
-                                .subCategoryName(subCategory.getName())
+    public ResponseEntity<List<TopCategoryDTO>> getCategories(){
+       List<TopCategoryDTO> response = Arrays.stream(TopCategory.values()).map(category -> TopCategoryDTO.builder()
+                    .topCategoryName(category.getName())
+                    .topCategoryImage("/categories/"+category.getName().toLowerCase()+"/images")
+                    .categories(category.getSubCategories().stream().map(subCategory -> CategoryDTO.builder()
+                                .categoryName(subCategory.getName())
                                 .productTypes(new ArrayList<>()).build()
                     ).collect(Collectors.toList())).build()
         ).collect(Collectors.toList());
 
-
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(Duration.ofDays(15)))
-                .body(null);
+                .body(response);
     }
 
     @GetMapping("/states")

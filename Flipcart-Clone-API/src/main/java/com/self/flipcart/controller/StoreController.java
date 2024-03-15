@@ -2,7 +2,6 @@ package com.self.flipcart.controller;
 
 import com.self.flipcart.model.Store;
 import com.self.flipcart.requestdto.StoreRequest;
-import com.self.flipcart.requestdto.StoreRequestComplete;
 import com.self.flipcart.responsedto.StoreResponse;
 import com.self.flipcart.service.StoreService;
 import com.self.flipcart.util.ResponseStructure;
@@ -21,9 +20,9 @@ public class StoreController {
 
     @PostMapping("/stores")
     @PreAuthorize("hasAuthority('SELLER')")
-    public ResponseEntity<ResponseStructure<Store>> setUpStore(@RequestBody StoreRequestComplete storeRequestComplete){
-        System.err.println("prime category: "+storeRequestComplete.getPrimeCategory());
-        return storeService.setUpStore(storeRequestComplete);
+    public ResponseEntity<ResponseStructure<Store>> setUpStore(@RequestBody StoreRequest storeRequest){
+        System.err.println("prime category: "+storeRequest.getTopCategory());
+        return storeService.setUpStore(storeRequest);
     }
 
     @PutMapping("/stores/{storeId}")

@@ -7,7 +7,6 @@ import com.self.flipcart.repository.SellerRepo;
 import com.self.flipcart.repository.StoreRepo;
 import com.self.flipcart.repository.UserRepo;
 import com.self.flipcart.requestdto.StoreRequest;
-import com.self.flipcart.requestdto.StoreRequestComplete;
 import com.self.flipcart.responsedto.StoreResponse;
 import com.self.flipcart.service.StoreService;
 import com.self.flipcart.util.ResponseStructure;
@@ -28,7 +27,7 @@ public class StoreServiceImpl implements StoreService {
     private ResponseStructure<Store> structure;
 
     @Override
-    public ResponseEntity<ResponseStructure<Store>> setUpStore(StoreRequestComplete storeRequest) {
+    public ResponseEntity<ResponseStructure<Store>> setUpStore(StoreRequest storeRequest) {
         Store store = mapToStoreEntity(storeRequest, new Store());
         return userRepo.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).map(user -> sellerRepo.findById(user.getUserId())
                 .map(seller -> {
@@ -45,8 +44,9 @@ public class StoreServiceImpl implements StoreService {
     @Override
     public ResponseEntity<ResponseStructure<Store>> updateStore(StoreRequest storeRequest, String storeId) {
         return storeRepo.findById(storeId).map(exStore -> {
-            exStore = mapToStoreEntity(storeRequest, exStore);
-            Store uniqueStore = storeRepo.save(exStore);
+            Store store = mapToStoreEntity(storeRequest, exStore);
+            store.setTopCategory(exStore.getTopCategory());
+            Store uniqueStore = storeRepo.save(store);
             return new ResponseEntity<>(
                     structure.setStatus(HttpStatus.OK.value())
                             .setMessage("Store Created Successfully")
@@ -93,7 +93,7 @@ public class StoreServiceImpl implements StoreService {
         return StoreResponse.builder()
                 .storeName(store.getStoreName())
                 .storeId(store.getStoreId())
-                .primeCategory(store.getPrimeCategory())
+                .topCategory(store.getTopCategory())
                 .logoLink(store.getLogoLink())
                 .build();
     }
@@ -102,22 +102,10 @@ public class StoreServiceImpl implements StoreService {
      * maps the store request object to entity ignoring the primeCategory
      */
     private Store mapToStoreEntity(StoreRequest storeRequest, Store store) {
-        if (storeRequest.getPrimeCategory() == null)
+        if (storeRequest.getTopCategory() == null)
             throw new InvalidPrimeCategoryException("Failed to update the store data");
         store.setStoreName(storeRequest.getStoreName());
         store.setAbout(storeRequest.getAbout());
-        return store;
-    }
-
-    /**
-     * maps the store request object to entity along with the primeCategory
-     */
-    private Store mapToStoreEntity(StoreRequestComplete storeRequestComplete, Store store) {
-        if (storeRequestComplete.getPrimeCategory() == null)
-            throw new InvalidPrimeCategoryException("Failed to update the store data");
-        store.setStoreName(storeRequestComplete.getStoreName());
-        store.setAbout(storeRequestComplete.getAbout());
-        store.setPrimeCategory(storeRequestComplete.getPrimeCategory());
         return store;
     }
 }

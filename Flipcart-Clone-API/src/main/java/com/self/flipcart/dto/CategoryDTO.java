@@ -6,11 +6,10 @@ import lombok.Setter;
 
 import java.util.List;
 
+@Builder
 @Getter
 @Setter
-@Builder
 public class CategoryDTO {
     private String categoryName;
-    private String categoryImage;
-    private List<SubCategoryDTO> SubCategories;
+    private List<String> productTypes;
 }
