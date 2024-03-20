@@ -1,12 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import useLoginRefresh from "../Auth/useLoginRefersher";
+import { useNavigate } from "react-router-dom";
 
 // constext
 const AuthContext = createContext({});
 
-export const AuthProvider = ({children}) => {
-  const { handleRefresh } = useLoginRefresh();
-  let didRefresh = false;
+export const AuthProvider = ({ children }) => {
+  const navigate = useNavigate();
+  const { user } = useLoginRefresh();
   const [auth, setAuth] = useState({
     userId: "",
     username: "",
@@ -16,17 +17,22 @@ export const AuthProvider = ({children}) => {
     accessExpiry: "",
   });
 
-  const doRefresh = async () => {
-    const data = await handleRefresh();
-    setAuth({ ...data });
-  };
+  useEffect(() => {
+    if (user?.userId) {
+      setAuth(user);
+    }
+  }, [user]);
 
   useEffect(() => {
-    if (!didRefresh) {
-      doRefresh();
-      didRefresh = true;
-    }
-  }, []);
+    console.log("Auth updated to: ", auth)
+    const role = auth?.role;
+    role === "SELLER"
+      ? navigate("/seller-dashboard")
+      : role === "ADMIN"
+      ? navigate("/admin-dashboard")
+      : role === "SUPER_ADMIN"? navigate("/super-admin-dashboard")
+      : role === "CUSTOMER" && navigate("/explore")
+  }, [auth])
 
   return (
     <AuthContext.Provider value={{ auth, setAuth }}>

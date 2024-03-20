@@ -32,19 +32,6 @@ const Register = ({ role, isLogin }) => {
       console.log(isSubmited);
     }
   }, [isSubmitFailed]);
-  // when isSubmited get changed perform login or register
-  useEffect(() => {
-    if (isSubmited !== false) {
-      isLogin ? handleLogin() : handleRegister();
-    }
-  }, [isSubmited]);
-
-  //handling submit
-  const submit = (event) => {
-    event.preventDefault();
-    setSubmitFailed(false);
-    setIsSubmited(true);
-  };
 
   // basic request config
   const endPoint = isLogin ? "/login" : "/users/register";
@@ -54,23 +41,9 @@ const Register = ({ role, isLogin }) => {
     try {
       const response = await axiosInstance.post(endPoint, { email, password });
       if (response.status === 200) {
-        const userData = {
-          userId: response.data.data.userId,
-          username: response.data.data.username,
-          role: response.data.data.role,
-          isAuthenticated: response.data.data.authenticated,
-        };
-        setAuth({ ...auth, ...userData });
-        localStorage.setItem("user", JSON.stringify(userData));
-        localStorage.setItem(
-          "access_expiry",
-          response.data.data.accessExpiration
-        );
-        localStorage.setItem(
-          "refresh_expiry",
-          response.data.data.refreshExpiration
-        );
-        navigate("/");
+        console.log("Login response: ", response.data.data);
+        setAuth(response.data.data);
+        localStorage.setItem("user", JSON.stringify(response.data.data));
       } else {
         setIsSubmited(false);
         setSubmitFailed(true);
@@ -111,6 +84,20 @@ const Register = ({ role, isLogin }) => {
       setIsSubmited(false);
       setSubmitFailed(true);
     }
+  };
+
+  // when isSubmited get changed perform login or register
+  useEffect(() => {
+    if (isSubmited !== false) {
+      isLogin ? handleLogin() : handleRegister();
+    }
+  }, [isSubmited]);
+
+  //handling submit
+  const submit = (event) => {
+    event.preventDefault();
+    setSubmitFailed(false);
+    setIsSubmited(true);
   };
 
   return (

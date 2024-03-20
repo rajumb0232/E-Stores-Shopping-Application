@@ -72,28 +72,28 @@ export const useCityDistricts = () => {
 };
 
 // --------------------------------------------------------------------------------------------------------
-export const usePrimeCategories = () => {
-  const [primeCategories, setPrimeCategories] = useState([]);
+export const useTopCategories = () => {
+  const [topCategories, setTopCategories] = useState([]);
   const axiosInstance = AxiosPrivateInstance();
 
-  const getPrimeCategories = async () => {
-    const primeCategoriesCache = await caches.open("user");
-    const primeCategories = await primeCategoriesCache.match(
-      "/prime-categories"
+  const getTopCategories = async () => {
+    const cache = await caches.open("user");
+    const topCategories = await cache.match(
+      "/top-categories"
     );
     let list = [];
-    if (primeCategories) {
-      list = await primeCategories.json();
-      setPrimeCategories(list);
+    if (topCategories) {
+      list = await topCategories.json();
+      setTopCategories(list);
     } else {
-      const response = await axiosInstance.get("/prime-categories");
+      const response = await axiosInstance.get("/top-categories");
       if (response.status === 200) {
         list = response.data.map((category) => {
           return category.charAt(0) + category.slice(1).toLowerCase();
         });
-        setPrimeCategories(list);
-        primeCategoriesCache.put(
-          "/prime-categories",
+        setTopCategories(list);
+        cache.put(
+          "/top-categories",
           new Response(JSON.stringify(list))
         );
       } else alert("Something went wront!!");
@@ -101,10 +101,10 @@ export const usePrimeCategories = () => {
   };
 
   useEffect(() => {
-    getPrimeCategories();
+    getTopCategories();
   }, []);
 
-  return { primeCategories };
+  return { topCategories };
 };
 
 // --------------------------------------------------------------------------------------------------------

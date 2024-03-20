@@ -5,7 +5,7 @@ import AxiosPrivateInstance from "../../API/AxiosPrivateInstance";
 import { DropDown } from "../../Util/DropDown";
 import Input from "../../Util/Input";
 import FormHeading from "../../Util/FormHeading";
-import { usePrimeCategories } from "../../Hooks/useOptions";
+import { useTopCategories } from "../../Hooks/useOptions";
 import useStore from "../../Hooks/useStore";
 import useImage from "../../Hooks/useImage";
 import { MdAdd, MdEdit } from "react-icons/md";
@@ -14,11 +14,11 @@ const AddStore = () => {
   const [storeId, setStoreId] = useState("");
   const [storeName, setStoreName] = useState("");
   const [about, setAbout] = useState("");
-  const [primeCategory, setPrimeCategory] = useState("");
+  const [topCategory, setTopCategory] = useState("");
   const [isSubmited, setIsSubmited] = useState(false);
   const [isPrevPresent, setPrevPresent] = useState(false);
   const [isAnyModified, setAnyModified] = useState(false);
-  const { primeCategories } = usePrimeCategories();
+  const { topCategories } = useTopCategories();
 
   const { store } = useStore();
   const { imageURL, getImageURL } = useImage();
@@ -33,7 +33,7 @@ const AddStore = () => {
       setStoreId(store.storeId);
       setStoreName(store.storeName);
       setAbout(store.about);
-      setPrimeCategory(store.primeCategory);
+      setTopCategory(store.topCategory);
       setPrevPresent(true);
       if (store?.logoLink) getImageURL(store.logoLink);
     }
@@ -46,7 +46,7 @@ const AddStore = () => {
         setAnyModified(true);
       }
     }
-  }, [storeName, about, primeCategory]);
+  }, [storeName, about, topCategory]);
 
   const handleImageChange = (event) => {
     setSelectedLogo(event.target.files[0]);
@@ -63,7 +63,7 @@ const AddStore = () => {
   // handling the submit event by validating the data submitted
   const submit = (event) => {
     event.preventDefault();
-    primeCategory === "" && !store
+    topCategory === "" && !store
       ? alert("Category not selected!!")
       : storeName === ""
       ? alert("Store is not defined!!")
@@ -125,7 +125,7 @@ const AddStore = () => {
 
     const body = {
       storeName: storeName,
-      primeCategory: primeCategory.toUpperCase(),
+      topCategory: topCategory.toUpperCase(),
       about: about,
     };
 
@@ -264,15 +264,15 @@ const AddStore = () => {
             {"(Use Image with 1:1 ratio only)"}
           </p>
 
-          {!store?.primeCategory && (
+          {!store?.topCategory && (
             <div className="my-6 w-fit">
               <DropDown
                 valueType={"Category"}
-                setter={setPrimeCategory}
-                value={primeCategory}
+                setter={setTopCategory}
+                value={topCategory}
                 warnMessage={""}
                 DefaultText={"Select Category"}
-                options={primeCategories}
+                options={topCategories}
               />
             </div>
           )}

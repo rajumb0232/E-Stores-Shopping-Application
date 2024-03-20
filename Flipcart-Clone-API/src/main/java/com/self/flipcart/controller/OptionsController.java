@@ -23,14 +23,14 @@ import java.util.stream.Collectors;
 @CrossOrigin(allowCredentials = "true", origins = "http://localhost:5173/")
 public class OptionsController {
 
-    @GetMapping("/prime-categories")
+    @GetMapping("/top-categories")
     public ResponseEntity<List<String>> getPrimeCategories() {
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(Duration.ofDays(1)))
                 .body(Arrays.stream(TopCategory.values()).map(TopCategory::getName).collect(Collectors.toList()));
     }
 
-    @GetMapping("/prime-category/{primeCategory}/sub-categories")
+    @GetMapping("/top-category/{primeCategory}/sub-categories")
     public ResponseEntity<List<String>> getSubCategories(@PathVariable String primeCategory){
          return ResponseEntity.ok()
                  .cacheControl(CacheControl.maxAge(Duration.ofDays(1)))

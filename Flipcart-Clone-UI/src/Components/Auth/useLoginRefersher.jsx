@@ -1,92 +1,90 @@
 import { useNavigate } from "react-router-dom";
 import AxiosPrivateInstance from "../API/AxiosPrivateInstance";
+import { useEffect, useState } from "react";
 
 const useLoginRefresh = () => {
+  const [user, setUser] = useState({});
   const navigate = useNavigate();
   const axiosInstance = AxiosPrivateInstance();
 
   const clearData = () => {
-    localStorage.removeItem("user")
-    localStorage.removeItem("access_expiry")
-    localStorage.removeItem("refresh_expiry")
-    localStorage.removeItem("store")
+    localStorage.removeItem("user");
+    localStorage.removeItem("store");
     sessionStorage.clear();
     caches.delete("user");
-  }
+    setUser({
+      userId: "",
+      username: "",
+      role: "CUSTOMER",
+      isAuthenticated: false,
+      fromLocation: "",
+      accessExpiry: "",
+    })
+  };
+
+  useEffect(() => {
+    if (user?.userId) localStorage.setItem("user", JSON.stringify(user));
+  }, [user]);
 
   // refresh and update the logic
   const refresh = async () => {
     try {
-      console.log("refreshing request sent.");
+      console.log("refreshing request sent to server");
       const response = await axiosInstance.post("/login/refresh");
       if (response.status === 200) {
-        const authData = {
-          userId: response.data.data.userId,
-          username: response.data.data.username,
-          role: response.data.data.role,
-          isAuthenticated: response.data.data.authenticated,
-        };
-        localStorage.setItem("user", JSON.stringify(authData));
-        localStorage.setItem(
-          "access_expiry",
-          response.data.data.accessExpiration
-        );
-        localStorage.setItem(
-          "refresh_expiry",
-          response.data.data.refreshExpiration
-        );
-
-        const toBeReturned = {
-          ...authData,
-          accessExpiry: response.data.data.accessExpiration,
-        };
-
-        return toBeReturned;
+        setUser(response.data.data);
       } else {
         console.log(response.data);
-        throw new Error(`Refresh failed with status: ${response.status}`);
       }
     } catch (error) {
       console.log(error);
       if (error.response.status === 401) {
-        clearData();
-        navigate("/");
-        console.log("Server responded with unauthorized");
-      } else if (error.response.status === 429) {
-        console.log("Resolved Too Many Requests");
+        console.log("Server responded with unauthorized", error);
       } else {
-        clearData();
-        navigate("/");
         console.error("Error refreshing login:", error);
       }
+      clearData();
+      navigate("/");
     }
   };
 
   // core logic to validate agaist localStorage then decide whether to hit the server or not,
   const handleRefresh = async () => {
-    // access refersh token expiry
-    const accessExpiry = localStorage.getItem("access_expiry");
-    const refreshExpiry = localStorage.getItem("refresh_expiry");
-    const userInLocalStorage = localStorage.getItem("user");
-
-    if (refreshExpiry !== null || new Date(refreshExpiry) > new Date()) {
-      if (
-        accessExpiry !== null &&
-        new Date(accessExpiry) > new Date() &&
-        userInLocalStorage !== null &&
-        userInLocalStorage !== "{}"
-      ) {
-        const user = JSON.parse(userInLocalStorage);
-        const toBeReturned = { ...user, accessExpiry: accessExpiry };
-        return toBeReturned;
-      } else return await refresh();
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (
+      user &&
+      user?.userId &&
+      user?.accessExpiration &&
+      user?.refreshExpiration
+    ) {
+      const { accessExpiration, refreshExpiration } = user;
+      if (new Date(refreshExpiration) > new Date()) {
+        console.log("refresh not expired!");
+        if (new Date(accessExpiration) > new Date()) {
+          console.log("access not expired!");
+          setUser(user);
+        } else refresh();
+      } else {
+        clearData();
+        console.log("User login expired | Navigating to explore...");
+        navigate("/explore");
+      }
     } else {
       clearData();
+      console.log("User not logged in | Navigating to explore...");
       navigate("/explore");
     }
   };
 
-  return { handleRefresh };
+  let refreshing = false;
+  useEffect(() => {
+    if (!refreshing) {
+      refreshing = true;
+      handleRefresh();
+    }
+  }, []);
+
+  return { user };
 };
 
 export default useLoginRefresh;
