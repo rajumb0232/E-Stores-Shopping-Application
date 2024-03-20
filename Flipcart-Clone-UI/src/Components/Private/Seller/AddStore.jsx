@@ -42,7 +42,7 @@ const AddStore = () => {
   // update isModified state if data modified
   useEffect(() => {
     if (isPrevPresent) {
-      if (storeName !== store.storeName || about !== store.about) {
+      if (storeName !== store.storeName || about !== store.about || topCategory !== store.topCategory) {
         setAnyModified(true);
       }
     }

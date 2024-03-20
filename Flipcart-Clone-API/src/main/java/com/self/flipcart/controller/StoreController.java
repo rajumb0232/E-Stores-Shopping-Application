@@ -28,6 +28,7 @@ public class StoreController {
     @PutMapping("/stores/{storeId}")
     @PreAuthorize("hasAuthority('SELLER')")
     public ResponseEntity<ResponseStructure<Store>> updateStore(@RequestBody StoreRequest storeRequest, @PathVariable String storeId){
+        System.err.println(storeRequest);
         return storeService.updateStore(storeRequest, storeId);
     }
 

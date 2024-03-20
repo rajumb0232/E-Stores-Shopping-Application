@@ -106,6 +106,7 @@ public class StoreServiceImpl implements StoreService {
             throw new InvalidPrimeCategoryException("Failed to update the store data");
         store.setStoreName(storeRequest.getStoreName());
         store.setAbout(storeRequest.getAbout());
+        store.setTopCategory(storeRequest.getTopCategory());
         return store;
     }
 }
