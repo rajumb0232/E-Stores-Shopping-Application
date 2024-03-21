@@ -24,7 +24,6 @@ export const AuthProvider = ({ children }) => {
   }, [user]);
 
   useEffect(() => {
-    console.log("Auth updated to: ", auth)
     const role = auth?.role;
     role === "SELLER"
       ? navigate("/seller-dashboard")
