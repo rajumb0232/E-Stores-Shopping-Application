@@ -48,6 +48,7 @@ const AddStore = () => {
     }
   }, [storeName, about, topCategory]);
 
+  // updating Selected logo state once the image is selected
   const handleImageChange = (event) => {
     setSelectedLogo(event.target.files[0]);
   };

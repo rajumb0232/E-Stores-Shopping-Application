@@ -3,7 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import App from "../../App";
 import { navs } from "./Navigations";
 import { useAuth } from "../Context/AuthProvider";
-import Explore from "../Public/Explore";
+const LazyExplore = React.lazy(() => import ("../Public/Explore"))
 
 const AllRoutes = () => {
   const { auth } = useAuth();
@@ -13,7 +13,11 @@ const AllRoutes = () => {
     <Routes>
         <Route path="/" element={<App />}>
           {role !== "SELLER" && role !== "ADMIN" && role !== "SUPER_ADMIN" && (
-            <Route path="/explore" element={<Explore />} />
+            <Route path="/explore" element={
+              <React.Suspense fallback="Loading...">
+                <LazyExplore />
+              </React.Suspense>
+            } />
           )}
 
           {navs.map((nav, i) => {

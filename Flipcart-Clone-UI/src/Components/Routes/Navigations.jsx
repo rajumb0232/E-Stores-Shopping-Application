@@ -13,7 +13,6 @@ import SuperAdminDashboard from '../Private/SuperAdmin/SuperAdminDashboard'
 import Register from '../Public/LoginAndRegister'
 import VerifyOTP from '../Public/VerifyOTP'
 import SetUpStoreAndRelated from '../Private/Seller/SetUpStoreAndRelated'
-import Explore from '../Public/Explore'
 import Logout from '../Private/Common/Logout'
 
 
