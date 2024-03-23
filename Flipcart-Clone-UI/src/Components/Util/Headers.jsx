@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../Context/AuthProvider";
 import { useState } from "react";
@@ -7,10 +7,12 @@ import { PiStorefront, PiUserCircle } from "react-icons/pi";
 import { MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md";
 import { IoSearchOutline } from "react-icons/io5";
 import Logout from "../Private/Common/Logout";
+import { RxDashboard } from "react-icons/rx";
+import { BsBoxes } from "react-icons/bs";
 
 const Headers = () => {
   const { auth } = useAuth();
-  const { isAuthenticated, role, username } = auth;
+  const { authenticated, role, username } = auth;
   const [loginHovered, setLoginHovered] = useState(false);
   const [doLogout, setDoLogout] = useState(false);
 
@@ -19,7 +21,15 @@ const Headers = () => {
       <nav className="px-2 flex flex-row items-center justify-center w-11/12 max-w-7xl">
         {/* LOGO */}
         <div className="mr-auto flex items-center justify-center">
-          <Link to="/">
+          <Link
+            to={
+              role === "SELLER"
+                ? "/seller-dashboard"
+                : role === "CUSTOMER"
+                ? "/explore"
+                : "/"
+            }
+          >
             <img src="/src/Images/flipkart-logo.svg" alt="" className="w-36" />
           </Link>
         </div>
@@ -36,9 +46,7 @@ const Headers = () => {
           />
         </div>
 
-        {doLogout && (
-          <Logout doAppear={setDoLogout} />
-        )}
+        {doLogout && <Logout doAppear={setDoLogout} />}
 
         {/* LOGIN AND ACCOUNT */}
         <div className=" text-slate-900 ml-auto text-md flex justify-center items-center">
@@ -48,7 +56,7 @@ const Headers = () => {
             onMouseLeave={() => setLoginHovered(false)}
           >
             <Link
-              to={isAuthenticated ? "/account" : "/login"}
+              to={authenticated ? "/account" : "/login"}
               className={`mx-2 px-4 py-2 rounded-md flex justify-start items-center ${
                 loginHovered
                   ? "bg-prussian_blue text-white"
@@ -60,7 +68,7 @@ const Headers = () => {
                 <PiUserCircle />
               </div>
               <div className="px-1 flex justify-center items-center">
-                {isAuthenticated ? username : "Login"}
+                {authenticated ? username : "Login"}
                 <div className="ml-1">
                   {loginHovered ? (
                     <MdKeyboardArrowUp />
@@ -75,30 +83,34 @@ const Headers = () => {
               <div className="shadow-lg shadow-slate-300 bg-white rounded-sm h-max absolute top-14 w-1/5 translate-x-2 -translate-y-0.5 flex flex-col justify-center transition-all duration-300">
                 <div className="flex justify-between items-center w-full border-b-2 border-slate-300 p-2">
                   <p className="text-slate-700 ">
-                    {isAuthenticated ? "Need break?" : "New customer?"}
+                    {authenticated ? "Need break?" : "New customer?"}
                   </p>
                   <button
                     className="text-prussian_blue font-semibold rounded-sm px-2"
                     onClick={() => setDoLogout(true)}
                   >
-                    {isAuthenticated ? "Logout" : "Register"}
+                    {authenticated ? "Logout" : "Register"}
                   </button>
                 </div>
 
                 <NavLink
-                  to={isAuthenticated ? "/account" : "/login"}
+                  to={authenticated ? "/account" : "/login"}
                   className="text-slate-700 w-full hover:bg-slate-100 text-base py-2"
                 >
-                  <i className="fa-regular fa-circle-user px-2"></i>
-                  My Profile
+                  <div className="px-2 flex justify-start items-center text-lg">
+                    <PiUserCircle />
+                    <p className="ml-1.5 text-base"> My Profile</p>
+                  </div>
                 </NavLink>
                 {!role || (role && role === "CUSTOMER") ? (
                   <NavLink
-                    to={isAuthenticated ? "/wishlist" : "/login"}
+                    to={authenticated ? "/wishlist" : "/login"}
                     className="text-slate-700 w-full hover:bg-slate-100 text-base py-2"
                   >
-                    <i className="fa-regular fa-heart px-2"></i>
-                    Wishlist
+                    <div className="px-2 flex justify-start items-center">
+                      <BsBoxes />
+                      <p className="ml-1.5">Wishlist</p>
+                    </div>
                   </NavLink>
                 ) : (
                   ""
@@ -106,14 +118,27 @@ const Headers = () => {
                 {!role ||
                 (role && (role === "CUSTOMER" || role === "SELLER")) ? (
                   <NavLink
-                    to={isAuthenticated ? "/orders" : "/login"}
+                    to={authenticated ? "/orders" : "/login"}
                     className="text-slate-700 w-full hover:bg-slate-100 text-base py-2"
                   >
-                    <i className="fa-solid fa-box-open px-2"></i>
-                    Orders
+                    <div className="px-2 flex justify-start items-center">
+                      <BsBoxes />
+                      <p className="ml-1.5">Orders</p>
+                    </div>
                   </NavLink>
                 ) : (
                   ""
+                )}
+                {!sessionStorage.getItem("currentView") && (
+                  <NavLink
+                    to="/seller-dashboard"
+                    className="text-slate-700 w-full hover:bg-slate-100 text-base py-2"
+                  >
+                    <div className="px-2 flex justify-start items-center">
+                      <RxDashboard />
+                      <p className="ml-1.5">Dashboard</p>
+                    </div>
+                  </NavLink>
                 )}
               </div>
             ) : (
@@ -124,7 +149,7 @@ const Headers = () => {
           {/* CORE MODULE LINK */}
           <Link
             to={
-              !isAuthenticated
+              !authenticated
                 ? "/seller/register"
                 : role === "SELLER"
                 ? "/orders"
@@ -140,7 +165,7 @@ const Headers = () => {
               <PiStorefront />
             </div>
             <p className="px-1">
-              {!isAuthenticated
+              {!authenticated
                 ? "Become a Seller"
                 : role === "SELLER"
                 ? "Orders"

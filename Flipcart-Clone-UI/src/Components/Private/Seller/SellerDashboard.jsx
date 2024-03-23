@@ -12,7 +12,7 @@ import useStore from "../../Hooks/useStore";
 import useImage from "../../Hooks/useImage";
 
 const SellerDashboard = () => {
-  const [currentViewName, setCurrentViewName] = useState("dashboard");
+  const [currentView, setCurrentView] = useState("");
   const [storeHovered, setStoreHovered] = useState(false);
   const navigate = useNavigate();
   const axiosInstance = AxiosPrivateInstance();
@@ -32,28 +32,29 @@ const SellerDashboard = () => {
 
       if (response.status === 200) {
         if (response.data === true) {
-          localStorage.setItem("store", "true");
-          sessionStorage.setItem("currentView", currentViewName);
+          sessionStorage.setItem("currentView", "dashboard");
         } else navigate("/setup-store");
       } else alert("Something went wrong!!");
     }
   };
 
   useEffect(() => {
-    if (localStorage.getItem("store")) {
-      const currentInSessionName = sessionStorage.getItem("currentView");
-      if (currentInSessionName) {
-        setCurrentViewName(currentInSessionName);
+    if (store?.storeId) {
+      const view = sessionStorage.getItem("currentView");
+      if (view) {
+        setCurrentView(view);
       } else {
-        sessionStorage.setItem("currentView", currentViewName);
+        setCurrentView("dashboard")
+        sessionStorage.setItem("currentView", "dashboard");
       }
     } else checkForStore();
-  }, [currentViewName]);
+  }, [store]);
+
 
   useEffect(() => {
     if (store?.logoLink) {
-      const get = async () => {
-        const response = await getImageURL(store.logoLink);
+      const get = () => {
+        getImageURL(store.logoLink);
       };
       get();
     }
@@ -120,29 +121,38 @@ const SellerDashboard = () => {
             <InDisplayNavBtn
               icon={<RxDashboard />}
               displayName={"View Dashboard"}
-              view={"dashboard"}
-              setCurrent={setCurrentViewName}
+              // view={"dashboard"}
+              onClick={() => {
+                sessionStorage.setItem("currentView", "dashboard");
+                setCurrentView("dashboard")
+              }}
             />
             {/* ADD PRODUCT */}
             <InDisplayNavBtn
               icon={<BsBoxArrowInDown />}
               displayName={"Add Product"}
-              view={"addProduct"}
-              setCurrent={setCurrentViewName}
+              // view={"addProduct"}
+              onClick={() => {
+                sessionStorage.setItem("currentView", "addProduct");
+                setCurrentView("addProduct")
+              }}
             />
             {/* MANAGE ORDERS */}
             <InDisplayNavBtn
               icon={<BsBoxes />}
               displayName={"Manage Orders"}
-              view={"manageOrders"}
-              setCurrent={setCurrentViewName}
+              // view={"manageOrders"}
+              onClick={() => {
+                sessionStorage.setItem("currentView", "manageOrders");
+                setCurrentView("manageOrders")
+              }}
             />
             {/* UPDATE STORE ADDRESS */}
             <InDisplayNavBtn
               icon={<PiStorefrontDuotone />}
               displayName={"Edit Store Info"}
-              view={"editStore"}
-              setCurrent={setCurrentViewName}
+              // view={"editStore"}
+              onClick={() => navigate("/setup-store")}
             />
           </div>
         </div>
@@ -151,14 +161,14 @@ const SellerDashboard = () => {
       {/* DASHBOARD ANALYSIS VIEW */}
       <div className="w-content mr-2 h-full bg-gray-200 flex justify-center items-start rounded-sm">
         <div className="w-full h-max bg-gray-200 rounded-sm">
-          {currentViewName === "dashboard" ? (
+          {currentView === "dashboard" ? (
             <PerformanceRecord />
-          ) : currentViewName === "addProduct" ? (
+          ) : currentView === "addProduct" ? (
             <AddUpdateProduct />
-          ) : currentViewName === "manageOrders" ? (
+          ) : currentView === "manageOrders" ? (
             <Orders />
           ) : (
-            currentViewName === "editStore" && navigate("/setup-store")
+            currentView === "editStore" && navigate("/setup-store")
           )}
         </div>
       </div>

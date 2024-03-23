@@ -1,6 +1,6 @@
 package com.self.flipcart.model;
 
-import com.self.flipcart.enums.PrimeCategory;
+import com.self.flipcart.enums.TopCategory;
 import com.self.flipcart.util.IdGenerator;
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,7 +19,7 @@ public class Store {
     @GenericGenerator(name = "custom", type = IdGenerator.class)
     private String storeId;
     private String storeName;
-    private PrimeCategory primeCategory;
+    private TopCategory topCategory;
     private String logoLink;
     private String about;
 

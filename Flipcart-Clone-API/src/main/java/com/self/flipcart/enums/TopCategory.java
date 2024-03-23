@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public enum PrimeCategory {
+public enum TopCategory {
     ELECTRONICS("Electronics", Arrays.asList(
             SubCategory.HOME_APPLIANCES,
             SubCategory.TV,
@@ -51,7 +51,8 @@ public enum PrimeCategory {
     private String name;
     private List<SubCategory> subCategories;
 
-    PrimeCategory(String name, List<SubCategory> subCategories) {
+    TopCategory(String name, List<SubCategory> subCategories) {
+        this.name = name;
         this.subCategories = subCategories;
     }
 

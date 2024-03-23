@@ -1,8 +1,7 @@
 package com.self.flipcart.responsedto;
 
-import com.self.flipcart.enums.PrimeCategory;
+import com.self.flipcart.enums.TopCategory;
 import lombok.*;
-import org.springframework.stereotype.Component;
 
 @Getter
 @Setter
@@ -12,6 +11,6 @@ import org.springframework.stereotype.Component;
 public class StoreResponse {
     private String storeId;
     private String storeName;
-    private PrimeCategory primeCategory;
+    private TopCategory topCategory;
     private String logoLink;
 }

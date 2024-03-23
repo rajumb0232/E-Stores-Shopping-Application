@@ -13,8 +13,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.concurrent.ExecutionException;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/fkv1")
@@ -24,7 +22,7 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/users/register")
-    public ResponseEntity<ResponseStructure<UserResponse>> registerUser(@RequestBody @Valid UserRequest userRequest) throws ExecutionException, InterruptedException {
+    public ResponseEntity<ResponseStructure<UserResponse>> registerUser(@RequestBody @Valid UserRequest userRequest) {
         System.out.println(userRequest.getEmail()+", "+userRequest.getPassword()+", "+userRequest.getUserRole());
         return authService.registerUser(userRequest);
     }

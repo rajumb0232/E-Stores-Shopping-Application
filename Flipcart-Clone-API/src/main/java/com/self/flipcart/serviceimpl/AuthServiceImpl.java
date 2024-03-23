@@ -43,7 +43,6 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @Service
@@ -98,12 +97,12 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Value("${token.expiry.access.seconds}")
-    private int accessTokenExpirySeconds;
+    private long accessTokenExpirySeconds;
     @Value("${token.expiry.refresh.seconds}")
-    private int refreshTokenExpirySeconds;
+    private long refreshTokenExpirySeconds;
 
     @Override
-    public ResponseEntity<ResponseStructure<UserResponse>> registerUser(UserRequest userRequest) throws ExecutionException, InterruptedException {
+    public ResponseEntity<ResponseStructure<UserResponse>> registerUser(UserRequest userRequest) {
         // validating if there is already a user with the given email in the request
         if (userRepo.existsByEmail(userRequest.getEmail()))
             throw new UserAlreadyExistsByEmailException("Failed To register the User");
@@ -118,7 +117,7 @@ public class AuthServiceImpl implements AuthService {
         otpCache.add(otp.getEmail(), otp);
         try {
             sendOTPToMailId(user, otp.getOtp());
-            return new ResponseEntity<ResponseStructure<UserResponse>>(
+            return new ResponseEntity<>(
                     structure.setStatus(HttpStatus.ACCEPTED.value())
                             .setMessage("user registration successful. Please check your email for OTP")
                             .setData(mapToUserResponse(user)), HttpStatus.ACCEPTED);
@@ -137,9 +136,14 @@ public class AuthServiceImpl implements AuthService {
         user.setEmailVerified(true);
         userRepo.save(user);
         otpCache.remove(otpModel.getEmail());
+        try {
+        sendConfirmationMail(user);
         return new ResponseEntity<>(structure.setStatus(HttpStatus.OK.value())
                 .setMessage("User registration successful")
                 .setData(mapToUserResponse(user)), HttpStatus.OK);
+        } catch (MessagingException e) {
+            throw new EmailNotFoundException("Failed to send confirmation mail");
+        }
     }
 
     @Override
@@ -151,38 +155,23 @@ public class AuthServiceImpl implements AuthService {
         Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, authRequest.getPassword()));
 
         // validating if the user authentication is authenticated
-        if (auth.isAuthenticated()) {
-            return userRepo.findByUsername(username).map(user -> {
-                // granting access to the user by providing access and refresh token cookies in response
-                HttpHeaders headers = grantAccessToUser(user);
-                return ResponseEntity.ok().headers(headers).body(authStructure.setStatus(HttpStatus.OK.value())
-                        .setMessage("Authentication successful")
-                        .setData(AuthResponse.builder()
-                                .userId(user.getUserId())
-                                .username(username)
-                                .role(user.getUserRole().name())
-                                .isAuthenticated(true)
-                                .accessExpiration(LocalDateTime.now().plusSeconds(accessTokenExpirySeconds))
-                                .refreshExpiration(LocalDateTime.now().plusSeconds(refreshTokenExpirySeconds))
-                                .build()));
-            }).get();
-        } else throw new UsernameNotFoundException("Authentication failed");
+        if (auth.isAuthenticated()) return userRepo.findByUsername(username).map(user -> generateAuthResponse(user)).get();
+        else throw new UsernameNotFoundException("Authentication failed");
     }
 
-    @Override
-    public ResponseEntity<SimpleResponseStructure> logout(String refreshToken, String accessToken) {
-
-        // resetting tokens with blank value and 0 maxAge
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.SET_COOKIE, cookieManager.invalidate("at"));
-        headers.add(HttpHeaders.SET_COOKIE, cookieManager.invalidate("rt"));
-        // blocking the tokens
-        blockAccessToken(accessToken);
-        blockRefreshToken(refreshToken);
-
-
-        return ResponseEntity.ok().headers(headers).body(simpleResponseStructure.setStatus(HttpStatus.OK.value())
-                .setMessage("Logout Successful"));
+    private ResponseEntity<ResponseStructure<AuthResponse>> generateAuthResponse(User user){
+        // granting access to User with new access and refresh token cookies in response
+        HttpHeaders headers = grantAccessToUser(user);
+        return ResponseEntity.ok().headers(headers).body(authStructure.setStatus(HttpStatus.OK.value())
+                .setMessage("Login refreshed successfully")
+                .setData(AuthResponse.builder()
+                        .userId(user.getUserId())
+                        .username(user.getUsername())
+                        .role(user.getUserRole().name())
+                        .isAuthenticated(true)
+                        .accessExpiration(accessTokenExpirySeconds)
+                        .refreshExpiration(refreshTokenExpirySeconds)
+                        .build()));
     }
 
     @Override
@@ -201,22 +190,26 @@ public class AuthServiceImpl implements AuthService {
             else return jwtService.extractUsername(refreshToken);
         }).orElseThrow(() -> new UserNotLoggedInException("Failed to refresh login"));
         return userRepo.findByUsername(username).map(user -> {
-            // granting access to User with new access and refresh token cookies in response
-            HttpHeaders headers = grantAccessToUser(user);
             // blocking old token
             blockRefreshToken(refreshToken);
+            return generateAuthResponse(user);
 
-            return ResponseEntity.ok().headers(headers).body(authStructure.setStatus(HttpStatus.OK.value())
-                    .setMessage("Login refreshed successfully")
-                    .setData(AuthResponse.builder()
-                            .userId(user.getUserId())
-                            .username(user.getUsername())
-                            .role(user.getUserRole().name())
-                            .isAuthenticated(true)
-                            .accessExpiration(LocalDateTime.now().plusSeconds(accessTokenExpirySeconds))
-                            .refreshExpiration(LocalDateTime.now().plusSeconds(refreshTokenExpirySeconds))
-                            .build()));
         }).orElseThrow(() -> new UsernameNotFoundException("Failed to refresh login"));
+    }
+
+    @Override
+    public ResponseEntity<SimpleResponseStructure> logout(String refreshToken, String accessToken) {
+
+        // resetting tokens with blank value and 0 maxAge
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.SET_COOKIE, cookieManager.invalidate("at"));
+        headers.add(HttpHeaders.SET_COOKIE, cookieManager.invalidate("rt"));
+        // blocking the tokens
+        blockAccessToken(accessToken);
+        blockRefreshToken(refreshToken);
+
+        return ResponseEntity.ok().headers(headers).body(simpleResponseStructure.setStatus(HttpStatus.OK.value())
+                .setMessage("Logout Successful"));
     }
 
     @Override
@@ -326,9 +319,7 @@ public class AuthServiceImpl implements AuthService {
     private <T extends User> T mapToChildEntity(UserRequest userRequest) {
         User user = null;
         switch (userRequest.getUserRole()) {
-            case SELLER -> {
-                user = new Seller();
-            }
+            case SELLER -> user = new Seller();
             case ADMIN -> {
             }
             default -> throw new InvalidUserRoleException("Failed to process the request");
@@ -354,7 +345,7 @@ public class AuthServiceImpl implements AuthService {
                 .text(
                         "Hi " + user.getEmail().split("@")[0] + ",<br>"
                                 + "<h4> Nice to see you interested in Flipkart, your OTP for email verification is,</h4><br><br>"
-                                + "<h3 style=\"color: #f2f2f2; font-size: 1rem; font-weight: 600; text-decoration: none; padding: 0.5em 1em;"
+                                + "<h3 style=\"color: #1D63FF; font-size: 1rem; font-weight: 600; text-decoration: none; padding: 0.5em 1em;"
                                 + "border-radius: 10px; width: max-content;\">" + otp + "</h3>" // add the OTP ID (UUID)
                                 + "<br><br>"
                                 + "With Best Regards,<br>"
@@ -374,7 +365,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Async
-    private void sendConfirmationMail(Seller user) throws MessagingException {
+    private void sendConfirmationMail(User user) throws MessagingException {
         sendMail(MessageData.builder()
                 .to(user.getEmail())
                 .subject("Welcome to Flipkart family")
