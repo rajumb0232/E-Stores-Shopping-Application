@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class CookieManager {
 
-    public String configure(String name,String value, int maxAge) {
+    public String configure(String name,String value, long maxAge) {
         ResponseCookie cookie = ResponseCookie.from(name, value)
                 .domain("localhost")
                 .path("/")

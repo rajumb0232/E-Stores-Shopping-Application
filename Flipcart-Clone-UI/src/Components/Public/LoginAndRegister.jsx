@@ -42,8 +42,18 @@ const Register = ({ role, isLogin }) => {
       const response = await axiosInstance.post(endPoint, { email, password });
       if (response.status === 200) {
         console.log("Login response: ", response.data.data);
-        setAuth(response.data.data);
-        localStorage.setItem("user", JSON.stringify(response.data.data));
+
+        const accessExpiration = response.data.data.accessExpiration;
+        const refreshExpiration = response.data.data.refreshExpiration;
+        const user = {
+          ...response.data.data,
+          accessExpiration:new Date(new Date().getTime() + accessExpiration * 1000),
+          refreshExpiration: new Date(new Date().getTime() + refreshExpiration * 1000)
+        }
+
+        setAuth(user);
+        localStorage.setItem("user", JSON.stringify(user));
+
       } else {
         setIsSubmited(false);
         setSubmitFailed(true);

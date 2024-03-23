@@ -16,8 +16,6 @@ const Headers = () => {
   const [loginHovered, setLoginHovered] = useState(false);
   const [doLogout, setDoLogout] = useState(false);
 
-  useEffect(() => console.log(auth), []);
-
   return (
     <header className="border-b-1 fixed z-50 top-0 font-sans w-screen flex justify-center bg-white">
       <nav className="px-2 flex flex-row items-center justify-center w-11/12 max-w-7xl">

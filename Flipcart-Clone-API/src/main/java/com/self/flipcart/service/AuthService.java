@@ -9,10 +9,8 @@ import com.self.flipcart.util.ResponseStructure;
 import com.self.flipcart.util.SimpleResponseStructure;
 import org.springframework.http.ResponseEntity;
 
-import java.util.concurrent.ExecutionException;
-
 public interface AuthService {
-    ResponseEntity<ResponseStructure<UserResponse>> registerUser(UserRequest userRequest) throws ExecutionException, InterruptedException;
+    ResponseEntity<ResponseStructure<UserResponse>> registerUser(UserRequest userRequest);
 
     ResponseEntity<ResponseStructure<UserResponse>> verifyUserEmail(OtpModel otpModel);
 

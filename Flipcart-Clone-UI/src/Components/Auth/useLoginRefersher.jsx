@@ -3,6 +3,8 @@ import AxiosPrivateInstance from "../API/AxiosPrivateInstance";
 import { useEffect, useState } from "react";
 
 const useLoginRefresh = () => {
+  // console.log("current time is: ", new Date());
+  // console.log("expiration set to:", new Date(new Date().getTime() + 3600 * 1000), new Date(new Date().getTime() + 1296000 * 1000));
   const [user, setUser] = useState({});
   const navigate = useNavigate();
   const axiosInstance = AxiosPrivateInstance();
@@ -32,7 +34,13 @@ const useLoginRefresh = () => {
       console.log("refreshing request sent to server");
       const response = await axiosInstance.post("/login/refresh");
       if (response.status === 200) {
-        setUser(response.data.data);
+        const accessExpiration = response.data.data.accessExpiration;
+        const refreshExpiration = response.data.data.refreshExpiration;
+        setUser({
+          ...response.data.data,
+          accessExpiration: new Date(new Date().getTime() + accessExpiration * 1000),
+          refreshExpiration: new Date(new Date().getTime() + refreshExpiration * 1000)
+        });
       } else {
         console.log(response.data);
       }
