@@ -2,7 +2,6 @@ import React from "react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../Context/AuthProvider";
-import FormImageBlock from "../Util/FormImageBlock";
 import AxiosPrivateInstance from "../API/AxiosPrivateInstance";
 import SubmitBtn from "../Util/SubmitBtn";
 import { LuShoppingCart } from "react-icons/lu";
@@ -53,16 +52,18 @@ const Register = ({ role, isLogin }) => {
 
         setAuth(user);
         localStorage.setItem("user", JSON.stringify(user));
-
+        navigate("/")
       } else {
         setIsSubmited(false);
         setSubmitFailed(true);
+        alert(error.response.data.message + ": " + error.response.data.rootCause)
         console.log(response);
       }
     } catch (error) {
       setIsSubmited(false);
       setSubmitFailed(true);
-      console.log(response);
+      alert(error.response.data.message + ": " + error.response.data.rootCause)
+      console.log(error);
     }
   };
 
@@ -79,20 +80,21 @@ const Register = ({ role, isLogin }) => {
         setAuth({
           ...auth,
           userId: response.data.data.userId,
-          username: email,
-          fromLocation: "register",
+          username: email
         });
         sessionStorage.setItem("email", response.data.data.email);
         navigate("/verify-email");
       } else {
         setIsSubmited(false);
         setSubmitFailed(true);
+        alert(error.response.data.message + ": " + error.response.data.rootCause)
         console.log(response);
       }
     } catch (error) {
-      console.log(error);
       setIsSubmited(false);
       setSubmitFailed(true);
+      alert(error.response.data.message + ": " + error.response.data.rootCause)
+      console.log(error);
     }
   };
 
@@ -104,14 +106,13 @@ const Register = ({ role, isLogin }) => {
   }, [isSubmited]);
 
   //handling submit
-  const submit = (event) => {
-    event.preventDefault();
+  const submit = () => {
     setSubmitFailed(false);
     setIsSubmited(true);
   };
 
   return (
-    <div className="w-screen h-screen flex flex-col items-center justify-start bg-slate-200">
+    <div className="w-screen h-screen flex flex-col items-center justify-start bg-gray-100">
       <form className="flex flex-row justify-center items-center w-4/6 h-4/6 mt-24 rounded-md bg-white shadow-md">
         <div className="w-4/12 bg-slate-600 h-full rounded-l-md flex flex-col justify-center items-center">
           {isLogin ? (

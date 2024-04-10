@@ -11,6 +11,7 @@ const SubmitBtn = ({ submit, isSubmited, name }) => {
           ? "bg-transparent hover:bg-transparent bg-prussian_blue"
           : "bg-prussian_blue text-slate-100 hover:bg-blue-600"
       }`}
+      type="button"
     >
       {isSubmited ? (
         <div className="flex">

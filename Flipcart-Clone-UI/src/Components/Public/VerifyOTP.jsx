@@ -6,10 +6,12 @@ import AxiosPrivateInstance from "../API/AxiosPrivateInstance";
 import { LuShoppingCart } from "react-icons/lu";
 import { RiShoppingBag2Line } from "react-icons/ri";
 import { HiOutlineTag } from "react-icons/hi2";
+import SubmitBtn from "../Util/SubmitBtn";
 
 const VerifyOTP = () => {
-  const { auth, setAuth } = useAuth();
+  const { auth } = useAuth();
   const navigate = useNavigate();
+  const [email, setEmail] = useState();
   const [isSubmited, setIsSubmited] = useState(false);
   const inputs = Array.from({ length: 6 }, () => useRef(null));
   const [otp, setOtp] = useState(0);
@@ -18,9 +20,9 @@ const VerifyOTP = () => {
   const axiosInstance = AxiosPrivateInstance();
 
   useEffect(() => {
-    auth.fromLocation !== "register"
-      ? navigate("/")
-      : setAuth({ ...auth, fromLocation: "" });
+    // validating if the email is present in local storage
+    const userEmail = sessionStorage.getItem("email");
+    !userEmail && userEmail === "" ? navigate("/") : setEmail(userEmail);
     setHiddenEmail(
       auth.username.substring(auth.username.lastIndexOf("@gmail.com") - 4)
     );
@@ -31,7 +33,7 @@ const VerifyOTP = () => {
       // requesting to verify OTP
       try {
         const response = await axiosInstance.post("/verify-email", {
-          email: sessionStorage.getItem("email"),
+          email: email,
           otp: otp,
         });
         if (response.status === 417 || response.status === 400) {
@@ -84,10 +86,10 @@ const VerifyOTP = () => {
   return (
     <div className="w-svw h-svh flex flex-row justify-center items-start bg-slate-100">
       <div className="w-4/6 h-4/6 mt-24 bg-white flex flex-row justify-center items-center shadow-sm">
-        <div className="w-4/12 bg-my_yellow h-full rounded-l-md flex flex-col justify-center items-center">
-          <div className="p-2 text-prussian_blue">
+        <div className="w-4/12 bg-slate-600 h-full rounded-l-md flex flex-col justify-center items-center">
+          <div className="p-2 text-white mt-4">
             <p className="text-4xl font-semibold">Verify Your Email!</p>
-            <p className="text-lg my-6 font-semibold text-prussian_blue">
+            <p className="text-lg my-6 font-extralight text-white">
               Please Check your mail ID *****{hiddenEmail} for the OPT.
             </p>
           </div>
@@ -96,7 +98,7 @@ const VerifyOTP = () => {
           </div>
         </div>
         <div className="h-full w-8/12 flex flex-col justify-center items-center mr-auto">
-          <div className="h-full w-full flex flex-col justify-center items-center mr-auto">
+          <div className="h-full w-full flex flex-col justify-start items-center my-20">
             <p className="text-lg text-slate-500 py-2">
               Please enter your OTP here
             </p>
@@ -118,17 +120,15 @@ const VerifyOTP = () => {
               {incorrectOTP}
             </p>
 
-            <button
-              onClick={handleSubmit}
-              disabled={isSubmited}
-              className="rounded-lg bg-prussian_blue text-slate-200 w-3/12 py-2 px-4 my-6 font-bold text-center text-lg"
-            >
-              {isSubmited ? (
-                <i className="fa-solid fa-circle-notch animate-spin"></i>
-              ) : (
-                "Confirm"
-              )}
-            </button>
+            <div className="w-full flex justify-center items-center">
+              <div className="w-max">
+                <SubmitBtn
+                  submit={handleSubmit}
+                  isSubmited={isSubmited}
+                  name={"Confirm"}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
