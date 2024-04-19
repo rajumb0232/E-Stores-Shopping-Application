@@ -1,9 +1,11 @@
 package com.self.flipcart.model;
 
-import com.self.flipcart.enums.AvailabilityStatus;
-import jakarta.persistence.Id;
 import lombok.*;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -12,16 +14,22 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @Document(collection = "products")
 public class Product {
-    @Id
+    @MongoId
     private String productId;
     private String productTitle;
+    private String description;
     private double productPrice;
-    private int productQuantity;
-    private AvailabilityStatus availabilityStatus;
+    private int stockQuantity;
+    private String topCategory;
+    private String subCategory;
+
+    @DBRef
+    private ProductType productType;
+
+    private String availabilityStatus;
     private int totalOrders;
     private int totalReviews;
     private float avgRating;
-    private String description;
     // Refers to the ProductType
     private String productTypeId;
     // Refers to the Store
@@ -29,4 +37,6 @@ public class Product {
     // Refers to the Reviews
     // Refers to the Questions
 
+    @DBRef(lazy = true)
+    private List<Specification> specification;
 }

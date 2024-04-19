@@ -1,7 +1,7 @@
 package com.self.flipcart.serviceimpl;
 
-import com.self.flipcart.exceptions.InvalidPrimeCategoryException;
 import com.self.flipcart.exceptions.StoreNotFoundByIdException;
+import com.self.flipcart.mapper.StoreMapper;
 import com.self.flipcart.model.Store;
 import com.self.flipcart.repository.SellerRepo;
 import com.self.flipcart.repository.StoreRepo;
@@ -28,7 +28,7 @@ public class StoreServiceImpl implements StoreService {
 
     @Override
     public ResponseEntity<ResponseStructure<Store>> setUpStore(StoreRequest storeRequest) {
-        Store store = mapToStoreEntity(storeRequest, new Store());
+        Store store = StoreMapper.mapToStoreEntity(storeRequest, new Store());
         return userRepo.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).map(user -> sellerRepo.findById(user.getUserId())
                 .map(seller -> {
                     Store uniqueStore = storeRepo.save(store);
@@ -44,7 +44,7 @@ public class StoreServiceImpl implements StoreService {
     @Override
     public ResponseEntity<ResponseStructure<Store>> updateStore(StoreRequest storeRequest, String storeId) {
         return storeRepo.findById(storeId).map(exStore -> {
-            Store store = mapToStoreEntity(storeRequest, exStore);
+            Store store = StoreMapper.mapToStoreEntity(storeRequest, exStore);
             store.setTopCategory(exStore.getTopCategory());
             Store uniqueStore = storeRepo.save(store);
             return new ResponseEntity<>(
@@ -59,7 +59,7 @@ public class StoreServiceImpl implements StoreService {
         return storeRepo.findById(storeId)
                 .map(store -> new ResponseEntity<>(basicStructure.setStatus(HttpStatus.FOUND.value())
                         .setMessage("Store data found")
-                        .setData(mapToStoreResponseBasic(store)), HttpStatus.FOUND))
+                        .setData(StoreMapper.mapToStorePageResponse(store)), HttpStatus.FOUND))
                 .orElseThrow(() -> new StoreNotFoundByIdException("Failed to find the store data"));
     }
 
@@ -76,37 +76,17 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public ResponseEntity<ResponseStructure<Store>> getStoreBySeller() {
+    public ResponseEntity<ResponseStructure<StoreResponse>> getStoreBySeller() {
         return userRepo.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName())
                 .map(user -> sellerRepo.findById(user.getUserId())
                         .map(seller -> {
                             if (seller.getStore() != null) {
-                                return new ResponseEntity<>(structure.setStatus(HttpStatus.FOUND.value())
+                                return new ResponseEntity<>(new ResponseStructure<StoreResponse>().setStatus(HttpStatus.FOUND.value())
                                         .setMessage("Store found")
-                                        .setData(seller.getStore()), HttpStatus.FOUND);
+                                        .setData(StoreMapper.mapToStorePageResponse(seller.getStore())), HttpStatus.FOUND);
                             } else throw new RuntimeException("No Store found associated with seller");
                         }).get())
                 .orElseThrow();
     }
 
-    private StoreResponse mapToStoreResponseBasic(Store store) {
-        return StoreResponse.builder()
-                .storeName(store.getStoreName())
-                .storeId(store.getStoreId())
-                .topCategory(store.getTopCategory())
-                .logoLink(store.getLogoLink())
-                .build();
-    }
-
-    /**
-     * maps the store request object to entity ignoring the primeCategory
-     */
-    private Store mapToStoreEntity(StoreRequest storeRequest, Store store) {
-        if (storeRequest.getTopCategory() == null)
-            throw new InvalidPrimeCategoryException("Failed to update the store data");
-        store.setStoreName(storeRequest.getStoreName());
-        store.setAbout(storeRequest.getAbout());
-        store.setTopCategory(storeRequest.getTopCategory());
-        return store;
-    }
 }

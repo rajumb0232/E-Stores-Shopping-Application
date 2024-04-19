@@ -4,7 +4,6 @@ import com.self.flipcart.enums.ImageType;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
-import org.springframework.http.MediaType;
 
 @Getter
 @Setter

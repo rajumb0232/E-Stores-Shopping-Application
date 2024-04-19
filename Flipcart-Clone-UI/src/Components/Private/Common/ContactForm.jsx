@@ -134,6 +134,7 @@ const ContactForm = () => {
         if (response.status === 201) {
           updateCache(response?.data?.data);
           setIsSubmited(false);
+          alert(response.data.message);
         } else {
           console.log(response?.data?.message);
           alert(response?.data?.message);
@@ -153,6 +154,7 @@ const ContactForm = () => {
         if (response.status === 200) {
           updateCache(response?.data?.data);
           setIsSubmited(false);
+          alert(response.data.message);
         } else {
           console.log(response?.data?.message);
           alert(response?.data?.message);
@@ -164,7 +166,6 @@ const ContactForm = () => {
         setIsSubmited(false);
       }
     };
-
     isNew ? add() : update();
   };
 
@@ -241,6 +242,7 @@ const ContactForm = () => {
         updateCache(response?.data?.data);
         clearFieldsOf(doDelete);
         setIsSubmited(false);
+        alert(response.data.message);
       } else {
         console.log(response?.data?.message);
         alert(response?.data?.message);

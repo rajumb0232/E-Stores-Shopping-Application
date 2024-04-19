@@ -1,10 +1,10 @@
 package com.self.flipcart.model;
 
-import jakarta.persistence.Id;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
-import java.util.Map;
+import java.util.List;
 
 @Getter
 @Setter
@@ -14,10 +14,7 @@ import java.util.Map;
 @Document(collection = "variants")
 public class Variant {
 
-    @Id
+    @MongoId
     private String variantId;
-    private Map<String, Object> attributes;
-    private String ImageURL;
-    // Refers to the product
-    private String productId;
+    private List<Specification> specifications;
 }

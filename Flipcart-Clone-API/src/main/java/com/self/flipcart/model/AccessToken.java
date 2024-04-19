@@ -1,10 +1,7 @@
 package com.self.flipcart.model;
 
 import com.self.flipcart.util.IdGenerator;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -25,6 +22,6 @@ public class AccessToken {
     private boolean isBlocked;
     private LocalDateTime expiration;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 }

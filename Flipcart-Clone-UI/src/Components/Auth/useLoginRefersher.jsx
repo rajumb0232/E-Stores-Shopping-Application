@@ -43,7 +43,6 @@ const useLoginRefresh = () => {
         console.log(response.data);
       }
     } catch (error) {
-      console.log(error);
       if (error.response.status === 401) {
         console.log("Server responded with unauthorized", error);
       } else {

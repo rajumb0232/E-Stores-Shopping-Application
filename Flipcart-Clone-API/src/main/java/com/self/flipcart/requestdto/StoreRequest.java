@@ -10,6 +10,6 @@ import lombok.ToString;
 @ToString
 public class StoreRequest {
     private String storeName;
-    private TopCategory topCategory;
+    private TopCategory category;
     private String about;
 }

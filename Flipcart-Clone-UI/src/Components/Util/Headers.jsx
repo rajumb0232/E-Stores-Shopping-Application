@@ -21,15 +21,7 @@ const Headers = () => {
       <nav className="px-2 flex flex-row items-center justify-center w-11/12 max-w-7xl">
         {/* LOGO */}
         <div className="mr-auto flex items-center justify-center">
-          <Link
-            to={
-              role === "SELLER"
-                ? "/seller-dashboard"
-                : role === "CUSTOMER"
-                ? "/explore"
-                : "/"
-            }
-          >
+          <Link to={"/"}>
             <img src="/src/Images/flipkart-logo.svg" alt="" className="w-36" />
           </Link>
         </div>

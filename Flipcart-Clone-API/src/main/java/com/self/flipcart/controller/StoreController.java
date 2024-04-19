@@ -21,7 +21,7 @@ public class StoreController {
     @PostMapping("/stores")
     @PreAuthorize("hasAuthority('SELLER')")
     public ResponseEntity<ResponseStructure<Store>> setUpStore(@RequestBody StoreRequest storeRequest){
-        System.err.println("prime category: "+storeRequest.getTopCategory());
+        System.err.println("prime category: "+storeRequest.getCategory());
         return storeService.setUpStore(storeRequest);
     }
 
@@ -43,7 +43,7 @@ public class StoreController {
     }
 
     @GetMapping("/stores")
-    public ResponseEntity<ResponseStructure<Store>> getStoreBySeller(){
+    public ResponseEntity<ResponseStructure<StoreResponse>> getStoreBySeller(){
         return storeService.getStoreBySeller();
     }
 }

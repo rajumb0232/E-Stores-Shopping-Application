@@ -1,2 +1,5 @@
-package com.self.flipcart.responsedto;public class ProductResponse {
+package com.self.flipcart.responsedto;
+
+public interface ProductResponse {
+
 }

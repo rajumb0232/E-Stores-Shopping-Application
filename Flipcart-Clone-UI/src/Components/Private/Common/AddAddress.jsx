@@ -108,6 +108,7 @@ const AddAddress = () => {
           console.log(response?.data?.message);
           updateCache(response?.data?.data);
           setIsSubmited(false);
+          alert(response?.data?.message)
         } else {
           setIsSubmited(false);
           console.log(response);

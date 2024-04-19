@@ -28,7 +28,6 @@ const Register = ({ role, isLogin }) => {
   useEffect(() => {
     if (isSubmitFailed !== false) {
       setIsSubmited(false);
-      console.log(isSubmited);
     }
   }, [isSubmitFailed]);
 
@@ -40,8 +39,6 @@ const Register = ({ role, isLogin }) => {
     try {
       const response = await axiosInstance.post(endPoint, { email, password });
       if (response.status === 200) {
-        console.log("Login response: ", response.data.data);
-
         const accessExpiration = response.data.data.accessExpiration;
         const refreshExpiration = response.data.data.refreshExpiration;
         const user = {
@@ -57,13 +54,11 @@ const Register = ({ role, isLogin }) => {
         setIsSubmited(false);
         setSubmitFailed(true);
         alert(error.response.data.message + ": " + error.response.data.rootCause)
-        console.log(response);
       }
     } catch (error) {
       setIsSubmited(false);
       setSubmitFailed(true);
       alert(error.response.data.message + ": " + error.response.data.rootCause)
-      console.log(error);
     }
   };
 
@@ -76,7 +71,6 @@ const Register = ({ role, isLogin }) => {
         userRole: role,
       });
       if (response.status === 202) {
-        console.log(response.data);
         setAuth({
           ...auth,
           userId: response.data.data.userId,
@@ -88,13 +82,11 @@ const Register = ({ role, isLogin }) => {
         setIsSubmited(false);
         setSubmitFailed(true);
         alert(error.response.data.message + ": " + error.response.data.rootCause)
-        console.log(response);
       }
     } catch (error) {
       setIsSubmited(false);
       setSubmitFailed(true);
       alert(error.response.data.message + ": " + error.response.data.rootCause)
-      console.log(error);
     }
   };
 
@@ -114,7 +106,7 @@ const Register = ({ role, isLogin }) => {
   return (
     <div className="w-screen h-screen flex flex-col items-center justify-start bg-gray-100">
       <form className="flex flex-row justify-center items-center w-4/6 h-4/6 mt-24 rounded-md bg-white shadow-md">
-        <div className="w-4/12 bg-slate-600 h-full rounded-l-md flex flex-col justify-center items-center">
+        <div className="w-4/12 bg-slate-600 h-full rounded-l-md flex flex-col justify-center items-center p-5">
           {isLogin ? (
             <div className="p-2 text-white">
               <p className="text-4xl font-thin">

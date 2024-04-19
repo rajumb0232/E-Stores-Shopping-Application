@@ -1,2 +1,10 @@
-package com.self.flipcart.exceptions;public class ProductTypeNotFoundException {
+package com.self.flipcart.exceptions;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public class ProductTypeNotFoundException extends RuntimeException {
+    private String message;
 }
