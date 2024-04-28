@@ -2,7 +2,6 @@ package com.self.flipcart.model;
 
 import com.self.flipcart.enums.UserRole;
 import com.self.flipcart.util.IdGenerator;
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -23,6 +22,7 @@ public class User {
     private String username;
     private String email;
     private String password;
+    @Enumerated(EnumType.STRING)
     private UserRole userRole;
     private boolean isEmailVerified;
 }

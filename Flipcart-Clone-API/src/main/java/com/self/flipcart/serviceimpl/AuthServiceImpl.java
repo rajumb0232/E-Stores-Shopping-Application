@@ -5,10 +5,7 @@ import com.self.flipcart.dto.Attempt;
 import com.self.flipcart.dto.MessageData;
 import com.self.flipcart.dto.OtpModel;
 import com.self.flipcart.exceptions.*;
-import com.self.flipcart.model.AccessToken;
-import com.self.flipcart.model.RefreshToken;
-import com.self.flipcart.model.Seller;
-import com.self.flipcart.model.User;
+import com.self.flipcart.model.*;
 import com.self.flipcart.repository.AccessTokenRepo;
 import com.self.flipcart.repository.RefreshTokenRepo;
 import com.self.flipcart.repository.SellerRepo;
@@ -108,7 +105,6 @@ public class AuthServiceImpl implements AuthService {
             throw new UserAlreadyExistsByEmailException("Failed To register the User");
         User user = mapToChildEntity(userRequest);
         // caching user data
-        System.out.println(user.getEmail());
         userCacheStore.add(user.getEmail(), user);
         // Generate the OTP and provide the ID of the OTP as a path variable to the confirmation link.
         OtpModel otp = OtpModel.builder()
@@ -155,7 +151,7 @@ public class AuthServiceImpl implements AuthService {
         Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, authRequest.getPassword()));
 
         // validating if the user authentication is authenticated
-        if (auth.isAuthenticated()) return userRepo.findByUsername(username).map(user -> generateAuthResponse(user)).get();
+        if (auth.isAuthenticated()) return userRepo.findByUsername(username).map(this::generateAuthResponse).get();
         else throw new UsernameNotFoundException("Authentication failed");
     }
 
@@ -176,13 +172,12 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public ResponseEntity<ResponseStructure<AuthResponse>> refreshLogin(String refreshToken, String accessToken) {
-        System.out.println(refreshToken);
         if (refreshToken == null) throw new UserNotLoggedInException("Failed to refresh login");
         Attempt attempt = attemptCacheStore.get(refreshToken);
         if (attempt != null)
             if (attempt.getLastAttemptedAt().isAfter(LocalDateTime.now()))
                 throw new TooManyAttemptsException("Failed to refresh login");
-            else attemptCacheStore.add(refreshToken, new Attempt(LocalDateTime.now().minusMinutes(1)));
+            else attemptCacheStore.add(refreshToken, new Attempt(LocalDateTime.now().plusSeconds(10)));
         if (accessToken != null) blockAccessToken(accessToken);
 
         String username = refreshTokenRepo.findByToken(refreshToken).map(rt -> {
@@ -267,8 +262,8 @@ public class AuthServiceImpl implements AuthService {
     /* ----------------------------------------------------------------------------------------------------------- */
     private HttpHeaders grantAccessToUser(User user) {
         //generating access and refresh tokens
-        String newRefreshToken = jwtService.generateRefreshToken(user.getUsername());
-        String newAccessToken = jwtService.generateAccessToken(user.getUsername());
+        String newRefreshToken = jwtService.generateRefreshToken(user.getUsername(), user.getUserRole().name());
+        String newAccessToken = jwtService.generateAccessToken(user.getUsername(), user.getUserRole().name());
 
         attemptCacheStore.add(newRefreshToken, new Attempt(LocalDateTime.now()));
 
@@ -320,8 +315,7 @@ public class AuthServiceImpl implements AuthService {
         User user = null;
         switch (userRequest.getUserRole()) {
             case SELLER -> user = new Seller();
-            case ADMIN -> {
-            }
+            case CUSTOMER -> user = new Customer();
             default -> throw new InvalidUserRoleException("Failed to process the request");
         }
         if(user != null){

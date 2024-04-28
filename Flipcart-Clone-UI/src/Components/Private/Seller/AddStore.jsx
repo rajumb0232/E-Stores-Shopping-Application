@@ -14,7 +14,7 @@ const AddStore = () => {
   const [storeId, setStoreId] = useState("");
   const [storeName, setStoreName] = useState("");
   const [about, setAbout] = useState("");
-  const [topCategory, setTopCategory] = useState("");
+  const [category, setCategory] = useState("");
   const [isSubmited, setIsSubmited] = useState(false);
   const [isPrevPresent, setPrevPresent] = useState(false);
   const [isAnyModified, setAnyModified] = useState(false);
@@ -33,7 +33,7 @@ const AddStore = () => {
       setStoreId(store.storeId);
       setStoreName(store.storeName);
       setAbout(store.about);
-      setTopCategory(store.topCategory);
+      setCategory(store.category);
       setPrevPresent(true);
       if (store?.logoLink) getImageURL(store.logoLink);
     }
@@ -42,11 +42,11 @@ const AddStore = () => {
   // update isModified state if data modified
   useEffect(() => {
     if (isPrevPresent) {
-      if (storeName !== store.storeName || about !== store.about || topCategory !== store.topCategory) {
+      if (storeName !== store.storeName || about !== store.about || category !== store.category) {
         setAnyModified(true);
       }
     }
-  }, [storeName, about, topCategory]);
+  }, [storeName, about, category]);
 
   // updating Selected logo state once the image is selected
   const handleImageChange = (event) => {
@@ -64,7 +64,7 @@ const AddStore = () => {
   // handling the submit event by validating the data submitted
   const submit = (event) => {
     event.preventDefault();
-    topCategory === "" && !store
+    category === "" && !store
       ? alert("Category not selected!!")
       : storeName === ""
       ? alert("Store is not defined!!")
@@ -126,7 +126,7 @@ const AddStore = () => {
 
     const body = {
       storeName: storeName,
-      topCategory: topCategory.toUpperCase(),
+      category: category.toUpperCase(),
       about: about,
     };
 
@@ -250,7 +250,7 @@ const AddStore = () => {
               </div>
             )}
             <div
-              className={`w-40 ${displayLogoURL || store.logoLink ? "h-max rounded-sm bg-transparent bg-opacity-0" : "h-40 rounded-full bg-cyan-950 "} overflow-hidden mb-4 flex justify-center items-center text-slate-400 font-semibold`}
+              className={`w-40 ${displayLogoURL || store.logoLink ? "h-max rounded-sm bg-transparent bg-opacity-0" : "h-40 rounded-full bg-cyan-950 bg-opacity-5"} overflow-hidden mb-4 flex justify-center items-center text-slate-400 font-semibold`}
             >
               {displayLogoURL ? (
                 <img src={displayLogoURL} className="h-full" />
@@ -265,12 +265,12 @@ const AddStore = () => {
             {"(Use Image with 1:1 ratio only)"}
           </p>
 
-          {!store?.topCategory && (
+          {!store?.category && (
             <div className="my-6 w-fit">
               <DropDown
                 valueType={"Category"}
-                setter={setTopCategory}
-                value={topCategory}
+                setter={setCategory}
+                value={category}
                 warnMessage={""}
                 DefaultText={"Select Category"}
                 options={topCategories}
@@ -295,7 +295,7 @@ const AddStore = () => {
               id="about"
               onChange={(event) => setAbout(event.target.value)}
               placeholder="About (optional):"
-              className="h-56 w-full overflow-x-clip text-start text-slate-700 bg-cyan-950 bg-opacity-5 hover:border-slate-300 focus:border-slate-300 border-2 border-transparent rounded-md p-2 text-base"
+              className="h-56 w-full overflow-x-clip text-start text-slate-700 bg-gray-100 hover:border-gray-300 focus:border-gray-300 border-2 border-transparent rounded-md p-2 text-base"
               value={about}
             />
           </div>

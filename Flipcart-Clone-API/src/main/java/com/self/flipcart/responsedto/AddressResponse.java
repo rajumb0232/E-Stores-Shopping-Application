@@ -2,6 +2,8 @@ package com.self.flipcart.responsedto;
 
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -16,4 +18,5 @@ public class AddressResponse {
     private String state;
     private String Country;
     private int pincode;
+    private List<ContactResponse> contacts;
 }

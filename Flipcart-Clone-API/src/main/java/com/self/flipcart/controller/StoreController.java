@@ -21,14 +21,12 @@ public class StoreController {
     @PostMapping("/stores")
     @PreAuthorize("hasAuthority('SELLER')")
     public ResponseEntity<ResponseStructure<Store>> setUpStore(@RequestBody StoreRequest storeRequest){
-        System.err.println("prime category: "+storeRequest.getTopCategory());
         return storeService.setUpStore(storeRequest);
     }
 
     @PutMapping("/stores/{storeId}")
     @PreAuthorize("hasAuthority('SELLER')")
     public ResponseEntity<ResponseStructure<Store>> updateStore(@RequestBody StoreRequest storeRequest, @PathVariable String storeId){
-        System.err.println(storeRequest);
         return storeService.updateStore(storeRequest, storeId);
     }
 
@@ -43,7 +41,7 @@ public class StoreController {
     }
 
     @GetMapping("/stores")
-    public ResponseEntity<ResponseStructure<Store>> getStoreBySeller(){
+    public ResponseEntity<ResponseStructure<StoreResponse>> getStoreBySeller(){
         return storeService.getStoreBySeller();
     }
 }

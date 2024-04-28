@@ -23,7 +23,6 @@ public class AuthController {
 
     @PostMapping("/users/register")
     public ResponseEntity<ResponseStructure<UserResponse>> registerUser(@RequestBody @Valid UserRequest userRequest) {
-        System.out.println(userRequest.getEmail()+", "+userRequest.getPassword()+", "+userRequest.getUserRole());
         return authService.registerUser(userRequest);
     }
 
@@ -40,6 +39,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
+//    @Secured({"ADMIN", "SUPER_ADMIN","SELLER", "CUSTOMER"})
     @PreAuthorize("hasAuthority('ADMIN') OR hasAuthority('SUPER_ADMIN') OR hasAuthority('SELLER') OR hasAuthority('CUSTOMER')")
     public ResponseEntity<SimpleResponseStructure> logout(@CookieValue(name = "rt", required = false) String refreshToken,
                                                           @CookieValue(name = "at", required = false) String accessToken) {

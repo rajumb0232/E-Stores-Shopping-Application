@@ -10,12 +10,15 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class ErrorResponse {
     private ErrorStructure<Object> structure;
+    private ErrorStructure<String> stringStructure;
 
     public ResponseEntity<Object> structure(HttpStatus status, String message, Object rootCause) {
-        return new ResponseEntity<>(
-                structure.setStatus(status.value())
-                        .setMessage(message)
-                        .setRootCause(rootCause)
-                , status);
+        return ResponseEntity.status(status).body((structure.setStatus(status.value())
+                .setMessage(message).setRootCause(rootCause)));
+    }
+
+    public ResponseEntity<ErrorStructure<String>> structure(HttpStatus status, String message, String rootCause) {
+        return ResponseEntity.status(status).body((stringStructure.setStatus(status.value())
+                .setMessage(message).setRootCause(rootCause)));
     }
 }

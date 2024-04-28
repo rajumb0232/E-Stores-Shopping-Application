@@ -17,32 +17,24 @@ const Headers = () => {
   const [doLogout, setDoLogout] = useState(false);
 
   return (
-    <header className="border-b-1 fixed z-50 top-0 font-sans w-screen flex justify-center bg-white">
+    <header className="shadow-sm fixed z-50 top-0 font-sans w-screen flex justify-center bg-white">
       <nav className="px-2 flex flex-row items-center justify-center w-11/12 max-w-7xl">
         {/* LOGO */}
         <div className="mr-auto flex items-center justify-center">
-          <Link
-            to={
-              role === "SELLER"
-                ? "/seller-dashboard"
-                : role === "CUSTOMER"
-                ? "/explore"
-                : "/"
-            }
-          >
-            <img src="/src/Images/flipkart-logo.svg" alt="" className="w-36" />
+          <Link to={"/"}>
+            <img src="src\Images\e-stores.png" alt="" className="w-32" />
           </Link>
         </div>
 
         {/* SEARCH BAR */}
-        <div className="rounded-md h-4/6 w-2/5 text-lg flex items-center justify-center bg-blue-50 px-2 py-1">
+        <div className="rounded-xl h-4/6 w-5/12 text-lg flex items-center justify-center bg-gray-100 px-2 py-0.5">
           <div className="text-2xl text-slate-500">
             <IoSearchOutline />
           </div>
           <input
             type="text"
             placeholder="Search for products here.."
-            className="border-0 rounded-xl bg-blue-50 placeholder:text-slate-500 hover:placeholder:text-slate-400 h-full px-2 py-4 w-full text-gray-700"
+            className="border-0 rounded-xl bg-transparent placeholder:text-slate-500 hover:placeholder:text-slate-500 h-full px-2 py-4 w-full text-gray-700"
           />
         </div>
 

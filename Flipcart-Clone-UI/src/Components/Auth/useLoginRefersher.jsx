@@ -3,8 +3,6 @@ import AxiosPrivateInstance from "../API/AxiosPrivateInstance";
 import { useEffect, useState } from "react";
 
 const useLoginRefresh = () => {
-  // console.log("current time is: ", new Date());
-  // console.log("expiration set to:", new Date(new Date().getTime() + 3600 * 1000), new Date(new Date().getTime() + 1296000 * 1000));
   const [user, setUser] = useState({});
   const navigate = useNavigate();
   const axiosInstance = AxiosPrivateInstance();
@@ -45,7 +43,6 @@ const useLoginRefresh = () => {
         console.log(response.data);
       }
     } catch (error) {
-      console.log(error);
       if (error.response.status === 401) {
         console.log("Server responded with unauthorized", error);
       } else {
@@ -75,18 +72,19 @@ const useLoginRefresh = () => {
       } else {
         clearData();
         console.log("User login expired | Navigating to explore...");
-        navigate("/explore");
+        navigate("/");
       }
     } else {
       clearData();
       console.log("User not logged in | Navigating to explore...");
-      navigate("/explore");
+      navigate("/");
     }
   };
 
   let refreshing = false;
   useEffect(() => {
     if (!refreshing) {
+      console.log("Refreshing...");
       refreshing = true;
       handleRefresh();
     }

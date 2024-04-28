@@ -16,5 +16,5 @@ public interface StoreService {
 
     ResponseEntity<Boolean> checkIfStoreExistBySeller();
 
-    ResponseEntity<ResponseStructure<Store>> getStoreBySeller();
+    ResponseEntity<ResponseStructure<StoreResponse>> getStoreBySeller();
 }

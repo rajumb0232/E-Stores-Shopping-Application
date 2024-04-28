@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.lang.Maps;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -28,18 +28,17 @@ public class JwtServiceImpl implements JwtService {
     @Value("${token.expiry.refresh.seconds}")
     private long refreshTokenExpirySeconds;
 
-    public String generateAccessToken(String username) {
+    public String generateAccessToken(String username, String role) {
         log.info("Generating Access Token...");
-        return createJwtToken(new HashMap<String, Object>(), username, accessTokenExpirySeconds * 1000l);
+        return createJwtToken(Maps.of("role", role).build(), username, accessTokenExpirySeconds * 1000l);
     }
 
-    public String generateRefreshToken(String username) {
+    public String generateRefreshToken(String username, String role) {
         log.info("Generating Refresh Token...");
-        return createJwtToken(new HashMap<String, Object>(), username, refreshTokenExpirySeconds * 1000l);
+        return createJwtToken(Maps.of("role", role).build(), username, refreshTokenExpirySeconds * 1000l);
     }
 
-    private String createJwtToken(Map<String, Object> claims, String username, long expiryDuration) {
-        log.info(new Date(System.currentTimeMillis()).toString());
+    private String createJwtToken(Map<String, String> claims, String username, long expiryDuration) {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(username)
@@ -58,6 +57,11 @@ public class JwtServiceImpl implements JwtService {
     public String extractUsername(String token) {
         log.info("Extracting username...");
         return extractClaim(parseClaims(token), Claims::getSubject);
+    }
+
+    @Override
+    public String extractUserRole(String token) {
+        return parseClaims(token).get("role", String.class);
     }
 
     public Date extractExpiry(String token){

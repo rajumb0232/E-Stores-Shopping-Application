@@ -1,6 +1,7 @@
 package com.self.flipcart.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,6 +14,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Seller extends User{
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private Store store;
 }

@@ -10,6 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 public class CategoryDTO {
+    private String displayName;
     private String categoryName;
     private List<String> productTypes;
 }

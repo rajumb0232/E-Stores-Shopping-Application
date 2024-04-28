@@ -1,5 +1,6 @@
 package com.self.flipcart.serviceimpl;
 
+import com.self.flipcart.mapper.ContactMapper;
 import com.self.flipcart.model.Contact;
 import com.self.flipcart.repository.AddressRepo;
 import com.self.flipcart.repository.ContactRepo;
@@ -25,7 +26,7 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public ResponseEntity<ResponseStructure<List<Contact>>> addContact(ContactRequest contactRequest, String addressId) {
         return addressRepo.findById(addressId).map(address -> {
-            Contact contact = mapToContactEntity(contactRequest, new Contact());
+            Contact contact = ContactMapper.mapToContactEntity(contactRequest, new Contact());
             contact.setAddress(address);
             contact = contactRepo.save(contact);
             return new ResponseEntity<>(structureList.setStatus(HttpStatus.CREATED.value())
@@ -37,7 +38,7 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public ResponseEntity<ResponseStructure<List<Contact>>> updateContact(ContactRequest contactRequest, String contactId) {
         return contactRepo.findById(contactId).map(c -> {
-            Contact contact = contactRepo.save(mapToContactEntity(contactRequest, c));
+            Contact contact = contactRepo.save(ContactMapper.mapToContactEntity(contactRequest, c));
             return new ResponseEntity<>(structureList.setStatus(HttpStatus.OK.value())
                     .setMessage("Successfully updated contact")
                     .setData(contactRepo.findAllByAddress(contact.getAddress())), HttpStatus.OK);
@@ -76,10 +77,4 @@ public class ContactServiceImpl implements ContactService {
         }).orElseThrow();
     }
 
-    private Contact mapToContactEntity(ContactRequest contactRequest, Contact contact) {
-        contact.setContactNumber(contactRequest.getContactNumber());
-        contact.setContactName(contactRequest.getContactName());
-        contact.setPrimary(contactRequest.isPrimary());
-        return contact;
-    }
 }

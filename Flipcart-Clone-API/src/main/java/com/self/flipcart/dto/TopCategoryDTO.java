@@ -10,6 +10,7 @@ import java.util.List;
 @Setter
 @Builder
 public class TopCategoryDTO {
+    private String displayName;
     private String topCategoryName;
     private String topCategoryImage;
     private List<CategoryDTO> categories;
