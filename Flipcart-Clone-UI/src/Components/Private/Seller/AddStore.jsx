@@ -295,7 +295,7 @@ const AddStore = () => {
               id="about"
               onChange={(event) => setAbout(event.target.value)}
               placeholder="About (optional):"
-              className="h-56 w-full overflow-x-clip text-start text-slate-700 bg-cyan-950 bg-opacity-5 hover:border-slate-300 focus:border-slate-300 border-2 border-transparent rounded-md p-2 text-base"
+              className="h-56 w-full overflow-x-clip text-start text-slate-700 bg-gray-100 hover:border-gray-300 focus:border-gray-300 border-2 border-transparent rounded-md p-2 text-base"
               value={about}
             />
           </div>

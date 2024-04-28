@@ -15,13 +15,14 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Collections;
 
 @Slf4j
 @Component
@@ -38,39 +39,32 @@ public class JwtFilter extends OncePerRequestFilter {
         Cookie[] cookies = request.getCookies();
         if (cookies != null)
             for (Cookie cookie : cookies) {
+                System.out.println("at: " + cookie.getValue());
                 if (cookie.getName().equals("at")) accessToken = cookie.getValue();
             }
 
         try {
             log.info("Authenticating Token with JWT Filter...");
-            final String finalToken = accessToken;
             String username = null;
+            String role = null;
 
             if (accessToken != null) {
                 log.info("Extracting username...");
-                username = accessTokenRepo.findByToken(accessToken).map(at -> {
-                    // exception doesn't get handled here,
-                    if (at.isBlocked()) {
-                        try {
-                            handleException(new UserNotLoggedInException("The access is blocked, Please login again"), response, "Failed to Authenticate User");
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                    return jwtService.extractUsername(finalToken);
-                }).orElseThrow(() -> new UserNotLoggedInException("Failed to authenticate the user"));
+                if(accessTokenRepo.existsByTokenAndIsBlocked(accessToken, true)) throw  new UserNotLoggedInException("Failed to authenticate the user");
+                username = jwtService.extractUsername(accessToken);
+                role = jwtService.extractUserRole(accessToken);
             }
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = null;
-                userDetails = userDetailsService.loadUserByUsername(username);
                 log.info("Creating authentication token...");
                 UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username,
-                        null, userDetails.getAuthorities());
+                        null, Collections.singleton(new SimpleGrantedAuthority(role)));
                 token.setDetails(new WebAuthenticationDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(token);
+                System.out.println(SecurityContextHolder.getContext().getAuthentication().getName());
                 log.info("JWT Authentication Successful");
             }
+
         } catch (ExpiredJwtException ex) {
             handleException(ex, response, "Your AccessToken is expired, refresh your login");
         } catch (JwtException ex) {

@@ -14,11 +14,13 @@ public class ContactMapper {
     }
 
     public static ContactResponse mapToContactResponse(Contact contact){
+        if(contact != null)
         return ContactResponse.builder()
                 .contactId(contact.getContactId())
                 .contactName(contact.getContactName())
                 .contactNumber(contact.getContactNumber())
                 .isPrimary(contact.isPrimary())
                 .build();
+        else return null;
     }
 }

@@ -262,8 +262,8 @@ public class AuthServiceImpl implements AuthService {
     /* ----------------------------------------------------------------------------------------------------------- */
     private HttpHeaders grantAccessToUser(User user) {
         //generating access and refresh tokens
-        String newRefreshToken = jwtService.generateRefreshToken(user.getUsername());
-        String newAccessToken = jwtService.generateAccessToken(user.getUsername());
+        String newRefreshToken = jwtService.generateRefreshToken(user.getUsername(), user.getUserRole().name());
+        String newAccessToken = jwtService.generateAccessToken(user.getUsername(), user.getUserRole().name());
 
         attemptCacheStore.add(newRefreshToken, new Attempt(LocalDateTime.now()));
 

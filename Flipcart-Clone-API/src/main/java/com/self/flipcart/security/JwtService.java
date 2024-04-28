@@ -4,11 +4,13 @@ import java.util.Date;
 
 public interface JwtService {
 
-    public String generateAccessToken(String username);
+    String generateAccessToken(String username, String role);
 
-    public String generateRefreshToken(String username);
+    String generateRefreshToken(String username, String role);
 
-    public String extractUsername(String token);
+    String extractUsername(String token);
 
-    public Date extractExpiry(String token);
+    String extractUserRole(String token);
+
+    Date extractExpiry(String token);
 }

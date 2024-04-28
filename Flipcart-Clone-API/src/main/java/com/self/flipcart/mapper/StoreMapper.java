@@ -1,6 +1,5 @@
 package com.self.flipcart.mapper;
 
-import com.self.flipcart.exceptions.InvalidPrimeCategoryException;
 import com.self.flipcart.model.Store;
 import com.self.flipcart.requestdto.StoreRequest;
 import com.self.flipcart.responsedto.StoreCardResponse;
@@ -21,8 +20,6 @@ public class StoreMapper {
     }
 
     public static Store mapToStoreEntity(StoreRequest storeRequest, Store store) {
-        if (storeRequest.getCategory() == null)
-            throw new InvalidPrimeCategoryException("Failed to update the store data");
         store.setStoreName(storeRequest.getStoreName());
         store.setAbout(storeRequest.getAbout());
         store.setTopCategory(storeRequest.getCategory());

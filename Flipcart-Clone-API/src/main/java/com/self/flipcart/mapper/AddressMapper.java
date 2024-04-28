@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 public class AddressMapper {
     public static AddressResponse mapToAddressResponse(Address address) {
+        if(address != null)
         return AddressResponse.builder()
                 .addressLine1(address.getAddressLine1())
                 .addressLine2(address.getAddressLine2())
@@ -18,9 +19,10 @@ public class AddressMapper {
                 .Country(address.getCountry())
                 .pincode(address.getPincode())
                 .contacts(address.getContacts().stream()
-                        .map(contact -> ContactMapper.mapToContactResponse(contact))
+                        .map(ContactMapper::mapToContactResponse)
                         .collect(Collectors.toList()))
                 .build();
+        else return null;
     }
 
     public static Address mapToAddressEntity(AddressRequest addressRequest, Address address) {

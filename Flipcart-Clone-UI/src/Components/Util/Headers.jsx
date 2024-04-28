@@ -22,19 +22,19 @@ const Headers = () => {
         {/* LOGO */}
         <div className="mr-auto flex items-center justify-center">
           <Link to={"/"}>
-            <img src="/src/Images/flipkart-logo.svg" alt="" className="w-36" />
+            <img src="src\Images\e-stores.png" alt="" className="w-32" />
           </Link>
         </div>
 
         {/* SEARCH BAR */}
-        <div className="rounded-xl h-4/6 w-5/12 text-lg flex items-center justify-center bg-blue-50 px-2 py-0.5">
+        <div className="rounded-xl h-4/6 w-5/12 text-lg flex items-center justify-center bg-gray-100 px-2 py-0.5">
           <div className="text-2xl text-slate-500">
             <IoSearchOutline />
           </div>
           <input
             type="text"
             placeholder="Search for products here.."
-            className="border-0 rounded-xl bg-blue-50 placeholder:text-slate-500 hover:placeholder:text-slate-500 h-full px-2 py-4 w-full text-gray-700"
+            className="border-0 rounded-xl bg-transparent placeholder:text-slate-500 hover:placeholder:text-slate-500 h-full px-2 py-4 w-full text-gray-700"
           />
         </div>
 

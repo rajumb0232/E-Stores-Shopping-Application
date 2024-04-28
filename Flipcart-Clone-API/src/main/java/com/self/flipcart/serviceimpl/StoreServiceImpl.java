@@ -1,5 +1,6 @@
 package com.self.flipcart.serviceimpl;
 
+import com.self.flipcart.exceptions.InvalidPrimeCategoryException;
 import com.self.flipcart.exceptions.StoreNotFoundByIdException;
 import com.self.flipcart.mapper.StoreMapper;
 import com.self.flipcart.model.Store;
@@ -28,6 +29,8 @@ public class StoreServiceImpl implements StoreService {
 
     @Override
     public ResponseEntity<ResponseStructure<Store>> setUpStore(StoreRequest storeRequest) {
+        if (storeRequest.getCategory() == null)
+            throw new InvalidPrimeCategoryException("Failed to update the store data");
         Store store = StoreMapper.mapToStoreEntity(storeRequest, new Store());
         return userRepo.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).map(user -> sellerRepo.findById(user.getUserId())
                 .map(seller -> {

@@ -14,52 +14,39 @@ const SetUpStoreAndRelated = () => {
       <form className="flex justify-start items-start w-11/12 h-max px-10 pb-6 mt-20 rounded-lg">
         {/* SELECTOR */}
         <div className=" w-1/12 h-4/6 p-2 top-24 border-r-1 fixed flex flex-col justify-start items-start font-semibold text-slate-700 text-md">
-          <button
-            className={`w-max py-1 my-2 flex justify-center items-center border-r-2 border-b-2 border-r-white ${
-              view === "store" ? "border-blue-400 " : "border-transparent"
-            }`}
-            type="button"
+          <Tab
+            tabName={"Store"}
+            activeTabName={view}
             onClick={() => {
-              setView("store");
+              setView("Store");
               sessionStorage.setItem("editStoreView", true);
             }}
-          >
-            Store
-          </button>
-
-          <button
-            className={`w-max py-1 my-2 flex justify-center items-center border-b-2 ${
-              view === "address" ? "border-blue-400 " : "border-transparent"
-            }`}
-            type="button"
+          />
+          <Tab
+            tabName={"Address"}
+            activeTabName={view}
             onClick={() => {
-              setView("address");
+              setView("Address");
               sessionStorage.setItem("editStoreView", false);
             }}
-          >
-            Address
-          </button>
-          <button
-            className={`w-max py-1 my-2 flex justify-center items-center border-b-2 ${
-              view === "contacts" ? "border-blue-400 " : "border-transparent"
-            }`}
-            type="button"
+          />
+          <Tab
+            tabName={"Contacts"}
+            activeTabName={view}
             onClick={() => {
-              setView("contacts");
+              setView("Contacts");
               sessionStorage.setItem("editStoreView", false);
             }}
-          >
-            Contacts
-          </button>
+          />
         </div>
         {/* FORM */}
         <div className="w-10/12 h-full ml-auto flex justify-end px-2">
-          {view === "store" ? (
+          {view === "Store" ? (
             <AddStore />
-          ) : view === "address" ? (
+          ) : view === "Address" ? (
             <AddAddress />
           ) : (
-            view === "contacts" && <ContactForm />
+            view === "Contacts" && <ContactForm />
           )}
         </div>
       </form>
@@ -68,3 +55,22 @@ const SetUpStoreAndRelated = () => {
 };
 
 export default SetUpStoreAndRelated;
+
+export const Tab = ({ tabName, onClick, activeTabName }) => {
+  const [selected, setSelected] = useState(false);
+
+  return (
+    <button
+      className={`w-max py-1 my-2 flex justify-center items-center border-b-2 ${
+        tabName === activeTabName ? "border-blue-400 " : "border-transparent"
+      }`}
+      type="button"
+      onClick={() => {
+        setSelected(true);
+        onClick();
+      }}
+    >
+      {tabName}
+    </button>
+  );
+};

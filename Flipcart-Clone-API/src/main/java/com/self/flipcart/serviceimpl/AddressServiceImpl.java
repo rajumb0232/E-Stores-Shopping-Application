@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+
 @Service
 @AllArgsConstructor
 public class AddressServiceImpl implements AddressService {
@@ -24,6 +26,7 @@ public class AddressServiceImpl implements AddressService {
     public ResponseEntity<ResponseStructure<AddressResponse>> addAddressToStore(AddressRequest addressRequest, String storeId) {
         return storeRepo.findById(storeId).map(store -> {
             Address address = AddressMapper.mapToAddressEntity(addressRequest, new Address());
+            address.setContacts(new ArrayList<>());
             address = addressRepo.save(address);
             store.setAddress(address);
             storeRepo.save(store);
