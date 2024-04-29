@@ -22,6 +22,7 @@ public class AddressServiceImpl implements AddressService {
     private AddressRepo addressRepo;
     private StoreRepo storeRepo;
     private ResponseStructure<AddressResponse> structure;
+
     @Override
     public ResponseEntity<ResponseStructure<AddressResponse>> addAddressToStore(AddressRequest addressRequest, String storeId) {
         return storeRepo.findById(storeId).map(store -> {
@@ -30,9 +31,12 @@ public class AddressServiceImpl implements AddressService {
             address = addressRepo.save(address);
             store.setAddress(address);
             storeRepo.save(store);
-            return new ResponseEntity<>(structure.setStatus(HttpStatus.CREATED.value())
-                    .setMessage("Address saved successfully")
-                    .setData(AddressMapper.mapToAddressResponse(address)), HttpStatus.CREATED);
+
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(new ResponseStructure<AddressResponse>().setStatus(HttpStatus.CREATED.value())
+                            .setMessage("Address saved successfully")
+                            .setData(AddressMapper.mapToAddressResponse(address)));
         }).orElseThrow();
     }
 
@@ -41,24 +45,31 @@ public class AddressServiceImpl implements AddressService {
         System.out.println(addressRequest);
         return addressRepo.findById(addressId).map(address -> {
             address = addressRepo.save(AddressMapper.mapToAddressEntity(addressRequest, address));
-            return new ResponseEntity<>(structure.setStatus(HttpStatus.OK.value())
+            return ResponseEntity.ok(new ResponseStructure<AddressResponse>()
+                    .setStatus(HttpStatus.OK.value())
                     .setMessage("successfully updated address")
-                    .setData(AddressMapper.mapToAddressResponse(address)), HttpStatus.OK);
+                    .setData(AddressMapper.mapToAddressResponse(address)));
         }).orElseThrow();
     }
 
     @Override
     public ResponseEntity<ResponseStructure<AddressResponse>> getAddressById(String addressId) {
-        return addressRepo.findById(addressId).map(address -> new ResponseEntity<>(structure.setStatus(HttpStatus.FOUND.value())
-                .setMessage("Address found")
-                .setData(AddressMapper.mapToAddressResponse(address)), HttpStatus.FOUND)).orElseThrow();
+        return addressRepo.findById(addressId).map(address -> ResponseEntity
+                .status(HttpStatus.FOUND)
+                .body(new ResponseStructure<AddressResponse>()
+                        .setStatus(HttpStatus.FOUND.value())
+                        .setMessage("Address found")
+                        .setData(AddressMapper.mapToAddressResponse(address)))).orElseThrow();
     }
 
     @Override
     public ResponseEntity<ResponseStructure<AddressResponse>> getAddressByStore(String storeId) {
-        return storeRepo.findAddressByStoreId(storeId).map(address ->  new ResponseEntity<>(structure.setStatus(HttpStatus.FOUND.value())
-                .setMessage("Address found")
-                .setData(AddressMapper.mapToAddressResponse(address)), HttpStatus.FOUND)).orElseThrow();
+        return storeRepo.findAddressByStoreId(storeId).map(address -> ResponseEntity
+                .status(HttpStatus.FOUND)
+                .body(new ResponseStructure<AddressResponse>()
+                        .setStatus(HttpStatus.FOUND.value())
+                        .setMessage("Address found")
+                        .setData(AddressMapper.mapToAddressResponse(address)))).orElseThrow();
     }
 
 
