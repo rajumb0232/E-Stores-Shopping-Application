@@ -37,4 +37,5 @@ jobs:
         run: |
           cd E-Stores-API
           mvn -B verify
+          mvn sonar:sonar -Pcoverage
           mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=devb.e-stores
