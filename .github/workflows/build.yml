@@ -37,4 +37,14 @@ jobs:
         run: |
           cd E-Stores-API
           mvn -B verify
-          mvn sonar:sonar -Dsonar.projectKey=devb.e-stores
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env: 
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=devb.e-stores
+            -Dsonar.organization=devb
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.java.binaries=E-Stores-API/target/classes
