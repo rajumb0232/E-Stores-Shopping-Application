@@ -36,4 +36,15 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           cd E-Stores-API
-          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=devb.e-stores
+          mvn clean verify
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env: 
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=devb.e-stores
+            -Dsonar.organization=devb
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.java.binaries=E-Stores-API/target/classes
