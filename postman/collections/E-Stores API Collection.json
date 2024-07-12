@@ -1,0 +1,607 @@
+{
+	"info": {
+		"_postman_id": "946d2308-6cd6-43d1-b4cf-3d1a1c55d8de",
+		"name": "E-Stores API Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_uid": "36942562-946d2308-6cd6-43d1-b4cf-3d1a1c55d8de"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "register",
+					"id": "6607d1be-cff0-4fcf-b7b5-5bd2711b905e",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"rajugowda0232@gmail.com\",\r\n    \"password\":\"Raju@123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_URL}}/sellers/register",
+							"host": [
+								"{{base_URL}}"
+							],
+							"path": [
+								"sellers",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"id": "d900c704-3dcc-4218-9f80-e7f8b34a0415",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"rajugowda0232@gmail.com\",\r\n    \"password\":\"Raju@123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_URL}}/login",
+							"host": [
+								"{{base_URL}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "verify-OTP",
+					"id": "7347c1a0-f10e-42a8-9c8d-dcf6e33168da",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"rajugowda0232@gmail.com\",\r\n    \"otp\":239468\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_URL}}/verify-email",
+							"host": [
+								"{{base_URL}}"
+							],
+							"path": [
+								"verify-email"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "logout",
+					"id": "caa858c9-d6d2-4f6d-980f-5431f4835726",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_URL}}/logout",
+							"host": [
+								"{{base_URL}}"
+							],
+							"path": [
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "refresh-login",
+					"id": "01bc830d-c872-402f-8314-2acf13d5df5e",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_URL}}/refresh",
+							"host": [
+								"{{base_URL}}"
+							],
+							"path": [
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Revoke All Other Access",
+					"id": "891af876-66a8-419a-a5b6-372f8da78a3d",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_URL}}/revoke-other",
+							"host": [
+								"{{base_URL}}"
+							],
+							"path": [
+								"revoke-other"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Revoke All",
+					"id": "8413f268-920e-4a8d-807b-e1ede9771cb8",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_URL}}/revoke-all",
+							"host": [
+								"{{base_URL}}"
+							],
+							"path": [
+								"revoke-all"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "19df6e0e-f067-489a-82f0-f6df5a1e6eb1"
+		},
+		{
+			"name": "Store",
+			"item": [
+				{
+					"name": "set up store",
+					"id": "9b04168b-8fbc-4560-869a-929dc113a276",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"storeName\":\"Classy Dock\",\r\n    \"category\":\"FASHION\",\r\n    \"about\":\"Hey there! You're on the right place, your ultimate fashion destination The Classy Dock is up with latest collections. Grab yours with upto 50% OFF\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_URL}}/stores",
+							"host": [
+								"{{base_URL}}"
+							],
+							"path": [
+								"stores"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get store",
+					"id": "91f9f5ab-abd1-4360-9ec8-f17b86b0245b",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_URL}}/stores/fc202477fa8a6b-ca02-460e-bb1e-a08787307c25/display-type/complete",
+							"host": [
+								"{{base_URL}}"
+							],
+							"path": [
+								"stores",
+								"fc202477fa8a6b-ca02-460e-bb1e-a08787307c25",
+								"display-type",
+								"complete"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update store",
+					"id": "f09bade8-ee21-4a4c-a8cb-bafce02ed31c",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"storeName\":\"abc\",\r\n    \"about\":\"nothing\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_URL}}/stores/fc20249f93a258-0db1-446f-9a88-043f6c386b4a",
+							"host": [
+								"{{base_URL}}"
+							],
+							"path": [
+								"stores",
+								"fc20249f93a258-0db1-446f-9a88-043f6c386b4a"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "49c0ee15-a68a-4b2c-a3c7-ca2b17dfd6f2"
+		},
+		{
+			"name": "Image",
+			"item": [
+				{
+					"name": "addStoreImage",
+					"id": "e45e5725-7be2-4079-929d-4681d2466b0f",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/C:/Users/rajug/Pictures/Picture10.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_URL}}/stores/fc2024837ed4f7-deab-4e6d-a3f7-13906c8961c8/images",
+							"host": [
+								"{{base_URL}}"
+							],
+							"path": [
+								"stores",
+								"fc2024837ed4f7-deab-4e6d-a3f7-13906c8961c8",
+								"images"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getImageById",
+					"id": "557fdb29-ff8c-4b16-b93f-dd50a5b0661b",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_URL}}/images/65ee8eda53657b03f1cf6592",
+							"host": [
+								"{{base_URL}}"
+							],
+							"path": [
+								"images",
+								"65ee8eda53657b03f1cf6592"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "3affdafd-1896-477b-996a-8aed3b741d02"
+		},
+		{
+			"name": "Product",
+			"item": [
+				{
+					"name": "Add Simple Product",
+					"id": "f8337595-263c-4348-9a08-fd9ce76180c5",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Men Regular Fit Printed Spread Collar Casual Shirt\",\r\n    \"description\": \"This casual shirt is a versatile addition to your wardrobe, effortlessly pairing with jeans, chinos, or even dressier slacks. The regular fit ensures that the shirt feels neither too tight nor too loose and provides a comfortable fit.\",\r\n    \"variable\": true,\r\n    \"subCategory\": \"MENS_TOP_WEAR\",\r\n    \"productType\": \"T-sHirts\",\r\n    \"price\": 599,\r\n    \"stockQuantity\": 80,\r\n    \"specifications\": {\r\n        \"material\": \"Cotton\",\r\n        \"color\": \"Black\",\r\n        \"size\": \"M\",\r\n        \"gender\": \"Male\",\r\n        \"sleeve\": \"Short Sleeve\",\r\n        \"neck_style\": \"Round Neck\",\r\n        \"print_design\": \"None\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_URL}}/stores/fc202457d8c82b-3aea-4e78-86b3-8242ad8cf937/simple-products",
+							"host": [
+								"{{base_URL}}"
+							],
+							"path": [
+								"stores",
+								"fc202457d8c82b-3aea-4e78-86b3-8242ad8cf937",
+								"simple-products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Varying Product",
+					"id": "9163c68f-7b6f-40d6-963a-c0212979578e",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Men Regular Fit Printed Spread Collar Casual Shirt\",\r\n    \"description\": \"This casual shirt is a versatile addition to your wardrobe, effortlessly pairing with jeans, chinos, or even dressier slacks. The regular fit ensures that the shirt feels neither too tight nor too loose and provides a comfortable fit.\",\r\n    \"subCategory\": \"MENS_TOP_WEAR\",\r\n    \"productType\": \"T-sHirts\",\r\n    \"specifications\": {\r\n        \"material\": \"Cotton\",\r\n        \"color\": \"Black\",\r\n        \"size\": \"M\",\r\n        \"gender\": \"Male\",\r\n        \"sleeve\": \"Short Sleeve\",\r\n        \"neck_style\": \"Round Neck\",\r\n        \"print_design\": \"None\"\r\n    },\r\n    \"variantBy\": [\r\n        \"color\"\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_URL}}/stores/fc202457d8c82b-3aea-4e78-86b3-8242ad8cf937/varying-products",
+							"host": [
+								"{{base_URL}}"
+							],
+							"path": [
+								"stores",
+								"fc202457d8c82b-3aea-4e78-86b3-8242ad8cf937",
+								"varying-products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Variant By",
+					"id": "9029e3f0-10d5-48ea-bc21-c05f81144a8a",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_URL}}/products/66350b9eb974710312775aac?spec_names=color,size,print_design",
+							"host": [
+								"{{base_URL}}"
+							],
+							"path": [
+								"products",
+								"66350b9eb974710312775aac"
+							],
+							"query": [
+								{
+									"key": "spec_names",
+									"value": "color,size,print_design"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get product by ID",
+					"id": "cec5a8f8-c789-4b13-9e59-a44b46ccec78",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_URL}}/products/6638d8ce0f85cd6d411e46a6",
+							"host": [
+								"{{base_URL}}"
+							],
+							"path": [
+								"products",
+								"6638d8ce0f85cd6d411e46a6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Full Text Search",
+					"id": "a83df35f-f96a-444b-a657-e114d9fda80e",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_URL}}/products?text=casual shirts",
+							"host": [
+								"{{base_URL}}"
+							],
+							"path": [
+								"products"
+							],
+							"query": [
+								{
+									"key": "text",
+									"value": "casual shirts"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "a2c9d0e5-64c1-429b-a40e-1ebd888ec695"
+		},
+		{
+			"name": "Product Type",
+			"item": [
+				{
+					"name": "Add Product Types",
+					"id": "8a25315d-ccde-411f-94a8-8e243a259cca",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_URL}}/top-categories/fashion/sub-categories/mens_top_wear/product-types?productTypes=shirts, hoodies, jackets,t-shirts",
+							"host": [
+								"{{base_URL}}"
+							],
+							"path": [
+								"top-categories",
+								"fashion",
+								"sub-categories",
+								"mens_top_wear",
+								"product-types"
+							],
+							"query": [
+								{
+									"key": "productTypes",
+									"value": "shirts, hoodies, jackets,t-shirts"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "c7eee65b-569c-4497-9407-3931ee4fdb0b"
+		},
+		{
+			"name": "Variants",
+			"item": [
+				{
+					"name": "add-variants",
+					"id": "a7be9038-dfad-472c-b4c6-7a109792fbd6",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n    {\r\n        \"name\": \"\",\r\n        \"value\": \"\"\r\n    },\r\n    {\r\n        \"name\": \"\",\r\n        \"value\": \"\"\r\n    },\r\n    {\r\n        \"name\": \"\",\r\n        \"value\": \"\"\r\n    }\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_URL}}/products/<productId>/variants",
+							"host": [
+								"{{base_URL}}"
+							],
+							"path": [
+								"products",
+								"<productId>",
+								"variants"
+							]
+						}
+					},
+					"response": [
+						{
+							"id": "bdde3300-d41d-4718-91b8-7a53aaee71c2",
+							"name": "add-variants",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[\r\n    {\r\n        \"price\": 899,\r\n        \"specifications\": {\r\n            \"color\": \"Black\"\r\n        },\r\n        \"metricType\": \"SIZE\",\r\n        \"unitsAvailableByMetric\":[\r\n            {\r\n                \"metricValue\": \"S\",\r\n                \"unitsAvailable\": 60\r\n            },\r\n            {\r\n                \"metricValue\": \"M\",\r\n                \"unitsAvailable\": 27\r\n            },\r\n            {\r\n                \"metricValue\": \"XXL\",\r\n                \"unitsAvailable\": 5\r\n            }\r\n        ]\r\n    },\r\n    {\r\n        \"price\": 927,\r\n        \"specifications\": {\r\n            \"color\": \"White\"\r\n        },\r\n        \"metricType\": \"SIZE\",\r\n        \"unitsAvailableByMetric\":[\r\n            {\r\n                \"metricValue\": \"S\",\r\n                \"unitsAvailable\": 20\r\n            },\r\n            {\r\n                \"metricValue\": \"M\",\r\n                \"unitsAvailable\": 17\r\n            },\r\n            {\r\n                \"metricValue\": \"XXL\",\r\n                \"unitsAvailable\": 25\r\n            }\r\n        ]\r\n    }\r\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_URL}}/products/66388fba267db6736b11401f/variants",
+									"host": [
+										"{{base_URL}}"
+									],
+									"path": [
+										"products",
+										"66388fba267db6736b11401f",
+										"variants"
+									]
+								}
+							},
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				}
+			],
+			"id": "958bbf0f-b382-4c2b-8e17-f6b56d8c7883"
+		}
+	]
+}
