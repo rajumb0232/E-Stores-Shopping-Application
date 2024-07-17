@@ -11,6 +11,22 @@
 			"item": [
 				{
 					"name": "register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "bd3089a9-c142-4098-8b77-00d759014b8a",
+								"exec": [
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"  pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"id": "6607d1be-cff0-4fcf-b7b5-5bd2711b905e",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
@@ -20,7 +36,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\":\"rajugowda0232@gmail.com\",\r\n    \"password\":\"Raju@123\"\r\n}",
+							"raw": "{\r\n    \"email\":\"rajugowda0242@gmail.com\",\r\n    \"password\":\"Raju@123\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -194,7 +210,8 @@
 					"response": []
 				}
 			],
-			"id": "19df6e0e-f067-489a-82f0-f6df5a1e6eb1"
+			"id": "19df6e0e-f067-489a-82f0-f6df5a1e6eb1",
+			"description": "The Folder contains all the Endpoints related to Authentication"
 		},
 		{
 			"name": "Store",
